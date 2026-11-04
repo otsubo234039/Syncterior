@@ -2,6 +2,8 @@
 
 ROOM/PLAN — React Three Fiber 3D家具配置シミュレーター
 
+Coding agent向けの開発・コミット規約は [AGENTS.md](AGENTS.md) を参照してください。
+
 ## ディレクトリ構成
 
 ```text
