@@ -1,0 +1,57 @@
+export const catalog = [{
+  type: 'sofa',
+  name: '2人掛けソファ',
+  w: 1.6,
+  d: .82,
+  h: .78,
+  color: '#9eab9a'
+}, {
+  type: 'bed',
+  name: 'ダブルベッド',
+  w: 1.4,
+  d: 2,
+  h: .48,
+  color: '#d5c7b5'
+}, {
+  type: 'table',
+  name: 'ローテーブル',
+  w: 1.0,
+  d: .55,
+  h: .38,
+  color: '#b88b62'
+}, {
+  type: 'desk',
+  name: 'デスク',
+  w: 1.2,
+  d: .6,
+  h: .74,
+  color: '#b88b62'
+}, {
+  type: 'chair',
+  name: 'ダイニングチェア',
+  w: .48,
+  d: .5,
+  h: .82,
+  color: '#d1a879'
+}, {
+  type: 'tv',
+  name: 'テレビ台＋TV',
+  w: 1.2,
+  d: .36,
+  h: .72,
+  color: '#5c6268'
+}, {
+  type: 'fridge',
+  name: '冷蔵庫',
+  w: .62,
+  d: .68,
+  h: 1.75,
+  color: '#c9d1d4'
+}, {
+  type: 'lamp',
+  name: 'フロアランプ',
+  w: .32,
+  d: .32,
+  h: 1.55,
+  color: '#d4b86c'
+}];

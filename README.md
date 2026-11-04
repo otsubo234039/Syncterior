@@ -7,7 +7,7 @@ ROOM/PLAN — React Three Fiber 3D家具配置シミュレーター
 ```text
 .
 ├── frontend/          # React / Vite / React Three Fiber
-│   ├── src/           # UI・3D表示・スタイル
+│   ├── src/           # app・共通UI・機能単位の実装
 │   ├── index.html
 │   ├── package.json   # フロントエンド専用の依存関係・コマンド
 │   └── package-lock.json
@@ -17,6 +17,8 @@ ROOM/PLAN — React Three Fiber 3D家具配置シミュレーター
 ├── .gitignore
 └── README.md
 ```
+
+フロントエンド内部の構成・依存ルールは [frontend/README.md](frontend/README.md) を参照してください。
 
 フロントエンドとバックエンドは、それぞれのディレクトリで依存関係・設定・起動・ビルドを管理します。バックエンドの実行環境は未選定です。実装時は `backend/` に専用の依存関係定義やロックファイルを配置してください。
 
