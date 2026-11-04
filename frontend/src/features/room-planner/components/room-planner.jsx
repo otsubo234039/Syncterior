@@ -3,26 +3,39 @@ import { useRoomPlanner } from '../hooks/use-room-planner';
 import { PlannerSidebar } from './planner-sidebar';
 import { PlannerCanvas } from './planner-canvas';
 import { FurnitureProperties } from './furniture-properties';
+import { RoomSharing } from './room-sharing';
+
 export function RoomPlanner() {
   const planner = useRoomPlanner();
-  const {
-    plan,
-    items,
-    planKey,
-    changePlan,
-    addItem,
-    active,
-    rotate,
-    update
-  } = planner;
+  const { plan, items, planKey, changePlan, addItem, active, rotate, update, editable,
+    collaboration, shareRoom, shareUrl, reconnect, leaveRoom } = planner;
   const totalArea = (plan.w * plan.d).toFixed(1);
+
   return <>
- <PlannerSidebar planKey={planKey} changePlan={changePlan} addItem={addItem} />
- <section className="workspace">
-    <div className="workspace-top"><div><div className="eyebrow">YOUR SPACE</div><h1>{plan.name}<span> / 3Dレイアウト</span></h1><p>{plan.desc}</p></div><div className="room-metrics"><div><span>ROOM SIZE</span><strong>{totalArea}<small> m²</small></strong></div><div><span>FURNITURE</span><strong>{items.length}<small> 点</small></strong></div></div></div>
-<PlannerCanvas {...planner} />
-    <div className="workspace-bottom"><div className="hint"><span className="hint-key">TIP</span> 家具をクリックして選択、ドラッグして配置を調整</div><div className="controls-hint"><span>左ドラッグ：回転</span><span>スクロール：ズーム</span></div></div>
-<FurnitureProperties active={active} plan={plan} rotate={rotate} update={update} />
- </section>
- </>;
+    <PlannerSidebar planKey={planKey} changePlan={changePlan} addItem={addItem}
+      editable={editable} canAdd={items.length < 200} />
+    <section className="workspace">
+      <RoomSharing collaboration={collaboration} shareRoom={shareRoom} shareUrl={shareUrl}
+        reconnect={reconnect} leaveRoom={leaveRoom} />
+      {!collaboration.loaded ? <div className="shared-room-placeholder" role="status">
+        <h1>{collaboration.status === 'error' ? '共有された部屋を開けませんでした' : '共有された部屋を読み込んでいます…'}</h1>
+        <p>接続が完了すると、最新の配置が表示されます。</p>
+        <button className="sharing-button" onClick={leaveRoom}>個人編集に戻る</button>
+      </div> : <>
+        <div className="workspace-top">
+          <div><div className="eyebrow">YOUR SPACE</div><h1>{plan.name}<span> / 3Dレイアウト</span></h1><p>{plan.desc}</p></div>
+          <div className="room-metrics">
+            <div><span>ROOM SIZE</span><strong>{totalArea}<small> m²</small></strong></div>
+            <div><span>FURNITURE</span><strong>{items.length}<small> 点</small></strong></div>
+          </div>
+        </div>
+        <PlannerCanvas {...planner} />
+        <div className="workspace-bottom">
+          <div className="hint"><span className="hint-key">TIP</span>{editable ? '家具をクリックして選択、ドラッグして配置を調整' : '接続が戻るまで配置の編集を一時停止しています'}</div>
+          <div className="controls-hint"><span>左ドラッグ：回転</span><span>スクロール：ズーム</span></div>
+        </div>
+        <FurnitureProperties active={active} plan={plan} rotate={rotate} update={update} editable={editable} />
+      </>}
+    </section>
+  </>;
 }

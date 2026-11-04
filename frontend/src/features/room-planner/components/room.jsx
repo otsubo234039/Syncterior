@@ -7,7 +7,8 @@ export function Room({
   items,
   selected,
   setSelected,
-  moveItem
+  moveItem,
+  editable = true
 }) {
   const p = plans[planKey],
     wall = .09;
@@ -27,7 +28,7 @@ export function Room({
       pos: [0, p.h / 2, p.d / 2],
       size: [p.w, p.h, wall]
     }].map((w, i) => <mesh key={i} position={w.pos} castShadow><boxGeometry args={w.size} /><meshStandardMaterial color="#f7f4ed" roughness={.92} transparent opacity={.78} /></mesh>)}
-  {items.map(item => <Furniture key={item.id} item={item} selected={selected === item.id} onSelect={setSelected} onMove={moveItem} />)}
+  {items.map(item => <Furniture key={item.id} item={item} selected={selected === item.id} onSelect={setSelected} onMove={moveItem} editable={editable} />)}
   <ContactShadows position={[0, -.02, 0]} opacity={.22} scale={Math.max(p.w, p.d) * 1.5} blur={2.5} far={3} />
  </group>;
 }
