@@ -4,9 +4,10 @@ export function Furniture({
   item,
   selected,
   onSelect,
-  onMove
+  onMove,
+  editable = true
 }) {
-  const drag = useFurnitureDrag();
+  const drag = useFurnitureDrag(editable);
   const shape = item.type;
   const color = item.color;
   const mats = c => <meshStandardMaterial color={c} roughness={.78} />;
@@ -23,7 +24,7 @@ export function Furniture({
     e.stopPropagation();
     onSelect(item.id);
   }} onPointerDown={event => {
-    if (drag.begin(event, item)) onSelect(item.id);
+    if (editable && drag.begin(event, item)) onSelect(item.id);
   }} onPointerUp={drag.end} onPointerCancel={drag.end} onLostPointerCapture={drag.end} onPointerMove={event => {
     drag.move(event, (x, z) => onMove(item.id, x, z));
   }}>
