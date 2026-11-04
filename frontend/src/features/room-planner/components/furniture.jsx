@@ -1,12 +1,12 @@
 import React from 'react';
-import { useState } from 'react';
+import { useFurnitureDrag } from '../hooks/use-furniture-drag';
 export function Furniture({
   item,
   selected,
   onSelect,
   onMove
 }) {
-  const [dragging, setDragging] = useState(false);
+  const drag = useFurnitureDrag();
   const shape = item.type;
   const color = item.color;
   const mats = c => <meshStandardMaterial color={c} roughness={.78} />;
@@ -22,16 +22,10 @@ export function Furniture({
   return <group position={[item.x, 0, item.z]} rotation={[0, item.rot, 0]} onClick={e => {
     e.stopPropagation();
     onSelect(item.id);
-  }} onPointerDown={e => {
-    e.stopPropagation();
-    setDragging(true);
-    e.target.setPointerCapture?.(e.pointerId);
-  }} onPointerUp={() => setDragging(false)} onPointerMove={e => {
-    if (dragging && e.buttons === 1) {
-      e.stopPropagation();
-      const p = e.point;
-      onMove(item.id, p.x, p.z);
-    }
+  }} onPointerDown={event => {
+    if (drag.begin(event, item)) onSelect(item.id);
+  }} onPointerUp={drag.end} onPointerCancel={drag.end} onLostPointerCapture={drag.end} onPointerMove={event => {
+    drag.move(event, (x, z) => onMove(item.id, x, z));
   }}>
   {parts()}
   {selected && <mesh position={[0, .015, 0]}><boxGeometry args={[item.w + .12, .018, item.d + .12]} /><meshBasicMaterial color="#5b8f78" wireframe /></mesh>}
