@@ -1,5 +1,5 @@
-import { plans } from '../data/plans';
-import { catalog } from '../data/catalog';
+import { plans } from '../data/plans.js';
+import { catalog } from '../data/catalog.js';
 export const uid = () => Math.random().toString(36).slice(2, 9);
 export function initialFurniture(planKey) {
   const p = plans[planKey],
