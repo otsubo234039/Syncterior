@@ -1,9 +1,24 @@
 // In-memory API fixture for UI tests, not a production backend.
 import { createServer } from 'node:http';
 import { randomBytes } from 'node:crypto';
+import { plans } from '../../src/features/room-planner/data/plans.js';
 
 const rooms = new Map();
 const subscribers = new Map();
+// テストAPI側でも四隅から独立に境界を求め、確定通知で補正を取り消さない。
+function constrain(item, planKey, previous) {
+  if (![item.w, item.d, item.rot, item.x, item.z].every(Number.isFinite) || item.w <= 0 || item.d <= 0) return previous;
+  const corners = [-1, 1].flatMap(x => [-1, 1].map(z => ({
+    x: x * item.w / 2 * Math.cos(item.rot) + z * item.d / 2 * Math.sin(item.rot),
+    z: -x * item.w / 2 * Math.sin(item.rot) + z * item.d / 2 * Math.cos(item.rot),
+  })));
+  const limitX = plans[planKey].w / 2 - Math.max(...corners.map(corner => Math.abs(corner.x)));
+  const limitZ = plans[planKey].d / 2 - Math.max(...corners.map(corner => Math.abs(corner.z)));
+  if (limitX < -1e-10 || limitZ < -1e-10) return previous;
+  const x = Math.max(0, limitX);
+  const z = Math.max(0, limitZ);
+  return { ...item, x: Math.max(-x, Math.min(x, item.x)), z: Math.max(-z, Math.min(z, item.z)) };
+}
 function json(response, status, body) {
   response.writeHead(status, { 'Content-Type': 'application/json' });
   response.end(JSON.stringify(body));
@@ -53,8 +68,8 @@ createServer(async (request, response) => {
       switch (operation.type) {
         case 'add': room.items.push(operation.item); break;
         case 'remove': room.items = room.items.filter(item => item.id !== operation.id); break;
-        case 'update': room.items = room.items.map(item => item.id === operation.id ? { ...item, ...operation.patch } : item); break;
-        case 'rotate': room.items = room.items.map(item => item.id === operation.id ? { ...item, rot: (item.rot + Math.PI / 2) % (Math.PI * 2) } : item); break;
+        case 'update': room.items = room.items.map(item => item.id === operation.id ? constrain({ ...item, ...operation.patch }, room.planKey, item) : item); break;
+        case 'rotate': room.items = room.items.map(item => item.id === operation.id ? constrain({ ...item, rot: (item.rot + Math.PI / 2) % (Math.PI * 2) }, room.planKey, item) : item); break;
         case 'change-plan': room.planKey = operation.planKey; room.items = operation.items; room.planVersion++; break;
         default: return json(response, 400, { error: '不正な操作です。' });
       }

@@ -49,3 +49,23 @@ test('共有API未設定時に利用状況を案内し、Escapeキーでダイ�
   await page.getByRole('button', { name: /^デスク/ }).click();
   await expect(furnitureCount(page)).toContainText('5');
 });
+
+test('長方形家具を壁際で回転・数値移動しても各方向の境界に収まり中央へ戻らない', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /^ダブルベッド/ }).click();
+  const x = page.getByLabel('左右位置 (X)');
+  const z = page.getByLabel('前後位置 (Z)');
+  await x.fill('99');
+  await z.fill('99');
+  await expect(x).toHaveValue('2.0');
+  await expect(z).toHaveValue('1.1');
+  for (const [maxX, maxZ, sign] of [[1.7, 1.4, 1], [2, 1.1, 1], [1.7, 1.4, -1], [2, 1.1, -1]]) {
+    await page.getByRole('button', { name: '90° 回転' }).click();
+    await expect(x).not.toHaveValue('0.0');
+    await expect(z).not.toHaveValue('0.0');
+    await x.fill(String(sign * 99));
+    await z.fill(String(sign * 99));
+    await expect(x).toHaveValue((sign * maxX).toFixed(1));
+    await expect(z).toHaveValue((sign * maxZ).toFixed(1));
+  }
+});

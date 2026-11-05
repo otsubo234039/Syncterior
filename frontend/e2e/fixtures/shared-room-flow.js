@@ -25,6 +25,22 @@ export async function verifySharedRoom({ page, guestPage: guest, sceneMode }) {
     await waitForScene(page);
     await waitForScene(guest);
   }
+  const guestDraws = sceneMode === 'full' ? await drawCalls(guest) : 0;
+  await page.getByLabel('左右位置 (X)').fill('99');
+  await page.getByLabel('前後位置 (Z)').fill('99');
+  await expect(page.locator('.sharing-summary')).toContainText('変更は同期済み');
+  await page.getByRole('button', { name: '90° 回転' }).click();
+  await expect(page.locator('.sharing-summary')).toContainText('変更は同期済み');
+  await expect(page.getByLabel('左右位置 (X)')).toHaveValue('2.1');
+  await expect(page.getByLabel('前後位置 (Z)')).toHaveValue('1.5');
+  await expect.poll(async () => {
+    const response = await guest.request.get(`/api/rooms/${new URL(url).searchParams.get('room')}`);
+    expect(response.ok()).toBe(true);
+    const stored = await response.json();
+    const desk = stored.items.find(item => item.type === 'desk');
+    return desk && [desk.x, desk.z, desk.rot].map(value => Number(value.toFixed(6)));
+  }).toEqual([2.1, 1.5, 1.570796]);
+  if (sceneMode === 'full') await expect.poll(() => drawCalls(guest)).toBeGreaterThan(guestDraws);
   const previousDrawCalls = sceneMode === 'full' ? await drawCalls(page) : 0;
   await guest.getByRole('button', { name: /^ダイニングチェア/ }).click();
   await expect(count(page)).toContainText('6');
