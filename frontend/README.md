@@ -82,7 +82,7 @@ npm run test:e2e
 # 一つのプロジェクトだけ実行
 npm run test:e2e -- --project=desktop
 
-# Playwrightの対話モード（GUI利用可能な環境）
+# Playwrightの対話モード（ブラウザ経由。Codespacesでも利用可能）
 npm run test:e2e:ui
 
 # 実行結果のHTMLレポート
@@ -116,3 +116,11 @@ E2Eは本番ビルドを一度だけ`dist-e2e/app/`へ作成し、実行時設�
 3D描画は`frameloop="demand"`で変更時だけ行います。新しいアニメーションや外部からの直接変更を追加する場合は、必要な`invalidate()`と停止条件を確認してください。
 
 トレースは`on-first-retry`です。ローカルはリトライしないため、トレースで調査する場合は`npm run test:e2e -- --trace=retain-on-failure`で再現してください。スクリーンショットとHTMLレポートは通常実行でも保存します。
+
+### CodespacesでUIモードを開く
+
+`npm run test:e2e:ui`はUIサーバーを`0.0.0.0:8080`で起動します。Codespacesの「ポート」タブで8080番を「ブラウザーで開く」から表示してください。ポートの可視性は「Private」のまま使用します。別の端末では表示されたURLでUIを開き、テストを選んで実行できます。終了は実行ターミナルでCtrl+Cを押します。
+
+通常の`--ui`だけではローカルのGUIブラウザを起動するため、X Serverのない環境で`Browser.getVersion` / `session closed`が発生します。ブラウザ経由のUIモードはX Serverを必要としません。8080番が使用中なら`npm run test:e2e:ui -- --ui-port=8081`のように変更し、同じ番号を転送してください。4173〜4175番は引き続きテスト用に使用します。GUIウィンドウを直接開く環境では`npm run test:e2e -- --ui`も使用できます。
+
+この設定は[PlaywrightのCodespaces向けUIモード手順](https://playwright.dev/docs/test-ui-mode#docker--github-codespaces)に沿っています。CIは引き続き通常のヘッドレスE2Eを実行します。

@@ -168,3 +168,5 @@ docs: コーディングエージェント向けガイドを追加
 - 3Dだけの確認には`npm run test:e2e --prefix frontend -- --project=3d --no-deps`を使えます。最終確認では通常の全件コマンドを実行してください。
 
 - トレースの常時記録はUI18ケースで約149秒→117秒の差があったため、`on-first-retry`を使用します（CIのリトライ回数は既存の1回を維持）。ローカルはリトライなしのため、調査時は`npm run test:e2e --prefix frontend -- --trace=retain-on-failure`で明示的に記録します。速度のために失敗の証跡を隠さず、スクリーンショットとHTMLレポートは維持してください。
+
+- Codespacesでは`npm run test:e2e:ui --prefix frontend`でブラウザ経由のUIを8080番に起動し、転送ポートをPrivateのまま開きます。X Serverがない環境で`--ui`だけを起動しないでください。UI起動の変更は、GUIなしでUIサーバーとブラウザからの表示を確認します。CIの通常E2Eはヘッドレスのままです。
