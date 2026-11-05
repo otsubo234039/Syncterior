@@ -124,3 +124,5 @@ E2Eは本番ビルドを一度だけ`dist-e2e/app/`へ作成し、実行時設�
 通常の`--ui`だけではローカルのGUIブラウザを起動するため、X Serverのない環境で`Browser.getVersion` / `session closed`が発生します。ブラウザ経由のUIモードはX Serverを必要としません。8080番が使用中なら`npm run test:e2e:ui -- --ui-port=8081`のように変更し、同じ番号を転送してください。4173〜4175番は引き続きテスト用に使用します。GUIウィンドウを直接開く環境では`npm run test:e2e -- --ui`も使用できます。
 
 この設定は[PlaywrightのCodespaces向けUIモード手順](https://playwright.dev/docs/test-ui-mode#docker--github-codespaces)に沿っています。CIは引き続き通常のヘッドレスE2Eを実行します。
+
+クリップボードの成功ケースはテスト対象originだけに権限を与え、対象ページをアクティブにして実際の読み書きを確認します。拒否ケースは`writeText`の拒否を再現し、案内・フォーカス・リンク全文の選択範囲をリトライ付きアサーションで検証します。UIモードでタイムアウトした場合は、クリップボードの権限エラーか、準備や選択範囲確認の待機かをトレースで確認してください。

@@ -10,11 +10,13 @@ async function share(page) {
 }
 
 test('共有リンクを作成・コピーし、確定済みの配置を保って退出できる', async ({ page, context }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
   await page.goto('/');
   await page.getByRole('button', { name: /^デスク/ }).click();
   const url = await share(page);
   expect(new URL(url).searchParams.get('room')).toMatch(/^[\w-]{32}$/);
+  // UIモードでも実クリップボードを使うページをアクティブにする。
+  await page.bringToFront();
   await page.getByRole('button', { name: 'コピー', exact: true }).click();
   await expect(page.getByRole('button', { name: 'コピー済み' })).toBeVisible();
   await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(url);
@@ -33,8 +35,10 @@ test('クリップボードへのアクセスが拒否された場合に手動�
   const url = await share(page);
   await page.getByRole('button', { name: 'コピー', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('手動でコピー');
-  await expect(page.getByLabel('編集用リンク')).toBeFocused();
-  expect(await page.getByLabel('編集用リンク').evaluate(input => input.selectionEnd - input.selectionStart)).toBe(url.length);
+  const link = page.getByLabel('編集用リンク');
+  await expect(link).toBeFocused();
+  await expect(link).toHaveJSProperty('selectionStart', 0);
+  await expect(link).toHaveJSProperty('selectionEnd', url.length);
 });
 
 test('2つのブラウザから同じ部屋に参加し、家具・間取り・参加人数が同期される', verifySharedRoom);
