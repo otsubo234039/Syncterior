@@ -34,13 +34,8 @@ export function projectRoom(snapshot, pending) {
   ), snapshot);
 }
 
-export function isRoomSnapshot(value) {
-  return Boolean(value && /^[a-zA-Z0-9_-]{32}$/.test(value.id)
-    && Number.isSafeInteger(value.revision) && value.revision >= 0
-    && Number.isSafeInteger(value.planVersion) && value.planVersion >= 0
-    && Object.hasOwn(plans, value.planKey)
-    && Array.isArray(value.appliedOperationIds)
-    && value.appliedOperationIds.every(id => typeof id === 'string')
+export function isRoomLayout(value) {
+  return Boolean(value && Object.hasOwn(plans, value.planKey)
     && Array.isArray(value.items) && value.items.length <= 200
     && new Set(value.items.map(item => item?.id)).size === value.items.length
     && value.items.every(item => item
@@ -50,4 +45,12 @@ export function isRoomSnapshot(value) {
       && ['w', 'd', 'h', 'x', 'z', 'rot'].every(key => Number.isFinite(item[key]) && Math.abs(item[key]) < 10000)
       && item.w > 0 && item.d > 0 && item.h > 0
       && typeof item.color === 'string' && /^#[\da-f]{6}$/i.test(item.color)));
+}
+
+export function isRoomSnapshot(value) {
+  return Boolean(isRoomLayout(value) && /^[a-zA-Z0-9_-]{32}$/.test(value.id)
+    && Number.isSafeInteger(value.revision) && value.revision >= 0
+    && Number.isSafeInteger(value.planVersion) && value.planVersion >= 0
+    && Array.isArray(value.appliedOperationIds)
+    && value.appliedOperationIds.every(id => typeof id === 'string'));
 }

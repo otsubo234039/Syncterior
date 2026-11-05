@@ -32,6 +32,16 @@ async function observeDrawCalls(context) {
 export const drawCalls = page => page.evaluate(() => window.__e2eDrawCalls);
 export const waitForScene = page => expect.poll(() => drawCalls(page)).toBeGreaterThan(0);
 
+export async function waitForSceneToSettle(page) {
+  await waitForScene(page);
+  // 最初の描画だけではカメラ・配置の反映が終わっていないことがある。
+  await expect.poll(() => page.evaluate(async () => {
+    const before = window.__e2eDrawCalls;
+    for (let frame = 0; frame < 3; frame++) await new Promise(requestAnimationFrame);
+    return before === window.__e2eDrawCalls;
+  })).toBe(true);
+}
+
 async function prepareScene(context, mode) {
   // Both preview origins serve one build. Exercise the public runtime override.
   await context.addInitScript(() => {

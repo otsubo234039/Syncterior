@@ -4,12 +4,24 @@ import { initialFurniture, uid } from '../utils/furniture';
 import { createRoomSession } from '../utils/room-session';
 import { roomLink, sharedRoomId } from '../utils/room-link';
 import { roomApi } from '../api/room-api';
+import { createLocalRoomStorage } from '../utils/local-room-storage';
 
 export function useRoomPlanner() {
+  const [local] = useState(() => {
+    const storage = createLocalRoomStorage();
+    const roomId = sharedRoomId(window.location.href);
+    // 共有リンクでは個人保存を読み込まず、共有先の取得を優先する。
+    return { storage, roomId, restored: roomId ? { room: null, error: '' } : storage.load() };
+  });
+  const [localSave, setLocalSave] = useState(() => ({
+    error: local.restored.error,
+    message: local.restored.room ? '保存した個人配置を復元しました。' : '個人編集はこのブラウザに自動保存されます。',
+  }));
   const [session] = useState(() => createRoomSession({
     api: roomApi,
-    initialRoom: { planKey: 'studio', items: initialFurniture('studio') },
-    roomId: sharedRoomId(window.location.href),
+    initialRoom: local.restored.room ?? { planKey: 'studio', items: initialFurniture('studio') },
+    roomId: local.roomId,
+    onLocalChange: room => setLocalSave({ ...local.storage.save(room), message: '個人配置をこのブラウザに保存しました。' }),
     onRoomChange: id => window.history.replaceState(null, '', roomLink(window.location.href, id)),
   }));
   const collaboration = useSyncExternalStore(session.subscribe, session.getSnapshot);
@@ -42,12 +54,20 @@ export function useRoomPlanner() {
   const removeSelected = () => {
     if (selected && session.dispatch({ type: 'remove', id: selected })) setSelected(null);
   };
+  const clearLocalSave = () => setLocalSave({
+    ...local.storage.clear(), message: '保存した個人配置を消去しました。画面の配置は残り、次の個人編集から再び保存します。',
+  });
+  const leaveRoom = () => {
+    session.leave();
+    setLocalSave({ error: '', message: '共有から退出しました。個人保存は変更していません。次の編集から保存します。' });
+  };
 
   return {
     planKey, plan, items, selected, active, showSizes, editable,
     changePlan, addItem, update, moveItem, rotate, setSelected, removeSelected,
     toggleSizes: () => setShowSizes(value => !value),
-    collaboration, shareRoom: session.share, reconnect: session.reconnect, leaveRoom: session.leave,
+    collaboration, shareRoom: session.share, reconnect: session.reconnect, leaveRoom,
+    localSave, clearLocalSave,
     shareUrl: collaboration.roomId ? roomLink(window.location.href, collaboration.roomId) : '',
   };
 }

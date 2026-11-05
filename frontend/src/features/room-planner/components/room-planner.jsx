@@ -17,6 +17,10 @@ export function RoomPlanner() {
     <section className="workspace">
       <RoomSharing collaboration={collaboration} shareRoom={shareRoom} shareUrl={shareUrl}
         reconnect={reconnect} leaveRoom={leaveRoom} />
+      {collaboration.status === 'local' && <div className="local-save-bar" role="region" aria-label="個人配置の保存">
+        <p role="status">{planner.localSave.error || planner.localSave.message}</p>
+        <button className="sharing-text-button" onClick={planner.clearLocalSave}>保存した個人配置を消去</button>
+      </div>}
       {!collaboration.loaded ? <div className="shared-room-placeholder" role="status">
         <h1>{collaboration.status === 'error' ? '共有された部屋を開けませんでした' : '共有された部屋を読み込んでいます…'}</h1>
         <p>接続が完了すると、最新の配置が表示されます。</p>
