@@ -49,6 +49,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run test:e2e:install
+      # UIと実WebGLで、回転後の境界・壁際ドラッグ・共有時の位置補正も検証する。
       - run: npm run test:e2e
       - name: Upload browser report and failure traces
         if: ${{ !cancelled() }}

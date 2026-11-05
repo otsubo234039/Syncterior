@@ -1,4 +1,5 @@
 import { plans } from '../data/plans.js';
+import { constrainFurnitureToRoom } from './furniture-bounds.js';
 
 export function applyRoomOperation(room, operation) {
   switch (operation.type) {
@@ -18,10 +19,7 @@ export function applyRoomOperation(room, operation) {
           const next = operation.type === 'rotate'
             ? { ...item, rot: (item.rot + Math.PI / 2) % (Math.PI * 2) }
             : { ...item, ...operation.patch };
-          const plan = plans[room.planKey];
-          next.x = Math.max(-plan.w / 2 + next.w / 2, Math.min(plan.w / 2 - next.w / 2, next.x));
-          next.z = Math.max(-plan.d / 2 + next.d / 2, Math.min(plan.d / 2 - next.d / 2, next.z));
-          return next;
+          return constrainFurnitureToRoom(next, plans[room.planKey]) ?? item;
         }),
       };
     default:
