@@ -55,4 +55,11 @@ export function createRoomApi(baseUrl, { fetcher = globalThis.fetch, EventSource
   };
 }
 
-export const roomApi = createRoomApi(import.meta.env?.VITE_ROOM_API_URL);
+export function resolveRoomApiUrl(runtimeConfig, buildTimeUrl) {
+  return typeof runtimeConfig?.roomApiUrl === 'string' ? runtimeConfig.roomApiUrl : buildTimeUrl;
+}
+
+export const roomApi = createRoomApi(resolveRoomApiUrl(
+  globalThis.SYNCTERIOR_CONFIG,
+  import.meta.env?.VITE_ROOM_API_URL,
+));

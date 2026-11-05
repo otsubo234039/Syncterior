@@ -31,7 +31,7 @@ function setup(enabled = true) {
   return { controls, captured, pointer, dispatch, drag };
 }
 
-test('locks the camera immediately, moves furniture, and restores it on release', () => {
+test('ドラッグ開始時に視点を即座に固定し、家具移動後の終了時に解除する', () => {
   const { controls, captured, pointer, drag } = setup();
   assert.equal(drag.begin(pointer()), true);
   assert.equal(controls.enabled, false);
@@ -46,7 +46,7 @@ test('locks the camera immediately, moves furniture, and restores it on release'
 });
 
 for (const type of ['pointerup', 'pointercancel', 'lostpointercapture', 'blur']) {
-  test(`restores the camera after ${type}, including outside the canvas`, () => {
+  test(`キャンバス外を含め、${type}の発生後に視点操作を復帰する`, () => {
     const { controls, captured, pointer, drag, dispatch } = setup();
     drag.begin(pointer());
     dispatch(type, type === 'blur' ? undefined : 1);
@@ -57,7 +57,7 @@ for (const type of ['pointerup', 'pointercancel', 'lostpointercapture', 'blur'])
   });
 }
 
-test('ignores secondary buttons, secondary pointers, and unrelated pointer releases', () => {
+test('右ボタン・副ポインター・無関係なポインターの終了を無視する', () => {
   const { controls, pointer, drag, dispatch } = setup();
   assert.equal(drag.begin(pointer({ button: 2 })), false);
   assert.equal(drag.begin(pointer({ isPrimary: false })), false);
@@ -71,7 +71,7 @@ test('ignores secondary buttons, secondary pointers, and unrelated pointer relea
   assert.equal(controls.enabled, true);
 });
 
-test('unmount cleanup restores the original controls state and removes listeners', () => {
+test('アンマウント時に視点操作を元の状態へ戻し、イベント購読を解除する', () => {
   const { controls, captured, pointer, drag, dispatch } = setup();
   drag.begin(pointer());
   drag.end();
@@ -82,21 +82,21 @@ test('unmount cleanup restores the original controls state and removes listeners
   assert.equal(controls.enabled, false);
 });
 
-test('preserves controls that were already disabled', () => {
+test('開始前から無効だった視点操作を無効のまま保持する', () => {
   const { controls, pointer, drag } = setup(false);
   drag.begin(pointer());
   drag.end();
   assert.equal(controls.enabled, false);
 });
 
-test('releases the camera if pointermove shows that the button is no longer held', () => {
+test('ポインター移動時にボタンが離されていれば視点固定を解除する', () => {
   const { controls, pointer, drag } = setup();
   drag.begin(pointer());
   drag.move(pointer({ buttons: 0 }), () => assert.fail('released pointer moved furniture'));
   assert.equal(controls.enabled, true);
 });
 
-test('supports repeated drags without losing the original camera state', () => {
+test('ドラッグを繰り返しても視点操作を元の状態へ復帰できる', () => {
   const { controls, pointer, drag, dispatch } = setup();
   for (let pointerId = 1; pointerId <= 3; pointerId++) {
     assert.equal(drag.begin(pointer({ pointerId })), true);
@@ -107,7 +107,7 @@ test('supports repeated drags without losing the original camera state', () => {
 });
 
 
-test('uses the live ray when walls or other furniture change the hit point', () => {
+test('壁や他の家具によって交差位置が変わっても現在のレイから移動先を求める', () => {
   const { pointer, drag } = setup();
   drag.begin(pointer());
   const positions = [];
@@ -123,7 +123,7 @@ test('uses the live ray when walls or other furniture change the hit point', () 
   drag.end();
 });
 
-test('keeps the grabbed offset and the original height across consecutive moves', () => {
+test('連続移動でもつかんだ位置のずれと開始時の高さを維持する', () => {
   const { pointer, drag } = setup();
   const direction = new Vector3(0, -1, -1).normalize();
   const startRay = new Ray(new Vector3(2.5, 10, 6.5), direction);
@@ -140,7 +140,7 @@ test('keeps the grabbed offset and the original height across consecutive moves'
   drag.end();
 });
 
-test('ignores rays that do not intersect the drag plane and keeps dragging afterward', () => {
+test('移動平面と交差しないレイを無視し、その後もドラッグを継続できる', () => {
   const { controls, pointer, drag } = setup();
   drag.begin(pointer());
   for (const ray of [
@@ -156,7 +156,7 @@ test('ignores rays that do not intersect the drag plane and keeps dragging after
   drag.end();
 });
 
-test('does not capture the pointer or lock the camera for an invalid initial ray', () => {
+test('開始時のレイが不正な場合はポインターを捕捉せず、視点も固定しない', () => {
   const { controls, captured, pointer, drag } = setup();
   const ray = new Ray(new Vector3(2, 10, -3), new Vector3(1, 0, 0));
   assert.equal(drag.begin(pointer({ ray })), false);

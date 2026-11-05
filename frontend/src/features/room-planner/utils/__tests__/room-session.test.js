@@ -43,7 +43,7 @@ async function connected(context) {
   context.handlers().state(snapshot());
 }
 
-test('private editing works without a configured API and sharing does not fabricate a link', async () => {
+test('API未設定でも個人編集ができ、無効な共有リンクを発行しない', async () => {
   const { session, changes } = setup({ configured: false });
   session.start();
   session.dispatch({ type: 'update', id: item.id, patch: { x: 1 } });
@@ -55,7 +55,7 @@ test('private editing works without a configured API and sharing does not fabric
   session.stop();
 });
 
-test('shares the current edited layout and waits for the initial stream state before editing', async () => {
+test('編集中の配置を共有し、初回の配信データを受け取ってから編集を許可する', async () => {
   const c = setup();
   c.session.start();
   c.session.dispatch({ type: 'update', id: item.id, patch: { color: '#112233' } });
@@ -73,7 +73,7 @@ test('shares the current edited layout and waits for the initial stream state be
   c.session.stop();
 });
 
-test('keeps the local layout after a failed creation and permits retry', async () => {
+test('共有部屋の作成失敗時も個人用の配置を保ち、再試行できる', async () => {
   const c = setup();
   c.session.start();
   c.api.create = async () => { throw Error('接続に失敗しました'); };
@@ -85,7 +85,7 @@ test('keeps the local layout after a failed creation and permits retry', async (
   c.session.stop();
 });
 
-test('opening a shared link loads the remote layout rather than publishing the default room', async () => {
+test('共有リンクを開くと共有先の配置を読み込み、初期配置を送信しない', async () => {
   const c = setup({ shared: true });
   c.api.get = async () => snapshot({ planKey: 'family', items: [] });
   c.session.start();
@@ -98,7 +98,7 @@ test('opening a shared link loads the remote layout rather than publishing the d
   c.session.stop();
 });
 
-test('rebases optimistic furniture edits onto concurrent remote edits and ignores old revisions', async () => {
+test('同時に受信した変更に未確定の家具操作を重ね、古いリビジョンを無視する', async () => {
   const c = setup({ shared: true });
   await connected(c);
   c.session.dispatch({ type: 'update', id: 'sofa1', patch: { x: 1 } });
@@ -116,7 +116,7 @@ test('rebases optimistic furniture edits onto concurrent remote edits and ignore
   c.session.stop();
 });
 
-test('acknowledgements prevent optimistic rotations from being applied twice', async () => {
+test('操作の確定通知によって回転の二重適用を防ぐ', async () => {
   const c = setup({ shared: true });
   await connected(c);
   c.session.dispatch({ type: 'rotate', id: item.id });
@@ -130,7 +130,7 @@ test('acknowledgements prevent optimistic rotations from being applied twice', a
   c.session.stop();
 });
 
-test('coalesces unsent drag positions and sends them after the in-flight command', async () => {
+test('未送信のドラッグ位置をまとめ、送信中の操作が完了してから送る', async () => {
   const c = setup({ shared: true });
   await connected(c);
   for (const x of [.1, .2, .3, .4]) c.session.dispatch({ type: 'update', id: item.id, patch: { x } });
@@ -146,7 +146,7 @@ test('coalesces unsent drag positions and sends them after the in-flight command
   c.session.stop();
 });
 
-test('remote deletion cannot be undone by a late local move', async () => {
+test('他の参加者が削除した家具を遅延した移動操作で復活させない', async () => {
   const c = setup({ shared: true });
   await connected(c);
   c.session.dispatch({ type: 'update', id: item.id, patch: { x: 1 } });
@@ -155,7 +155,7 @@ test('remote deletion cannot be undone by a late local move', async () => {
   c.session.stop();
 });
 
-test('remote plan changes discard old edits instead of applying them to a new layout', async () => {
+test('他の参加者が間取りを変更した場合、旧間取りへの操作を破棄する', async () => {
   const c = setup({ shared: true });
   await connected(c);
   c.session.dispatch({ type: 'update', id: item.id, patch: { x: 1 } });
@@ -166,7 +166,7 @@ test('remote plan changes discard old edits instead of applying them to a new la
   c.session.stop();
 });
 
-test('blocks editing while a plan change is awaiting acknowledgement', async () => {
+test('間取り変更の確定通知を待っている間は編集を停止する', async () => {
   const c = setup({ shared: true });
   await connected(c);
   c.session.dispatch({ type: 'change-plan', planKey: 'family', items: [] });
@@ -178,7 +178,7 @@ test('blocks editing while a plan change is awaiting acknowledgement', async () 
   c.session.stop();
 });
 
-test('preserves pending edits on disconnect and does not unlock editing just because HTTP succeeds', async () => {
+test('切断時に未確定操作を保持し、HTTP応答の成功だけでは編集を再開しない', async () => {
   const c = setup({ shared: true });
   await connected(c);
   c.session.dispatch({ type: 'update', id: item.id, patch: { x: 1 } });
@@ -192,7 +192,7 @@ test('preserves pending edits on disconnect and does not unlock editing just bec
   c.session.stop();
 });
 
-test('retries an uncertain command with the same id after reconnecting', async () => {
+test('確定を確認できない操作は再接続後に同じIDで再送する', async () => {
   const c = setup({ shared: true });
   await connected(c);
   c.session.dispatch({ type: 'rotate', id: item.id });
@@ -207,7 +207,7 @@ test('retries an uncertain command with the same id after reconnecting', async (
   c.session.stop();
 });
 
-test('rolls back rejected edits and displays the server error', async () => {
+test('拒否された操作を取り消し、サーバーのエラーを表示する', async () => {
   const c = setup({ shared: true });
   await connected(c);
   c.session.dispatch({ type: 'update', id: item.id, patch: { color: '#112233' } });
@@ -219,7 +219,7 @@ test('rolls back rejected edits and displays the server error', async () => {
   c.session.stop();
 });
 
-test('404 and invalid snapshots keep unknown rooms uneditable', async () => {
+test('404応答や不正なスナップショットを受信した部屋は編集できない', async () => {
   const c = setup({ shared: true });
   c.api.get = async () => { throw Object.assign(Error('部屋がありません'), { status: 404 }); };
   c.session.start();
@@ -233,7 +233,7 @@ test('404 and invalid snapshots keep unknown rooms uneditable', async () => {
   c.session.stop();
 });
 
-test('leaving a room unsubscribes, removes the shared id, and ignores late responses', async () => {
+test('退出時に配信購読と共有IDを解除し、遅れて届いた応答を無視する', async () => {
   const c = setup({ shared: true });
   await connected(c);
   const oldHandlers = c.handlers();
@@ -251,7 +251,7 @@ test('leaving a room unsubscribes, removes the shared id, and ignores late respo
   c.session.stop();
 });
 
-test('supports effect cleanup and remount without retaining old stream callbacks', async () => {
+test('古い配信コールバックを残さず、後片付けと再マウントに対応する', async () => {
   const c = setup({ shared: true });
   await connected(c);
   const oldHandlers = c.handlers();
@@ -265,14 +265,14 @@ test('supports effect cleanup and remount without retaining old stream callbacks
   c.session.stop();
 });
 
-test('link helpers preserve other URL parameters and reject empty room ids', () => {
+test('共有リンクの操作で他のURLパラメーターを保ち、空の部屋IDを不正と判定する', () => {
   const url = roomLink('https://example.com/planner?theme=light#view', roomId);
   assert.equal(sharedRoomId(url), roomId);
   assert.equal(roomLink(url, null), 'https://example.com/planner?theme=light#view');
   assert.equal(sharedRoomId('https://example.com/?room='), 'invalid');
 });
 
-test('operations clamp furniture positions and accumulate rotations without mutating previous state', () => {
+test('元の状態を変更せず、家具の位置を部屋の範囲に収めて回転を積算する', () => {
   const previous = initialRoom();
   const next = applyRoomOperation(previous, { type: 'update', id: item.id, patch: { x: 999, z: -999 } });
   assert.equal(next.items[0].x, 5.4 / 2 - item.w / 2);
@@ -282,7 +282,7 @@ test('operations clamp furniture positions and accumulate rotations without muta
   assert.equal(rotated.items[0].rot, Math.PI);
 });
 
-test('two client sessions converge after concurrent changes through the proposed API contract', async () => {
+test('API仕様案に沿った同時操作後に2つのクライアントの状態が一致する', async () => {
   // This adapter exists only in tests; the product still requires a real API.
   let stored = snapshot();
   const subscribers = new Set();
@@ -332,7 +332,7 @@ test('two client sessions converge after concurrent changes through the proposed
   second.stop();
 });
 
-test('a stream startup failure after creation never turns shared edits into unsynchronized local edits', async () => {
+test('共有作成後に配信の接続に失敗しても、未同期の個人編集へ切り替えない', async () => {
   const c = setup();
   c.api.subscribe = () => { throw Error('配信に接続できません'); };
   c.session.start();
@@ -343,7 +343,7 @@ test('a stream startup failure after creation never turns shared edits into unsy
   c.session.stop();
 });
 
-test('a malformed conflict response fails safely instead of throwing out of the send loop', async () => {
+test('競合応答が不正な場合も送信処理から例外を漏らさず編集を停止する', async () => {
   const c = setup({ shared: true });
   await connected(c);
   c.session.dispatch({ type: 'rotate', id: item.id });
@@ -354,7 +354,7 @@ test('a malformed conflict response fails safely instead of throwing out of the 
   c.session.stop();
 });
 
-test('a lost HTTP response does not retry a command already confirmed by the stream', async () => {
+test('HTTP応答が失われても配信で確定済みの操作は再送しない', async () => {
   const c = setup({ shared: true });
   await connected(c);
   c.session.dispatch({ type: 'rotate', id: item.id });
