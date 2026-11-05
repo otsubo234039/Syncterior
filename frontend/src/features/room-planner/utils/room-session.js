@@ -1,6 +1,6 @@
 import { applyRoomOperation, isRoomSnapshot, projectRoom } from './room-state.js';
 
-export function createRoomSession({ api, initialRoom, roomId = null, onRoomChange = () => {}, makeId = () => crypto.randomUUID() }) {
+export function createRoomSession({ api, initialRoom, roomId = null, onRoomChange = () => {}, onLocalChange = () => {}, makeId = () => crypto.randomUUID() }) {
   let base = { ...initialRoom, revision: 0, planVersion: 0, appliedOperationIds: [] };
   let pending = [];
   let generation = 0;
@@ -144,6 +144,7 @@ export function createRoomSession({ api, initialRoom, roomId = null, onRoomChang
     dispatch(operation) {
       if (state.status === 'local') {
         base = applyRoomOperation(base, operation);
+        onLocalChange(base);
         publish();
         return true;
       }
