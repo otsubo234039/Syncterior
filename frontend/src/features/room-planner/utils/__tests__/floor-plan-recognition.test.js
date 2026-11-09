@@ -158,3 +158,28 @@ test('厚い壁の中の平行な重複だけを除き、直角の短辺は保�
   assert.equal(plan.walls.length, 2);
   assert.ok(plan.walls.some(w => w.start[0] === w.end[0]));
 });
+
+test('通常解析が空の有彩色の壁を一度だけ再解析し、単色の背景を壁にはしない', async () => {
+  const value = image();
+  value.box(20,20,160,5); value.box(20,20,5,165); value.box(180,20,5,165); value.box(20,180,165,5);
+  const rgba = new Uint8ClampedArray(value.pixels);
+  for (let i = 0; i < rgba.length; i += 4) if (rgba[i] === 30) rgba.set([20, 120, 50, 255], i);
+  const result = await runOpenCvWorker(value);
+  assert.equal(result.usedColorFallback, true);
+  assert.ok(evaluateWallReferences(segments(result), expected, 4).coverage > .95);
+  const background = image(), pixels = new Uint8ClampedArray(background.pixels);
+  for (let i = 0; i < pixels.length; i += 4) pixels.set([120, 180, 100, 255], i);
+  const empty = await runOpenCvWorker(background);
+  assert.equal(empty.usedColorFallback, true);
+  assert.deepEqual(empty.lines, []);
+});
+
+test('通常の壁が検出できる画像では色付きの家具があっても再解析しない', async () => {
+  const value = image(); value.box(20,20,160,5); value.box(20,20,5,165); value.box(20,180,160,5);
+  const original = await runOpenCvWorker(value);
+  const rgba = new Uint8ClampedArray(value.pixels);
+  for (let y = 70; y < 110; y++) for (let x = 70; x < 110; x++) rgba.set([20, 120, 50, 255], (y * value.width + x) * 4);
+  const result = await runOpenCvWorker(value);
+  assert.equal(result.usedColorFallback, false);
+  assert.deepEqual(result.lines, original.lines); assert.deepEqual(result.lineWidths, original.lineWidths);
+});

@@ -1,9 +1,9 @@
 // Classic Worker: OpenCVのUMD配布をメイン画面から隔離して読み込む。
-self.onmessage = async ({ data: { url, width, height, pixels } }) => {
+self.onmessage = async ({ data: { url, width, height, pixels, retainColor = false } }) => {
   const resources = [];
   const own = mat => { resources.push(mat); return mat; };
   try {
-    importScripts(url);
+    if (!self.cv) importScripts(url);
     // この配布版は自身を返すthenable。Promiseへ値を渡さず初期化だけを待つ。
     const cv = self.cv;
     if (!cv.Mat) await new Promise(resolve => cv.then(() => resolve()));
@@ -22,9 +22,12 @@ self.onmessage = async ({ data: { url, width, height, pixels } }) => {
     const source = own(cv.matFromArray(height, width, cv.CV_8UC4, rgba));
     const gray = own(new cv.Mat()), mask = own(new cv.Mat());
     cv.cvtColor(source, gray, cv.COLOR_RGBA2GRAY);
+    let coloredPixels = 0;
     for (let i = 0; i < count; i++) {
       const at = i * 4, r = rgba[at], g = rgba[at + 1], b = rgba[at + 2];
-      if (outside[i] || Math.max(r, g, b) - Math.min(r, g, b) > 45 || rgba[at + 3] < 128) gray.data[i] = 255;
+      const colored = Math.max(r, g, b) - Math.min(r, g, b) > 45;
+      if (colored && rgba[at + 3] >= 128 && !outside[i]) coloredPixels++;
+      if (outside[i] || (!retainColor && colored) || rgba[at + 3] < 128) gray.data[i] = 255;
     }
     const blockSize = Math.max(15, Math.min(51, Math.round(Math.max(width, height) * .065) | 1));
     cv.adaptiveThreshold(gray, mask, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, blockSize, 12);
@@ -263,7 +266,15 @@ self.onmessage = async ({ data: { url, width, height, pixels } }) => {
       }
       if (supported >= 7) { lines.push(x1, y1, x2, y2); lineWidths.push(strokeWidth); }
     }
-    self.postMessage({ lines, lineWidths, width, height, strokeWidth, blockSize,
+    // 通常結果が空のときだけ有彩色の壁を救済する。通常の候補がある図面は変えない。
+    // 初回のMatを解放してから同じOpenCVで一度だけ再解析し、ピークメモリを抑える。
+    if (!retainColor && lines.length === 0 && coloredPixels > 0) {
+      for (const resource of resources.reverse()) resource.delete();
+      resources.length = 0;
+      await self.onmessage({ data: { url, width, height, pixels, retainColor: true } });
+      return;
+    }
+    self.postMessage({ lines, lineWidths, width, height, strokeWidth, blockSize, usedColorFallback: retainColor,
       engine: `OpenCV ${cv.getBuildInformation().match(/OpenCV\s+([^\s]+)/)?.[1] ?? '4.12'}` });
   } catch (error) {
     self.postMessage({ error: `画像解析に失敗しました。別の画像か手動編集をお試しください。 (${error.message ?? error})` });

@@ -123,3 +123,14 @@ test('長辺1024pxへ縮小する追加図面を解析し、短い断片があ�
   await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
   expect(await storage(page)).toEqual(saved);
 });
+
+test('通常解析が空になる色付き壁の追加図面を自動再解析し、保存して編集を続けられる', async ({ page }) => {
+  await page.goto('/');
+  await page.getByText('間取り画像から3Dの枠を作る', { exact: true }).click();
+  await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/holdout/cottage.png', import.meta.url)));
+  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+
+  await page.getByRole('button', { name: 'この枠で3Dを作成', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+  expect((await storage(page)).room.customPlan.walls.length).toBeGreaterThan(10);
+});
