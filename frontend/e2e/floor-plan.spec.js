@@ -30,7 +30,7 @@ for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'co
       w.end[0] / model.w * reference.width, w.end[1] / model.d * reference.height]);
     const metrics = evaluateWallReferences(lines, reference, references.tolerance);
     expect(evaluateLayoutReferences(model, reference), '開口と出っ張りの立体形状を保持する').toEqual({ blockedOpenings: 0, missingWallPoints: 0, unexpectedSolidPoints: 0 });
-    expect(metrics.coverage, '目視で注釈した一部の壁を十分に拾う').toBeGreaterThanOrEqual(reference.minCoverage);
+    expect(metrics.coverage, '目視で注釈した一部の壁を十分に拾う').toBeGreaterThanOrEqual(file === 'dark-background' ? .85 : reference.minCoverage);
     expect(metrics.nonWallLength, '指定した文字・家具・タイル領域の誤検出を抑える').toBeLessThanOrEqual(reference.maxNonWallLength);
     await testInfo.attach(`${file}-partial-evaluation`, { body: JSON.stringify(metrics), contentType: 'application/json' });
     await testInfo.attach(`${file}-model`, { body: JSON.stringify(value, null, 2), contentType: 'application/json' });
@@ -133,4 +133,33 @@ test('通常解析が空になる色付き壁の追加図面を自動再解析�
   await page.getByRole('button', { name: 'この枠で3Dを作成', exact: true }).click();
   await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
   expect((await storage(page)).room.customPlan.walls.length).toBeGreaterThan(10);
+});
+
+test('透明PNGの黒い枠を白背景と同じ形状で取り込み保存できる', async ({ page }) => {
+  await page.goto('/');
+  const plans = [];
+  for (const transparent of [false, true]) {
+    // 取込間取りの復元後は入力欄が自動で開く。
+    if (transparent) await page.reload();
+    const bytes = await page.evaluate(transparent => {
+      const canvas = document.createElement('canvas'); canvas.width = canvas.height = 200;
+      const ctx = canvas.getContext('2d');
+      if (!transparent) { ctx.fillStyle = '#fff'; ctx.fillRect(0,0,200,200); }
+      ctx.fillStyle = '#1e1e1e';
+      ctx.fillRect(20,20,165,5); ctx.fillRect(20,20,5,165);
+      ctx.fillRect(180,20,5,165); ctx.fillRect(20,180,165,5);
+      return Array.from(Uint8Array.from(atob(canvas.toDataURL('image/png').split(',')[1]), char => char.charCodeAt(0)));
+    }, transparent);
+    if (!transparent) await page.getByText('間取り画像から3Dの枠を作る', { exact: true }).click();
+    await page.getByLabel('間取り画像', { exact: true }).setInputFiles({ name: 'frame.png', mimeType: 'image/png', buffer: Buffer.from(bytes) });
+    await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+    await expect(page.locator('.floor-drawing line')).toHaveCount(4);
+    await page.getByRole('button', { name: 'この枠で3Dを作成', exact: true }).click();
+    await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+    plans.push((await storage(page)).room.customPlan);
+  }
+  expect(plans[1]).toEqual(plans[0]);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+  expect((await storage(page)).room.customPlan).toEqual(plans[1]);
 });

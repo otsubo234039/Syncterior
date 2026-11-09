@@ -183,3 +183,40 @@ test('通常の壁が検出できる画像では色付きの家具があって�
   assert.equal(result.usedColorFallback, false);
   assert.deepEqual(result.lines, original.lines); assert.deepEqual(result.lineWidths, original.lineWidths);
 });
+
+test('透明背景を外側の黒として壁ごと消さず、白背景と同じ枠を抽出する', async () => {
+  const opaque = image();
+  opaque.box(20,20,160,5); opaque.box(20,20,5,165); opaque.box(180,20,5,165); opaque.box(20,180,165,5);
+  const original = await runOpenCvWorker(opaque);
+  for (const alpha of [0, 64, 128]) {
+    const transparent = { ...opaque, pixels: opaque.pixels.slice(0) };
+    const pixels = new Uint8ClampedArray(transparent.pixels);
+    for (let at = 0; at < pixels.length; at += 4) if (pixels[at] === 255) pixels.set([0,0,0,alpha], at);
+    // 半透明の黒は白とは同じ見え方ではないが、均一な背景上の枠を維持する。
+    const before = transparent.pixels.slice(0);
+    const result = await runOpenCvWorker(transparent);
+    if (alpha === 0) {
+      assert.deepEqual(result.lines, original.lines);
+      assert.deepEqual(result.lineWidths, original.lineWidths);
+    }
+    assert.ok(evaluateWallReferences(segments(result), expected, 4).coverage > .95);
+    assert.deepEqual(transparent.pixels, before);
+  }
+});
+
+test('透明な無地や半透明の単色画像から壁を生成しない', async () => {
+  for (const alpha of [0, 64, 128, 254]) {
+    const value = image(0), pixels = new Uint8ClampedArray(value.pixels);
+    for (let at = 0; at < pixels.length; at += 4) pixels[at + 3] = alpha;
+    assert.deepEqual((await runOpenCvWorker(value)).lines, []);
+  }
+});
+
+test('黒い外側背景のコントラスト補正でも1pxの灰色枠を消さない', async () => {
+  const value = image(0); value.box(18,18,170,170,255);
+  value.box(20,20,160,1,160); value.box(20,20,1,160,160);
+  value.box(180,20,1,160,160); value.box(20,180,161,1,160);
+  const result = await runOpenCvWorker(value);
+  assert.ok(evaluateWallReferences(segments(result), expected, 4).coverage > .95);
+  assert.equal(solidAt(result, 100, 100), false);
+});

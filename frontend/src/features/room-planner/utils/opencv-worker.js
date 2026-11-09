@@ -7,7 +7,19 @@ self.onmessage = async ({ data: { url, width, height, pixels, retainColor = fals
     // この配布版は自身を返すthenable。Promiseへ値を渡さず初期化だけを待つ。
     const cv = self.cv;
     if (!cv.Mat) await new Promise(resolve => cv.then(() => resolve()));
-    const rgba = new Uint8ClampedArray(pixels), count = width * height;
+    const rgba = new Uint8ClampedArray(pixels.slice(0)), count = width * height;
+
+    // 無彩色画像の透明部分は白へ合成してから黒背景を判定する。
+    // 色付き透明図面では白補完が文字を復活させるため、既存の色救済を維持する。
+    let chromaticInk = false;
+    for (let at = 0; at < rgba.length; at += 4) {
+      if (rgba[at + 3] >= 128 && Math.max(rgba[at], rgba[at + 1], rgba[at + 2]) - Math.min(rgba[at], rgba[at + 1], rgba[at + 2]) > 45) chromaticInk = true;
+    }
+    if (!chromaticInk) for (let at = 0; at < rgba.length; at += 4) {
+      const alpha = rgba[at + 3];
+      for (let c = 0; c < 3; c++) rgba[at + c] = Math.round(rgba[at + c] * alpha / 255 + 255 - alpha);
+      rgba[at + 3] = 255;
+    }
     const dark = new Uint8Array(count), outside = new Uint8Array(count), queue = new Int32Array(count);
     for (let i = 0; i < count; i++) { const at = i * 4; dark[i] = Math.max(rgba[at], rgba[at + 1], rgba[at + 2]) < 40 ? 1 : 0; }
     let head = 0, tail = 0;
@@ -28,6 +40,13 @@ self.onmessage = async ({ data: { url, width, height, pixels, retainColor = fals
       const colored = Math.max(r, g, b) - Math.min(r, g, b) > 45;
       if (colored && rgba[at + 3] >= 128 && !outside[i]) coloredPixels++;
       if (outside[i] || (!retainColor && colored) || rgba[at + 3] < 128) gray.data[i] = 255;
+    }
+
+    // 外周につながる黒が画像の10%以上の不透明画像だけ補正する。
+    // 一律のCLAHEは木目や薄い線のある図面で壁を欠落させる。
+    if (tail >= count * .1 && rgba.every((value, index) => index % 4 !== 3 || value === 255)) {
+      const enhanced = own(new cv.Mat()), clahe = own(new cv.CLAHE(2, new cv.Size(8, 8)));
+      clahe.apply(gray, enhanced); enhanced.copyTo(gray);
     }
     const blockSize = Math.max(15, Math.min(51, Math.round(Math.max(width, height) * .065) | 1));
     cv.adaptiveThreshold(gray, mask, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, blockSize, 12);
