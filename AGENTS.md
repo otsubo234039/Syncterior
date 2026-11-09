@@ -65,6 +65,15 @@ frontend/
 - 依存関係を変更する場合は`frontend/package.json`と`frontend/package-lock.json`を整合させます。生成物の`dist/`や`node_modules/`は編集・コミットしません。
 - 秘密情報や実際の環境変数の値をコミットしません。設定項目の共有には値を含まない`.env.example`を使います。
 
+### 間取り画像の取り込み（Issue #28）
+
+- `floor-plan-image.js`で画像を検証・縮小し、`opencv-worker.js`でOpenCV.jsを使って壁候補を抽出します。OpenCVは同梱した固定バージョンを取り込み時だけ読み込み、画像を外部へ送信しません。処理の中止・差し替え・アンマウント・タイムアウト時はWorkerを終了し、OpenCVのMatはfinallyで破棄します。
+- 使用中のOpenCV配布版は自身を返すthenableです。`await cv`や`resolve(cv)`を使わず、初期化コールバックの完了だけを待ちます。バージョン変更時は実ブラウザで確認し、`public/licenses/`のライセンス表記も揃えます。
+- 感度を利用者に選ばせず、局所的な二値化・長い帯からの線幅推定・中心線抽出を内部で行います。細線の救済と交点の補正は画像上の接続を根拠とし、白い開口を一律に結合しません。帯の太さが変わる区間を分割し、短い折れ返しは両端の接続、輪郭の厚壁化は両端のキャップを確認します。壁固有の`thicknessRatio`（省略時1、0.1〜8）を保存・復元・寸法変更・3D描画で維持します。入口の非壁点と出っ張り内外の点も実際の壁ボックスで回帰検証してください。規則的な薄い線の除外を強める場合も、短い壁や細い外枠の欠落を確認します。
+- 認識結果の変換は`floor-plan-detection.js`、実寸モデルの検証・寸法変更・開口部を避けた壁分割は`floor-plan.js`に配置します。UIや画像・表示倍率を実寸データへ混ぜません。自動認識を正解扱いせず、床が仮の長方形であることと修正が必要なことを表示します。
+- 取込間取りは家具なしの個人編集専用です。個人保存は第2版、従来のプリセットは第1版を維持します。共有APIの形状対応はBE-11 / #43が完了するまで有効にしません。
+- `e2e/fixtures/floor-plans/`の4画像で実際のOpenCV Workerをデスクトップ・モバイル幅から検証し、`floor-plan.3d.spec.js`で実WebGLの枠表示と倍率変更を検証します。壁候補数を認識精度と報告しないでください。`references.json`は手動で選んだ一部の壁・非壁領域で、図面全体の正解ではありません。通常E2Eはこの部分評価も検証します。`npm run test:floor-plan --prefix frontend`で従来の線データとの比較を再現でき、通常E2Eと同じロックとブラウザ起動前確認を使います。OpenCVそのものの合成画像テストは`floor-plan-recognition.test.js`で行い、Node.js上のテストだけでブラウザのWorkerを検証したと扱いません。候補実装の全画像比較と認識・3D画像は[実装比較](frontend/docs/floor-plan-implementation-comparison.md)を参照します。比較キャプチャも通常E2Eと同じロックを使い、手動実験はCIや製品テストの成功と区別します。調査・制約は[取り込み調査](frontend/docs/floor-plan-import-research.md)を更新します。
+
 ## 実行・検証
 
 リポジトリルートから次のコマンドを実行できます。Node.jsは20.19以降を使用してください。
@@ -108,7 +117,7 @@ git diff --check
 - 要素はrole・label・表示文言を優先して探し、自動待機とリトライ付きアサーションを使います。固定秒数のsleepや、失敗を隠すためのskip・リトライ増加で対処しないでください。
 - 同じ作業ディレクトリでE2Eを重複実行しないでください。通常のnpmコマンドは実行ロックを取得します。実行中に成果物ディレクトリを削除しないでください。
 - PlaywrightのHTMLレポートは`frontend/playwright-report/`、失敗時のスクリーンショットとCI初回リトライのトレースは`frontend/test-results/`に出力されます。これらとE2E用ビルドの生成物をコミットしません。
-- `.github/workflows/frontend-ci.yml`はmainへのPR・pushと手動実行で、ユニットテスト＋本番ビルド、UI E2Eを実行します。CIのE2EもUI・実WebGLの両方を実行します。CIはUbuntu 24.04・Node.js 22を使用し、Playwrightのレポート・失敗時の成果物を7日間保存します。
+- `.github/workflows/frontend-ci.yml`はmainへのPR・pushと手動実行で、ユニットテスト＋本番ビルド、UI E2Eと間取り解析の部分評価を実行します。CIのE2EもUI・実WebGLの両方を実行します。CIはUbuntu 24.04・Node.js 22を使用し、Playwrightのレポート・失敗時の成果物を7日間保存します。
 - テストツール・対象・コマンド・APIモックの前提を変更したときは、CI・`frontend/README.md`・このガイドを同じ変更で更新します。ローカルの成功とGitHub Actions上での成功は区別して報告します。
 
 ## Git・コミット規約

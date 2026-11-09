@@ -1,0 +1,34 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><title>間取り比較</title>
+<style>body{margin:0;background:#f3f2ed;font:16px sans-serif;color:#243c40}header{height:54px;box-sizing:border-box;padding:15px 24px;background:#fff;border-bottom:1px solid #dce1dd}#overlay{width:720px;height:720px;display:block;margin:auto}#view{width:960px;height:720px}#legacy2d{width:720px;height:720px;display:none}#legacy3d{width:960px;height:720px;display:none}canvas{display:block}</style>
+<header id="title"></header><canvas id="overlay" width="720" height="720"></canvas><div id="view"></div><div id="legacy2d"><canvas id="floorplanner-canvas"></canvas></div><div id="legacy3d"></div>
+<script type="module">
+import * as THREE from '/three/three.module.js';
+const labels={current:'現行 OpenCV.js',blender:'FloorplanToBlender3d：検出輪郭', 'vectorizer-sealed':'floorplan-vectorizer：標準・入口を閉鎖','vectorizer-open':'floorplan-vectorizer：入口を閉じない'};
+window.showResult=async data=>{
+ document.querySelector('#title').textContent=`${data.image} / ${labels[data.method]} / 自動出力・手修正なし`;
+ const canvas=document.querySelector('#overlay'),ctx=canvas.getContext('2d');
+ ctx.clearRect(0,0,720,720);ctx.fillStyle='#fff';ctx.fillRect(0,0,720,720);
+ const scale=660/Math.max(data.width,data.height),ox=(720-data.width*scale)/2,oy=(720-data.height*scale)/2;
+ ctx.save();ctx.translate(ox,oy);ctx.scale(scale,scale);
+ const image=new Image();image.src=`/images/${data.image}.jpg`;await image.decode();ctx.drawImage(image,0,0);
+ function trace(poly){const path=new Path2D();for(const ring of [poly.outer,...poly.holes]){ring.forEach(([x,y],i)=>i?path.lineTo(x,y):path.moveTo(x,y));path.closePath();}return path;}
+ for(const floor of data.floors){const path=trace(floor);ctx.fillStyle='#4daf6b20';ctx.fill(path,'evenodd');ctx.strokeStyle='#2f9c4c';ctx.lineWidth=1/scale;ctx.stroke(path);}
+ for(const polygon of data.polygons){const path=trace(polygon);ctx.fillStyle='#2f80ed88';ctx.fill(path,'evenodd');ctx.strokeStyle='#1260bb';ctx.lineWidth=.6/scale;ctx.stroke(path);}
+ for(const d of data.doors??[]){const p=trace({outer:d.box,holes:[]});ctx.strokeStyle='#ef6a1e';ctx.lineWidth=2/scale;ctx.stroke(p);}
+ ctx.restore();
+ const unit=8/data.width,scene=new THREE.Scene();scene.background=new THREE.Color('#f3f2ed');
+ const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setSize(960,720);renderer.setPixelRatio(1);document.querySelector('#view').replaceChildren(renderer.domElement);
+ scene.add(new THREE.AmbientLight(0xffffff,1.7));const light=new THREE.DirectionalLight(0xffffff,2.3);light.position.set(8,12,6);scene.add(light);
+ function shapeOf(poly){const convert=p=>new THREE.Vector2((p[0]-data.width/2)*unit,-(p[1]-data.height/2)*unit);const shape=new THREE.Shape(poly.outer.map(convert));for(const hole of poly.holes)shape.holes.push(new THREE.Path(hole.map(convert)));return shape;}
+ const floorMaterial=new THREE.MeshStandardMaterial({color:'#bdb29a',side:THREE.DoubleSide,roughness:1});
+ if(!data.floors.length){const m=new THREE.Mesh(new THREE.PlaneGeometry(8,data.height*unit),new THREE.MeshBasicMaterial({color:'#d9d6cc',transparent:true,opacity:.3,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.position.y=-.03;scene.add(m);}
+ for(const p of data.floors){const mesh=new THREE.Mesh(new THREE.ShapeGeometry(shapeOf(p)),floorMaterial);mesh.rotation.x=-Math.PI/2;mesh.position.y=-.015;scene.add(mesh);}
+ const material=new THREE.MeshStandardMaterial({color:'#d3d9d5',roughness:.92,side:THREE.DoubleSide});
+ for(const p of data.polygons){if(p.outer.length<3)continue;const geometry=new THREE.ExtrudeGeometry(shapeOf(p),{depth:2.4,bevelEnabled:false,steps:1});geometry.rotateX(-Math.PI/2);const mesh=new THREE.Mesh(geometry,material);scene.add(mesh);const edges=new THREE.LineSegments(new THREE.EdgesGeometry(geometry,20),new THREE.LineBasicMaterial({color:'#64796f'}));scene.add(edges);}
+ const size=Math.max(8,data.height*unit,2.4),camera=new THREE.PerspectiveCamera(38,960/720,.05,200);camera.position.set(size*.9,size*1.05,size*1.1);camera.lookAt(0,.6,0);renderer.render(scene,camera);
+ const errors=renderer.getContext().getError();if(errors)throw new Error('WebGL error '+errors);
+ window.disposeResult=()=>{renderer.dispose();scene.traverse(o=>o.geometry?.dispose());};
+ return {meshes:data.polygons.length,floors:data.floors.length};
+};
+window.ready=true;
+</script></html>
