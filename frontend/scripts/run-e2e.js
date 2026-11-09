@@ -52,19 +52,23 @@ try {
   acquire();
   try {
     const args = process.argv.slice(2);
-    const listing = args.some(arg => ['--list', '--help', '-h'].includes(arg));
-    const started = performance.now();
-    const vite = join(dirname(require.resolve('vite/package.json')), 'bin/vite.js');
-    const buildCode = listing ? 0 : await runNode([vite, 'build', '--outDir', 'dist-e2e/app'], { VITE_ROOM_API_URL: '/api' });
-    const built = performance.now();
-    process.exitCode = buildCode || await runNode([require.resolve('@playwright/test/cli'), 'test', ...args]);
-    if (!listing) {
-      const completed = performance.now();
-      const timing = { buildMs: built - started, playwrightMs: completed - built, totalMs: completed - started, exitCode: process.exitCode };
-      const directory = new URL('../test-results/', import.meta.url);
-      mkdirSync(directory, { recursive: true });
-      writeFileSync(new URL('run-timing.json', directory), JSON.stringify(timing, null, 2));
-      console.log(`E2E計測: ビルド ${(timing.buildMs / 1000).toFixed(1)}秒 / テスト ${(timing.playwrightMs / 1000).toFixed(1)}秒 / 合計 ${(timing.totalMs / 1000).toFixed(1)}秒`);
+    if (args[0] === '--evaluate-floor-plan') {
+      process.exitCode = await runNode([fileURLToPath(new URL('./evaluate-floor-plan.js', import.meta.url))]);
+    } else {
+      const listing = args.some(arg => ['--list', '--help', '-h'].includes(arg));
+      const started = performance.now();
+      const vite = join(dirname(require.resolve('vite/package.json')), 'bin/vite.js');
+      const buildCode = listing ? 0 : await runNode([vite, 'build', '--outDir', 'dist-e2e/app'], { VITE_ROOM_API_URL: '/api' });
+      const built = performance.now();
+      process.exitCode = buildCode || await runNode([require.resolve('@playwright/test/cli'), 'test', ...args]);
+      if (!listing) {
+        const completed = performance.now();
+        const timing = { buildMs: built - started, playwrightMs: completed - built, totalMs: completed - started, exitCode: process.exitCode };
+        const directory = new URL('../test-results/', import.meta.url);
+        mkdirSync(directory, { recursive: true });
+        writeFileSync(new URL('run-timing.json', directory), JSON.stringify(timing, null, 2));
+        console.log(`E2E計測: ビルド ${(timing.buildMs / 1000).toFixed(1)}秒 / テスト ${(timing.playwrightMs / 1000).toFixed(1)}秒 / 合計 ${(timing.totalMs / 1000).toFixed(1)}秒`);
+      }
     }
   } finally {
     if (readFileSync(lock, 'utf8') === String(process.pid)) unlinkSync(lock);

@@ -49,8 +49,9 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run test:e2e:install
-      # UIと実WebGLで、回転後の境界・個人保存の復元とエラー・共有との分離も検証する。
+      # UIと実WebGLで、家具操作・保存・共有に加え4画像の取り込み・枠表示・部分注釈での欠落と誤検出を検証する。
       - run: npm run test:e2e
+      - run: npm run test:floor-plan
       - name: Upload browser report and failure traces
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
