@@ -35,3 +35,20 @@ for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'co
     await expect(page.locator('.width-tag')).toHaveText('5.4 m');
   });
 }
+
+
+test('追加の大きい図面を実WebGLで立体化し、実寸の下限を満たした壁を描画する', async ({ page }, testInfo) => {
+  await page.goto('/');
+  await waitForSceneToSettle(page);
+  await page.getByText('間取り画像から3Dの枠を作る', { exact: true }).click();
+  await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/holdout/riverside.png', import.meta.url)));
+  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  const before = await drawCalls(page);
+  await page.getByRole('button', { name: 'この枠で3Dを作成', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+  await expect.poll(() => drawCalls(page)).toBeGreaterThan(before);
+  await waitForSceneToSettle(page);
+  const canvas = page.getByRole('region', { name: '部屋の3Dプレビュー' });
+  await canvas.scrollIntoViewIfNeeded();
+  await testInfo.attach('riverside-product-3d', { body: await canvas.screenshot(), contentType: 'image/png' });
+});

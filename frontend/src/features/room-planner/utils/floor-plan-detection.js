@@ -1,4 +1,4 @@
-import { isFloorPlan } from './floor-plan.js';
+import { isFloorPlan, wallLength } from './floor-plan.js';
 
 // 認識エンジンと保存する実寸モデルを分離。画像全体の座標を維持して欠落部の追加を可能にする。
 export function floorPlanFromLines({ width, height, lines, lineWidths, strokeWidth = 4 }) {
@@ -63,10 +63,11 @@ export function floorPlanFromLines({ width, height, lines, lineWidths, strokeWid
   const maxY = all.length ? Math.min(height, Math.max(...all.map(p => p[1])) + 2) : height;
   const unit = 8 / Math.max(32, maxX - minX);
   const convert = p => [Math.max(0, Math.min(width, p[0])) * unit, Math.max(0, Math.min(height, p[1])) * unit];
+  // 画素上で有効な短線も、実寸の最小壁長に満たない場合は個別に除く。
   const plan = { version: 1, name: '取込間取り', w: width * unit, d: height * unit, h: 2.4, wallThickness: Math.max(.05, Math.min(1, lineWidths ? strokeWidth * unit : .12)),
     floors: [{ id: 'floor-1', kind: 'room', points: [[minX, minY], [maxX, minY], [maxX, maxY], [minX, maxY]].map(convert) }],
     walls: walls.map((wall, i) => ({ id: `wall-${i + 1}`, start: convert(wall.start), end: convert(wall.end), openings: [],
-      ...(lineWidths ? { thicknessRatio: Math.max(.1, Math.min(8, wall.thickness / strokeWidth)) } : {}) })) };
+      ...(lineWidths ? { thicknessRatio: Math.max(.1, Math.min(8, wall.thickness / strokeWidth)) } : {}) })).filter(wall => wallLength(wall) >= .02) };
   if (!isFloorPlan(plan)) throw new Error('間取りを生成できませんでした。余白の少ない画像をお試しください。');
   return plan;
 }

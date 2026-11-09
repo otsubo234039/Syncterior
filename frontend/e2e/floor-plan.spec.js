@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
+import { isFloorPlan, wallLength } from '../src/features/room-planner/utils/floor-plan.js';
 import { evaluateLayoutReferences, evaluateWallReferences } from '../src/features/room-planner/utils/floor-plan-evaluation.js';
 import { test, expect } from './fixtures/test.js';
 
@@ -104,4 +105,21 @@ test('壁の端点・開口部・床輪郭を編集し、不正な輪郭は適�
   const model = (await storage(page)).room.customPlan;
   expect(model.walls[0].openings).toHaveLength(1);
   expect(model.wallThickness * model.walls[0].thicknessRatio).toBeCloseTo(0.5);
+});
+
+
+test('長辺1024pxへ縮小する追加図面を解析し、短い断片があっても保存・復元できる', async ({ page }) => {
+  await page.goto('/');
+  await page.getByText('間取り画像から3Dの枠を作る', { exact: true }).click();
+  await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/holdout/riverside.png', import.meta.url)));
+  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await page.getByRole('button', { name: 'この枠で3Dを作成', exact: true }).click();
+  await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+  const saved = await storage(page);
+  expect(isFloorPlan(saved.room.customPlan)).toBe(true);
+  expect(saved.room.customPlan.walls.length).toBeGreaterThan(50);
+  expect(saved.room.customPlan.walls.every(wall => wallLength(wall) >= .02)).toBe(true);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+  expect(await storage(page)).toEqual(saved);
 });

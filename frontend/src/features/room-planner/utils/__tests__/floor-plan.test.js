@@ -116,3 +116,13 @@ test('共同編集中は取込形状への切り替えを送信せず、確定�
   assert.equal(session.getSnapshot().room.planKey, 'studio');
   session.stop();
 });
+
+
+test('大きい画像の2px断片が実寸の最小壁長を下回っても残りの間取りを生成できる', () => {
+  const value = floorPlanFromLines({ width: 1024, height: 627, strokeWidth: 12,
+    lines: [20, 20, 1000, 20, 243, 492, 243, 494, 400, 490, 400, 493], lineWidths: [12, 2, 3] });
+  assert.equal(isFloorPlan(value), true);
+  assert.equal(value.walls.length, 2);
+  assert.ok(value.walls.every(wall => Math.hypot(wall.end[0] - wall.start[0], wall.end[1] - wall.start[1]) >= .02));
+  assert.ok(value.walls.some(wall => wall.start[0] === wall.end[0] && wall.start[1] > 3));
+});
