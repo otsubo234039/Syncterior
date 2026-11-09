@@ -17,7 +17,8 @@ export function PlannerSidebar({
   changePlan,
   addItem,
   editable = true,
-  canAdd = true
+  canAdd = true,
+  custom = false
 }) {
   return <aside className="sidebar">
     <div className="section-heading"><span className="step">01</span><div><h2>間取りを選ぶ</h2><p>部屋のベースを選択してください</p></div></div>
@@ -28,8 +29,9 @@ export function PlannerSidebar({
     <div className="section-heading furniture-heading"><span className="step">02</span><div><h2>家具・家電を追加</h2><p>選択すると部屋の中央に配置</p></div></div>
     <div className="catalog">{catalog.map(c => {
         const Icon = furnitureIcons[c.type];
-        return <button key={c.type} disabled={!editable || !canAdd} className="catalog-item" onClick={() => addItem(c)}><span className="catalog-icon"><Icon size={19} /></span><span className="catalog-name">{c.name}<small>{c.w} × {c.d} × {c.h} m</small></span><span className="add">＋</span></button>;
+        return <button key={c.type} disabled={!editable || !canAdd || custom} className="catalog-item" onClick={() => addItem(c)}><span className="catalog-icon"><Icon size={19} /></span><span className="catalog-name">{c.name}<small>{c.w} × {c.d} × {c.h} m</small></span><span className="add">＋</span></button>;
       })}</div>
+    {custom && <p className="sharing-limit">取込間取りは枠の編集に対応しています。家具はプリセットの間取りで配置できます。</p>}
     {!canAdd && <p className="sharing-limit" role="status">家具は200点まで配置できます。</p>}
     <div className="sidebar-note"><span className="note-icon">i</span><span>家具はドラッグで移動、選択後に回転できます。寸法は一般的な製品の目安です。</span></div>
    </aside>;

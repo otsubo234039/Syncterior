@@ -1,11 +1,19 @@
 import { plans } from '../data/plans.js';
 import { constrainFurnitureToRoom } from './furniture-bounds.js';
+import { CUSTOM_PLAN_KEY, isFloorPlan } from './floor-plan.js';
 
 export function applyRoomOperation(room, operation) {
   switch (operation.type) {
-    case 'change-plan':
-      return { ...room, planKey: operation.planKey, items: operation.items };
+    case 'change-plan': {
+      if (operation.planKey === CUSTOM_PLAN_KEY
+        ? !isFloorPlan(operation.customPlan) || !Array.isArray(operation.items) || operation.items.length !== 0
+        : !Object.hasOwn(plans, operation.planKey)) return room;
+      const { customPlan, ...previous } = room;
+      return { ...previous, planKey: operation.planKey, items: operation.items,
+        ...(operation.planKey === CUSTOM_PLAN_KEY ? { customPlan: operation.customPlan } : {}) };
+    }
     case 'add':
+      if (room.planKey === CUSTOM_PLAN_KEY) return room;
       return room.items.some(item => item.id === operation.item.id)
         ? room : { ...room, items: [...room.items, operation.item] };
     case 'remove':
@@ -35,7 +43,8 @@ export function projectRoom(snapshot, pending) {
 }
 
 export function isRoomLayout(value) {
-  return Boolean(value && Object.hasOwn(plans, value.planKey)
+  return Boolean(value && (Object.hasOwn(plans, value.planKey)
+    || (value.planKey === CUSTOM_PLAN_KEY && isFloorPlan(value.customPlan) && value.items?.length === 0))
     && Array.isArray(value.items) && value.items.length <= 200
     && new Set(value.items.map(item => item?.id)).size === value.items.length
     && value.items.every(item => item
@@ -48,7 +57,7 @@ export function isRoomLayout(value) {
 }
 
 export function isRoomSnapshot(value) {
-  return Boolean(isRoomLayout(value) && /^[a-zA-Z0-9_-]{32}$/.test(value.id)
+  return Boolean(isRoomLayout(value) && value.planKey !== CUSTOM_PLAN_KEY && /^[a-zA-Z0-9_-]{32}$/.test(value.id)
     && Number.isSafeInteger(value.revision) && value.revision >= 0
     && Number.isSafeInteger(value.planVersion) && value.planVersion >= 0
     && Array.isArray(value.appliedOperationIds)

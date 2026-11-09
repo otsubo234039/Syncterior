@@ -2,14 +2,17 @@ import React from 'react';
 import { Grid, ContactShadows } from '@react-three/drei';
 import { plans } from '../data/plans';
 import { Furniture } from './furniture';
+import { FloorPlanShell } from './floor-plan-shell';
 export function Room({
   planKey,
+  plan,
   items,
   selected,
   setSelected,
   moveItem,
   editable = true
 }) {
+  if (planKey === 'custom') return <FloorPlanShell plan={plan} />;
   const p = plans[planKey],
     wall = .09;
   return <group>

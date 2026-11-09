@@ -5,6 +5,7 @@ import { createRoomSession } from '../utils/room-session';
 import { roomLink, sharedRoomId } from '../utils/room-link';
 import { roomApi } from '../api/room-api';
 import { createLocalRoomStorage } from '../utils/local-room-storage';
+import { CUSTOM_PLAN_KEY, isFloorPlan, polygonArea } from '../utils/floor-plan';
 
 export function useRoomPlanner() {
   const [local] = useState(() => {
@@ -27,9 +28,12 @@ export function useRoomPlanner() {
   const collaboration = useSyncExternalStore(session.subscribe, session.getSnapshot);
   const [selected, setSelected] = useState(null);
   const [showSizes, setShowSizes] = useState(true);
+  const [displayScale, setDisplayScale] = useState(1);
   const { planKey, items } = collaboration.room;
   const editable = ['local', 'connected'].includes(collaboration.status) && !collaboration.changingPlan;
-  const plan = plans[planKey];
+  const customPlan = planKey === CUSTOM_PLAN_KEY ? collaboration.room.customPlan : null;
+  const plan = customPlan ? { ...customPlan, desc: '図面からの概算モデル・寸法を確認して調整してください',
+    area: customPlan.floors.filter(floor => floor.kind === 'room').reduce((area, floor) => area + polygonArea(floor.points), 0) } : plans[planKey];
   const active = items.find(item => item.id === selected);
 
   useEffect(() => {
@@ -41,10 +45,11 @@ export function useRoomPlanner() {
   }, [items, selected]);
 
   const changePlan = key => {
+    setDisplayScale(1);
     if (session.dispatch({ type: 'change-plan', planKey: key, items: initialFurniture(key) })) setSelected(null);
   };
   const addItem = catalogItem => {
-    if (items.length >= 200) return;
+    if (items.length >= 200 || customPlan) return;
     const item = { ...catalogItem, id: uid(), x: 0, z: 0, rot: 0 };
     if (session.dispatch({ type: 'add', item })) setSelected(item.id);
   };
@@ -61,6 +66,12 @@ export function useRoomPlanner() {
     session.leave();
     setLocalSave({ error: '', message: '共有から退出しました。個人保存は変更していません。次の編集から保存します。' });
   };
+  const importFloorPlan = value => {
+    if (collaboration.status !== 'local' || !isFloorPlan(value)) return false;
+    setDisplayScale(1);
+    setSelected(null);
+    return session.dispatch({ type: 'change-plan', planKey: CUSTOM_PLAN_KEY, customPlan: value, items: [] });
+  };
 
   return {
     planKey, plan, items, selected, active, showSizes, editable,
@@ -68,6 +79,7 @@ export function useRoomPlanner() {
     toggleSizes: () => setShowSizes(value => !value),
     collaboration, shareRoom: session.share, reconnect: session.reconnect, leaveRoom,
     localSave, clearLocalSave,
+    customPlan, importFloorPlan, displayScale, setDisplayScale,
     shareUrl: collaboration.roomId ? roomLink(window.location.href, collaboration.roomId) : '',
   };
 }
