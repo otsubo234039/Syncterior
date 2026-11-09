@@ -10,7 +10,7 @@ window.showResult=async data=>{
  ctx.clearRect(0,0,720,720);ctx.fillStyle='#fff';ctx.fillRect(0,0,720,720);
  const scale=660/Math.max(data.width,data.height),ox=(720-data.width*scale)/2,oy=(720-data.height*scale)/2;
  ctx.save();ctx.translate(ox,oy);ctx.scale(scale,scale);
- const image=new Image();image.src=`/images/${data.image}.jpg`;await image.decode();ctx.drawImage(image,0,0);
+ const image=new Image();image.src=`/images/${data.image}.jpg`;await image.decode();ctx.drawImage(image,0,0,data.width,data.height);
  function trace(poly){const path=new Path2D();for(const ring of [poly.outer,...poly.holes]){ring.forEach(([x,y],i)=>i?path.lineTo(x,y):path.moveTo(x,y));path.closePath();}return path;}
  for(const floor of data.floors){const path=trace(floor);ctx.fillStyle='#4daf6b20';ctx.fill(path,'evenodd');ctx.strokeStyle='#2f9c4c';ctx.lineWidth=1/scale;ctx.stroke(path);}
  for(const polygon of data.polygons){const path=trace(polygon);ctx.fillStyle='#2f80ed88';ctx.fill(path,'evenodd');ctx.strokeStyle='#1260bb';ctx.lineWidth=.6/scale;ctx.stroke(path);}
