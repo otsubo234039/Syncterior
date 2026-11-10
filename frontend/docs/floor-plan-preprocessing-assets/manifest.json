@@ -1,0 +1,18 @@
+{
+  "baselineCommit": "b49d9cd",
+  "opencv": "4.12.0-release.1",
+  "cases": 54,
+  "screenshots": 108,
+  "sha256": {
+    "e2e/fixtures/floor-plans/monochrome.jpg": "d2d5eac21cbcd72e336412ba5b0e78429316031dabb62edd6e511f1ece291896",
+    "e2e/fixtures/floor-plans/colored.jpg": "777b52516f3f1e82a6d0825023c08395f544cabc8d4c3a8e91c134b544e40b66",
+    "e2e/fixtures/floor-plans/dark-background.jpg": "63f982d86db9c2fb94ec1a836498ccfb2f17ee4b707173a9e31795be69270307",
+    "e2e/fixtures/floor-plans/textured.jpg": "bf96f95cf423a6a5582f54374698676d0ffd8d8e9dd8baad134f121dab343333",
+    "e2e/fixtures/floor-plans/holdout/cottage.png": "9da73cdc9967254847e9a061511e868b6d193fcb7b51b79e1ada0acfe78a9ca5",
+    "e2e/fixtures/floor-plans/holdout/riverside.png": "52932d1584adceef5585c840f75363f726e513a64fa6dd107f7fc6abf4cbd28e",
+    "e2e/fixtures/floor-plans/references.json": "d763a939af8243aa46c803eccd49ad90e64941943df7d77d8991912f8522aa50",
+    "e2e/fixtures/floor-plans/holdout/references-audited.json": "57cd29619b163e1407e3b446a1f0f70b8a0892368acc2f3ea437b07bd031bf9a",
+    "docs/floor-plan-preprocessing-assets/baseline-worker.js": "5252eee2b93c54fd22ace51d0a493eb9ec71d44aea612a67503f49a5eb10bb40",
+    "scripts/floor-plan-preprocessing/variants.js": "a7930d0a3621c9ad33108f37abc08ef33fd7ac7cca7e6593fd50f7b61a8e4eb3"
+  }
+}

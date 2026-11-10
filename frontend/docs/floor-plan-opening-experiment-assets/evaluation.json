@@ -1,0 +1,3811 @@
+{
+  "description": "選んだ24記号の部分評価。注釈の事後監査を含む。候補外の扉・窓は分母に含まれず、未監査候補を誤検出扱いしない。全体の適合率・再現率ではない。",
+  "rows": [
+    {
+      "image": "monochrome",
+      "mode": "baseline",
+      "candidates": 0,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 335,
+      "height": 448,
+      "walls": 31,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9714285714285714,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9772727272727273
+        ],
+        "coverage": 0.9973000683526999,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      }
+    },
+    {
+      "image": "monochrome",
+      "mode": "hough",
+      "candidates": 70,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 335,
+      "height": 448,
+      "walls": 31,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9714285714285714,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9772727272727273
+        ],
+        "coverage": 0.9973000683526999,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 6,
+        "falseCenters": [
+          14,
+          18,
+          21,
+          24,
+          31,
+          39
+        ],
+        "unreviewedCount": 64
+      },
+      "initialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 6,
+        "falseCenters": [
+          14,
+          18,
+          21,
+          24,
+          31,
+          39
+        ],
+        "unreviewedCount": 64
+      }
+    },
+    {
+      "image": "monochrome",
+      "mode": "geometry",
+      "candidates": 5,
+      "doors": 4,
+      "windowBands": 1,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 335,
+      "height": 448,
+      "walls": 31,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9714285714285714,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9772727272727273
+        ],
+        "coverage": 0.9973000683526999,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 3,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 2
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      }
+    },
+    {
+      "image": "monochrome",
+      "mode": "apply",
+      "candidates": 5,
+      "doors": 4,
+      "windowBands": 1,
+      "applied": [
+        3,
+        4
+      ],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 1,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 2,
+          "reason": "対応する壁の両側がない"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 335,
+      "height": 448,
+      "walls": 27,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9772727272727273
+        ],
+        "coverage": 0.9988038277511961,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 3,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 2
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      }
+    },
+    {
+      "image": "colored",
+      "mode": "baseline",
+      "candidates": 0,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 554,
+      "height": 554,
+      "walls": 41,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.8306878306878307,
+          1,
+          1,
+          1,
+          0.7706422018348624,
+          0.8320610687022901,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9803921568627451,
+          0.625,
+          1,
+          1,
+          1
+        ],
+        "coverage": 0.9582079677429448,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      }
+    },
+    {
+      "image": "colored",
+      "mode": "hough",
+      "candidates": 133,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 554,
+      "height": 554,
+      "walls": 41,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.8306878306878307,
+          1,
+          1,
+          1,
+          0.7706422018348624,
+          0.8320610687022901,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9803921568627451,
+          0.625,
+          1,
+          1,
+          1
+        ],
+        "coverage": 0.9582079677429448,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 5,
+        "falseCenters": [
+          3,
+          22,
+          63,
+          69,
+          94
+        ],
+        "unreviewedCount": 128
+      },
+      "initialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 5,
+        "falseCenters": [
+          3,
+          22,
+          63,
+          69,
+          94
+        ],
+        "unreviewedCount": 128
+      }
+    },
+    {
+      "image": "colored",
+      "mode": "geometry",
+      "candidates": 14,
+      "doors": 12,
+      "windowBands": 2,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 554,
+      "height": 554,
+      "walls": 41,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.8306878306878307,
+          1,
+          1,
+          1,
+          0.7706422018348624,
+          0.8320610687022901,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9803921568627451,
+          0.625,
+          1,
+          1,
+          1
+        ],
+        "coverage": 0.9582079677429448,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 12
+      },
+      "initialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 12
+      }
+    },
+    {
+      "image": "colored",
+      "mode": "apply",
+      "candidates": 14,
+      "doors": 12,
+      "windowBands": 2,
+      "applied": [
+        4,
+        9,
+        12,
+        13
+      ],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 1,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 2,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 3,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 5,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 6,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 7,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 8,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 10,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 11,
+          "reason": "対応する壁の両側がない"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 554,
+      "height": 554,
+      "walls": 35,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.7706422018348624,
+          0.8320610687022901,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9791666666666666,
+          1,
+          1,
+          1
+        ],
+        "coverage": 0.9818204320523399,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 2,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 12
+      },
+      "initialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 12
+      }
+    },
+    {
+      "image": "dark-background",
+      "mode": "baseline",
+      "candidates": 0,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 386,
+      "height": 518,
+      "walls": 66,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.05194805194805195,
+          0.9585798816568047,
+          1,
+          0.8244274809160306,
+          1,
+          1,
+          1,
+          0.7480916030534351,
+          1,
+          0.5833333333333334,
+          1,
+          1,
+          0.5930232558139535,
+          1,
+          0.9058823529411765,
+          0.7704918032786885,
+          1,
+          1
+        ],
+        "coverage": 0.8650409348916567,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      }
+    },
+    {
+      "image": "dark-background",
+      "mode": "hough",
+      "candidates": 296,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 386,
+      "height": 518,
+      "walls": 66,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.05194805194805195,
+          0.9585798816568047,
+          1,
+          0.8244274809160306,
+          1,
+          1,
+          1,
+          0.7480916030534351,
+          1,
+          0.5833333333333334,
+          1,
+          1,
+          0.5930232558139535,
+          1,
+          0.9058823529411765,
+          0.7704918032786885,
+          1,
+          1
+        ],
+        "coverage": 0.8650409348916567,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 12,
+        "falseCenters": [
+          23,
+          31,
+          51,
+          86,
+          95,
+          114,
+          127,
+          135,
+          156,
+          172,
+          228,
+          277
+        ],
+        "unreviewedCount": 284
+      },
+      "initialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 12,
+        "falseCenters": [
+          23,
+          31,
+          51,
+          86,
+          95,
+          114,
+          127,
+          135,
+          156,
+          172,
+          228,
+          277
+        ],
+        "unreviewedCount": 284
+      }
+    },
+    {
+      "image": "dark-background",
+      "mode": "geometry",
+      "candidates": 23,
+      "doors": 21,
+      "windowBands": 2,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 386,
+      "height": 518,
+      "walls": 66,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.05194805194805195,
+          0.9585798816568047,
+          1,
+          0.8244274809160306,
+          1,
+          1,
+          1,
+          0.7480916030534351,
+          1,
+          0.5833333333333334,
+          1,
+          1,
+          0.5930232558139535,
+          1,
+          0.9058823529411765,
+          0.7704918032786885,
+          1,
+          1
+        ],
+        "coverage": 0.8650409348916567,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 21
+      },
+      "initialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 21
+      }
+    },
+    {
+      "image": "dark-background",
+      "mode": "apply",
+      "candidates": 23,
+      "doors": 21,
+      "windowBands": 2,
+      "applied": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        6,
+        12,
+        15,
+        16
+      ],
+      "rejected": [
+        {
+          "index": 5,
+          "reason": "既存の開口を保護"
+        },
+        {
+          "index": 7,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 8,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 9,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 10,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 11,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 13,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 14,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 17,
+          "reason": "既存の開口を保護"
+        },
+        {
+          "index": 18,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 19,
+          "reason": "既存の開口を保護"
+        },
+        {
+          "index": 20,
+          "reason": "既存の開口を保護"
+        },
+        {
+          "index": 21,
+          "reason": "既存の開口を保護"
+        },
+        {
+          "index": 22,
+          "reason": "既存の開口を保護"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 386,
+      "height": 518,
+      "walls": 51,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.05194805194805195,
+          1,
+          1,
+          0.9007633587786259,
+          1,
+          1,
+          1,
+          0.9770992366412213,
+          1,
+          0.5833333333333334,
+          1,
+          1,
+          1,
+          1,
+          0.9058823529411765,
+          1,
+          1,
+          1
+        ],
+        "coverage": 0.91679085966539,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 21
+      },
+      "initialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 21
+      }
+    },
+    {
+      "image": "textured",
+      "mode": "baseline",
+      "candidates": 0,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 434,
+      "height": 434,
+      "walls": 68,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          0.9733727810650887,
+          0.9704142011834319,
+          0.6776859504132231,
+          1,
+          0.983739837398374,
+          0.4426229508196721,
+          1,
+          1,
+          0.9666666666666667,
+          0.7851239669421488,
+          0.7333333333333333,
+          1,
+          1,
+          1,
+          0.9761904761904762
+        ],
+        "coverage": 0.9123029508242596,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      }
+    },
+    {
+      "image": "textured",
+      "mode": "hough",
+      "candidates": 187,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 434,
+      "height": 434,
+      "walls": 68,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          0.9733727810650887,
+          0.9704142011834319,
+          0.6776859504132231,
+          1,
+          0.983739837398374,
+          0.4426229508196721,
+          1,
+          1,
+          0.9666666666666667,
+          0.7851239669421488,
+          0.7333333333333333,
+          1,
+          1,
+          1,
+          0.9761904761904762
+        ],
+        "coverage": 0.9123029508242596,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 10,
+        "falseCenters": [
+          7,
+          13,
+          20,
+          39,
+          60,
+          75,
+          92,
+          105,
+          106,
+          157
+        ],
+        "unreviewedCount": 177
+      },
+      "initialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 10,
+        "falseCenters": [
+          7,
+          13,
+          20,
+          39,
+          60,
+          75,
+          92,
+          105,
+          106,
+          157
+        ],
+        "unreviewedCount": 177
+      }
+    },
+    {
+      "image": "textured",
+      "mode": "geometry",
+      "candidates": 16,
+      "doors": 16,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 434,
+      "height": 434,
+      "walls": 68,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          0.9733727810650887,
+          0.9704142011834319,
+          0.6776859504132231,
+          1,
+          0.983739837398374,
+          0.4426229508196721,
+          1,
+          1,
+          0.9666666666666667,
+          0.7851239669421488,
+          0.7333333333333333,
+          1,
+          1,
+          1,
+          0.9761904761904762
+        ],
+        "coverage": 0.9123029508242596,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 15
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 15
+      }
+    },
+    {
+      "image": "textured",
+      "mode": "apply",
+      "candidates": 16,
+      "doors": 16,
+      "windowBands": 0,
+      "applied": [
+        1,
+        4,
+        6,
+        9,
+        11,
+        14
+      ],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 2,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 3,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 5,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 7,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 8,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 10,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 12,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 13,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 15,
+          "reason": "対応する壁の両側がない"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 434,
+      "height": 434,
+      "walls": 59,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          0.9733727810650887,
+          0.9704142011834319,
+          0.9793388429752066,
+          1,
+          0.983739837398374,
+          0.4426229508196721,
+          1,
+          1,
+          0.9666666666666667,
+          0.9421487603305785,
+          0.7333333333333333,
+          1,
+          1,
+          1,
+          0.9761904761904762
+        ],
+        "coverage": 0.939283991174284,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 15
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 15
+      }
+    },
+    {
+      "image": "cottage",
+      "mode": "baseline",
+      "candidates": 0,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": true,
+      "width": 848,
+      "height": 903,
+      "walls": 30,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.990909090909091,
+          1,
+          1,
+          1,
+          0.9105263157894737,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "coverage": 0.8895492319315034,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      }
+    },
+    {
+      "image": "cottage",
+      "mode": "hough",
+      "candidates": 52,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": true,
+      "width": 848,
+      "height": 903,
+      "walls": 30,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.990909090909091,
+          1,
+          1,
+          1,
+          0.9105263157894737,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "coverage": 0.8895492319315034,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 15,
+        "falseCenters": [
+          4,
+          6,
+          10,
+          11,
+          12,
+          16,
+          17,
+          29,
+          34,
+          41,
+          42,
+          44,
+          46,
+          49,
+          51
+        ],
+        "unreviewedCount": 37
+      },
+      "initialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 15,
+        "falseCenters": [
+          4,
+          6,
+          10,
+          11,
+          12,
+          16,
+          17,
+          29,
+          34,
+          41,
+          42,
+          44,
+          46,
+          49,
+          51
+        ],
+        "unreviewedCount": 37
+      }
+    },
+    {
+      "image": "cottage",
+      "mode": "geometry",
+      "candidates": 4,
+      "doors": 4,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": true,
+      "width": 848,
+      "height": 903,
+      "walls": 30,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.990909090909091,
+          1,
+          1,
+          1,
+          0.9105263157894737,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "coverage": 0.8895492319315034,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      }
+    },
+    {
+      "image": "cottage",
+      "mode": "apply",
+      "candidates": 4,
+      "doors": 4,
+      "windowBands": 0,
+      "applied": [
+        3
+      ],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 1,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 2,
+          "reason": "対応する壁の両側がない"
+        }
+      ],
+      "usedColorFallback": true,
+      "width": 848,
+      "height": 903,
+      "walls": 27,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.990909090909091,
+          1,
+          1,
+          1,
+          0.9105263157894737,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "coverage": 0.8369176529841349,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      }
+    },
+    {
+      "image": "riverside",
+      "mode": "baseline",
+      "candidates": 0,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 1024,
+      "height": 627,
+      "walls": 109,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.9295454545454546,
+          1,
+          1,
+          1,
+          0.72,
+          0.28888888888888886,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0.925,
+          0,
+          0,
+          0,
+          0
+        ],
+        "coverage": 0.5431717171717172,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      }
+    },
+    {
+      "image": "riverside",
+      "mode": "hough",
+      "candidates": 430,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 1024,
+      "height": 627,
+      "walls": 109,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.9295454545454546,
+          1,
+          1,
+          1,
+          0.72,
+          0.28888888888888886,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0.925,
+          0,
+          0,
+          0,
+          0
+        ],
+        "coverage": 0.5431717171717172,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 18,
+        "falseCenters": [
+          47,
+          65,
+          71,
+          88,
+          100,
+          139,
+          179,
+          189,
+          204,
+          273,
+          290,
+          292,
+          323,
+          330,
+          349,
+          387,
+          425,
+          429
+        ],
+        "unreviewedCount": 412
+      },
+      "initialAudit": {
+        "matchedPositive": null,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 18,
+        "falseCenters": [
+          47,
+          65,
+          71,
+          88,
+          100,
+          139,
+          179,
+          189,
+          204,
+          273,
+          290,
+          292,
+          323,
+          330,
+          349,
+          387,
+          425,
+          429
+        ],
+        "unreviewedCount": 412
+      }
+    },
+    {
+      "image": "riverside",
+      "mode": "geometry",
+      "candidates": 21,
+      "doors": 13,
+      "windowBands": 8,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 1024,
+      "height": 627,
+      "walls": 109,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.9295454545454546,
+          1,
+          1,
+          1,
+          0.72,
+          0.28888888888888886,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0.925,
+          0,
+          0,
+          0,
+          0
+        ],
+        "coverage": 0.5431717171717172,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 4,
+        "falseCenters": [
+          0,
+          1,
+          2,
+          12
+        ],
+        "unreviewedCount": 17
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 4,
+        "falseCenters": [
+          0,
+          1,
+          2,
+          12
+        ],
+        "unreviewedCount": 17
+      }
+    },
+    {
+      "image": "riverside",
+      "mode": "apply",
+      "candidates": 21,
+      "doors": 13,
+      "windowBands": 8,
+      "applied": [],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 1,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 2,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 3,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 4,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 5,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 6,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 7,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 8,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 9,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 10,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 11,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 12,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 13,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 14,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 15,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 16,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 17,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 18,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 19,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 20,
+          "reason": "対応する壁の両側がない"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 1024,
+      "height": 627,
+      "walls": 109,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.9295454545454546,
+          1,
+          1,
+          1,
+          0.72,
+          0.28888888888888886,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0.925,
+          0,
+          0,
+          0,
+          0
+        ],
+        "coverage": 0.5431717171717172,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 4,
+        "falseCenters": [
+          0,
+          1,
+          2,
+          12
+        ],
+        "unreviewedCount": 17
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 4,
+        "falseCenters": [
+          0,
+          1,
+          2,
+          12
+        ],
+        "unreviewedCount": 17
+      }
+    },
+    {
+      "image": "monochrome",
+      "mode": "strict",
+      "candidates": 3,
+      "doors": 2,
+      "windowBands": 1,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 335,
+      "height": 448,
+      "walls": 31,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9714285714285714,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9772727272727273
+        ],
+        "coverage": 0.9973000683526999,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 3,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 2
+      }
+    },
+    {
+      "image": "monochrome",
+      "mode": "strict-apply",
+      "candidates": 3,
+      "doors": 2,
+      "windowBands": 1,
+      "applied": [],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 1,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 2,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 335,
+      "height": 448,
+      "walls": 31,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9714285714285714,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9772727272727273
+        ],
+        "coverage": 0.9973000683526999,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 3,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 2
+      }
+    },
+    {
+      "image": "colored",
+      "mode": "strict",
+      "candidates": 10,
+      "doors": 8,
+      "windowBands": 2,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 554,
+      "height": 554,
+      "walls": 41,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.8306878306878307,
+          1,
+          1,
+          1,
+          0.7706422018348624,
+          0.8320610687022901,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9803921568627451,
+          0.625,
+          1,
+          1,
+          1
+        ],
+        "coverage": 0.9582079677429448,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 8
+      },
+      "initialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 8
+      }
+    },
+    {
+      "image": "colored",
+      "mode": "strict-apply",
+      "candidates": 10,
+      "doors": 8,
+      "windowBands": 2,
+      "applied": [
+        4
+      ],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 1,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 2,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 3,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 5,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 6,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 7,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 8,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 9,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 554,
+      "height": 554,
+      "walls": 40,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.8306878306878307,
+          1,
+          1,
+          1,
+          0.7706422018348624,
+          0.8320610687022901,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9803921568627451,
+          0.625,
+          1,
+          1,
+          1
+        ],
+        "coverage": 0.9582079677429448,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 8
+      },
+      "initialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 8
+      }
+    },
+    {
+      "image": "dark-background",
+      "mode": "strict",
+      "candidates": 15,
+      "doors": 12,
+      "windowBands": 3,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 386,
+      "height": 518,
+      "walls": 66,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.05194805194805195,
+          0.9585798816568047,
+          1,
+          0.8244274809160306,
+          1,
+          1,
+          1,
+          0.7480916030534351,
+          1,
+          0.5833333333333334,
+          1,
+          1,
+          0.5930232558139535,
+          1,
+          0.9058823529411765,
+          0.7704918032786885,
+          1,
+          1
+        ],
+        "coverage": 0.8650409348916567,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 13
+      },
+      "initialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 13
+      }
+    },
+    {
+      "image": "dark-background",
+      "mode": "strict-apply",
+      "candidates": 15,
+      "doors": 12,
+      "windowBands": 3,
+      "applied": [
+        0,
+        1,
+        2,
+        3,
+        5,
+        11
+      ],
+      "rejected": [
+        {
+          "index": 4,
+          "reason": "既存の開口を保護"
+        },
+        {
+          "index": 6,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 7,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 8,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 9,
+          "reason": "既存の開口を保護"
+        },
+        {
+          "index": 10,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 12,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 13,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 14,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 386,
+      "height": 518,
+      "walls": 56,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.05194805194805195,
+          1,
+          1,
+          0.8244274809160306,
+          1,
+          1,
+          1,
+          0.7480916030534351,
+          1,
+          0.5833333333333334,
+          1,
+          1,
+          1,
+          1,
+          0.9058823529411765,
+          1,
+          1,
+          1
+        ],
+        "coverage": 0.9007201485364226,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 13
+      },
+      "initialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          1,
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 13
+      }
+    },
+    {
+      "image": "textured",
+      "mode": "strict",
+      "candidates": 9,
+      "doors": 9,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 434,
+      "height": 434,
+      "walls": 68,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          0.9733727810650887,
+          0.9704142011834319,
+          0.6776859504132231,
+          1,
+          0.983739837398374,
+          0.4426229508196721,
+          1,
+          1,
+          0.9666666666666667,
+          0.7851239669421488,
+          0.7333333333333333,
+          1,
+          1,
+          1,
+          0.9761904761904762
+        ],
+        "coverage": 0.9123029508242596,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 8
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 8
+      }
+    },
+    {
+      "image": "textured",
+      "mode": "strict-apply",
+      "candidates": 9,
+      "doors": 9,
+      "windowBands": 0,
+      "applied": [
+        0,
+        2,
+        4,
+        5
+      ],
+      "rejected": [
+        {
+          "index": 1,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 3,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 6,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 7,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 8,
+          "reason": "対応する壁の両側がない"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 434,
+      "height": 434,
+      "walls": 63,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          0.9733727810650887,
+          0.9704142011834319,
+          0.6776859504132231,
+          1,
+          0.983739837398374,
+          0.4426229508196721,
+          1,
+          1,
+          0.9666666666666667,
+          0.9421487603305785,
+          0.7333333333333333,
+          1,
+          1,
+          1,
+          0.9761904761904762
+        ],
+        "coverage": 0.9215397033765201,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 8
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 8
+      }
+    },
+    {
+      "image": "cottage",
+      "mode": "strict",
+      "candidates": 4,
+      "doors": 4,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": true,
+      "width": 848,
+      "height": 903,
+      "walls": 30,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.990909090909091,
+          1,
+          1,
+          1,
+          0.9105263157894737,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "coverage": 0.8895492319315034,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      }
+    },
+    {
+      "image": "cottage",
+      "mode": "strict-apply",
+      "candidates": 4,
+      "doors": 4,
+      "windowBands": 0,
+      "applied": [
+        2
+      ],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 1,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 3,
+          "reason": "対応する壁の両側がない"
+        }
+      ],
+      "usedColorFallback": true,
+      "width": 848,
+      "height": 903,
+      "walls": 27,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.990909090909091,
+          1,
+          1,
+          1,
+          0.9105263157894737,
+          0,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "coverage": 0.8369176529841349,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      }
+    },
+    {
+      "image": "riverside",
+      "mode": "strict",
+      "candidates": 9,
+      "doors": 2,
+      "windowBands": 7,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 1024,
+      "height": 627,
+      "walls": 109,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.9295454545454546,
+          1,
+          1,
+          1,
+          0.72,
+          0.28888888888888886,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0.925,
+          0,
+          0,
+          0,
+          0
+        ],
+        "coverage": 0.5431717171717172,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 2,
+        "falseCenters": [
+          0,
+          1
+        ],
+        "unreviewedCount": 7
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 2,
+        "falseCenters": [
+          0,
+          1
+        ],
+        "unreviewedCount": 7
+      }
+    },
+    {
+      "image": "riverside",
+      "mode": "strict-apply",
+      "candidates": 9,
+      "doors": 2,
+      "windowBands": 7,
+      "applied": [],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 1,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 2,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 3,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 4,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 5,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 6,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 7,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 8,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 1024,
+      "height": 627,
+      "walls": 109,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.9295454545454546,
+          1,
+          1,
+          1,
+          0.72,
+          0.28888888888888886,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0.925,
+          0,
+          0,
+          0,
+          0
+        ],
+        "coverage": 0.5431717171717172,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 2,
+        "falseCenters": [
+          0,
+          1
+        ],
+        "unreviewedCount": 7
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 2,
+        "falseCenters": [
+          0,
+          1
+        ],
+        "unreviewedCount": 7
+      }
+    },
+    {
+      "image": "monochrome",
+      "mode": "verified",
+      "candidates": 2,
+      "doors": 1,
+      "windowBands": 1,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 335,
+      "height": 448,
+      "walls": 31,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9714285714285714,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9772727272727273
+        ],
+        "coverage": 0.9973000683526999,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 1
+      }
+    },
+    {
+      "image": "monochrome",
+      "mode": "verified-apply",
+      "candidates": 2,
+      "doors": 1,
+      "windowBands": 1,
+      "applied": [],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 1,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 335,
+      "height": 448,
+      "walls": 31,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9714285714285714,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9772727272727273
+        ],
+        "coverage": 0.9973000683526999,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 1
+      }
+    },
+    {
+      "image": "colored",
+      "mode": "verified",
+      "candidates": 6,
+      "doors": 1,
+      "windowBands": 5,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 554,
+      "height": 554,
+      "walls": 41,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.8306878306878307,
+          1,
+          1,
+          1,
+          0.7706422018348624,
+          0.8320610687022901,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9803921568627451,
+          0.625,
+          1,
+          1,
+          1
+        ],
+        "coverage": 0.9582079677429448,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      },
+      "initialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      }
+    },
+    {
+      "image": "colored",
+      "mode": "verified-apply",
+      "candidates": 6,
+      "doors": 1,
+      "windowBands": 5,
+      "applied": [],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "対応する壁の両側がない"
+        },
+        {
+          "index": 1,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 2,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 3,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 4,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 5,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 554,
+      "height": 554,
+      "walls": 41,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.8306878306878307,
+          1,
+          1,
+          1,
+          0.7706422018348624,
+          0.8320610687022901,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.9803921568627451,
+          0.625,
+          1,
+          1,
+          1
+        ],
+        "coverage": 0.9582079677429448,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      },
+      "initialAudit": {
+        "matchedPositive": 2,
+        "positiveCount": 4,
+        "matchedIndices": [
+          3,
+          2
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 4
+      }
+    },
+    {
+      "image": "dark-background",
+      "mode": "verified",
+      "candidates": 7,
+      "doors": 2,
+      "windowBands": 5,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 386,
+      "height": 518,
+      "walls": 66,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.05194805194805195,
+          0.9585798816568047,
+          1,
+          0.8244274809160306,
+          1,
+          1,
+          1,
+          0.7480916030534351,
+          1,
+          0.5833333333333334,
+          1,
+          1,
+          0.5930232558139535,
+          1,
+          0.9058823529411765,
+          0.7704918032786885,
+          1,
+          1
+        ],
+        "coverage": 0.8650409348916567,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 6
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 6
+      }
+    },
+    {
+      "image": "dark-background",
+      "mode": "verified-apply",
+      "candidates": 7,
+      "doors": 2,
+      "windowBands": 5,
+      "applied": [
+        0,
+        1
+      ],
+      "rejected": [
+        {
+          "index": 2,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 3,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 4,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 5,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 6,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 386,
+      "height": 518,
+      "walls": 63,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.05194805194805195,
+          0.9585798816568047,
+          1,
+          0.8244274809160306,
+          1,
+          1,
+          1,
+          0.7480916030534351,
+          1,
+          0.5833333333333334,
+          1,
+          1,
+          1,
+          1,
+          0.9058823529411765,
+          0.7704918032786885,
+          1,
+          1
+        ],
+        "coverage": 0.8864607635330275,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 6
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 6
+      }
+    },
+    {
+      "image": "textured",
+      "mode": "verified",
+      "candidates": 1,
+      "doors": 1,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 434,
+      "height": 434,
+      "walls": 68,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          0.9733727810650887,
+          0.9704142011834319,
+          0.6776859504132231,
+          1,
+          0.983739837398374,
+          0.4426229508196721,
+          1,
+          1,
+          0.9666666666666667,
+          0.7851239669421488,
+          0.7333333333333333,
+          1,
+          1,
+          1,
+          0.9761904761904762
+        ],
+        "coverage": 0.9123029508242596,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      }
+    },
+    {
+      "image": "textured",
+      "mode": "verified-apply",
+      "candidates": 1,
+      "doors": 1,
+      "windowBands": 0,
+      "applied": [
+        0
+      ],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 434,
+      "height": 434,
+      "walls": 65,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          0.9733727810650887,
+          0.9704142011834319,
+          0.6776859504132231,
+          1,
+          0.983739837398374,
+          0.4426229508196721,
+          1,
+          1,
+          0.9666666666666667,
+          0.7851239669421488,
+          0.7333333333333333,
+          1,
+          1,
+          1,
+          0.9761904761904762
+        ],
+        "coverage": 0.9123029508242596,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 1,
+        "positiveCount": 4,
+        "matchedIndices": [
+          0
+        ],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      }
+    },
+    {
+      "image": "cottage",
+      "mode": "verified",
+      "candidates": 0,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": true,
+      "width": 848,
+      "height": 903,
+      "walls": 30,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.990909090909091,
+          1,
+          1,
+          1,
+          0.9105263157894737,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "coverage": 0.8895492319315034,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      }
+    },
+    {
+      "image": "cottage",
+      "mode": "verified-apply",
+      "candidates": 0,
+      "doors": 0,
+      "windowBands": 0,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": true,
+      "width": 848,
+      "height": 903,
+      "walls": 30,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          0.990909090909091,
+          1,
+          1,
+          1,
+          0.9105263157894737,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "coverage": 0.8895492319315034,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 0,
+        "falseCenters": [],
+        "unreviewedCount": 0
+      }
+    },
+    {
+      "image": "riverside",
+      "mode": "verified",
+      "candidates": 8,
+      "doors": 0,
+      "windowBands": 8,
+      "applied": [],
+      "rejected": [],
+      "usedColorFallback": false,
+      "width": 1024,
+      "height": 627,
+      "walls": 109,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.9295454545454546,
+          1,
+          1,
+          1,
+          0.72,
+          0.28888888888888886,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0.925,
+          0,
+          0,
+          0,
+          0
+        ],
+        "coverage": 0.5431717171717172,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 1,
+        "falseCenters": [
+          5
+        ],
+        "unreviewedCount": 7
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 1,
+        "falseCenters": [
+          5
+        ],
+        "unreviewedCount": 7
+      }
+    },
+    {
+      "image": "riverside",
+      "mode": "verified-apply",
+      "candidates": 8,
+      "doors": 0,
+      "windowBands": 8,
+      "applied": [],
+      "rejected": [
+        {
+          "index": 0,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 1,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 2,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 3,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 4,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 5,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 6,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        },
+        {
+          "index": 7,
+          "reason": "窓と引き戸の種類・高さが未確定"
+        }
+      ],
+      "usedColorFallback": false,
+      "width": 1024,
+      "height": 627,
+      "walls": 109,
+      "changedWidths": 0,
+      "changedEnds": 0,
+      "floorApplied": false,
+      "metrics": {
+        "coverageByWall": [
+          1,
+          0.9295454545454546,
+          1,
+          1,
+          1,
+          0.72,
+          0.28888888888888886,
+          1,
+          1,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0.925,
+          0,
+          0,
+          0,
+          0
+        ],
+        "coverage": 0.5431717171717172,
+        "nonWallLength": 0,
+        "blockedOpenings": 0,
+        "missingWallPoints": 0,
+        "unexpectedSolidPoints": 0
+      },
+      "errors": [],
+      "partialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 1,
+        "falseCenters": [
+          5
+        ],
+        "unreviewedCount": 7
+      },
+      "initialAudit": {
+        "matchedPositive": 0,
+        "positiveCount": 4,
+        "matchedIndices": [],
+        "falseCenterCount": 1,
+        "falseCenters": [
+          5
+        ],
+        "unreviewedCount": 7
+      }
+    }
+  ]
+}

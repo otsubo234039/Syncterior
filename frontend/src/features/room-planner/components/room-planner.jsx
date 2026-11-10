@@ -3,20 +3,21 @@ import { useRoomPlanner } from '../hooks/use-room-planner';
 import { PlannerSidebar } from './planner-sidebar';
 import { PlannerCanvas } from './planner-canvas';
 import { FurnitureProperties } from './furniture-properties';
+import { FloorPlanImporter } from './floor-plan-importer';
 import { RoomSharing } from './room-sharing';
 
 export function RoomPlanner() {
   const planner = useRoomPlanner();
   const { plan, items, planKey, changePlan, addItem, active, rotate, update, editable,
     collaboration, shareRoom, shareUrl, reconnect, leaveRoom } = planner;
-  const totalArea = (plan.w * plan.d).toFixed(1);
+  const totalArea = (plan.area ?? plan.w * plan.d).toFixed(1);
 
   return <>
     <PlannerSidebar planKey={planKey} changePlan={changePlan} addItem={addItem}
-      editable={editable} canAdd={items.length < 200} />
+      editable={editable} canAdd={items.length < 200} custom={Boolean(planner.customPlan)} />
     <section className="workspace">
       <RoomSharing collaboration={collaboration} shareRoom={shareRoom} shareUrl={shareUrl}
-        reconnect={reconnect} leaveRoom={leaveRoom} />
+        reconnect={reconnect} leaveRoom={leaveRoom} custom={Boolean(planner.customPlan)} />
       {collaboration.status === 'local' && <div className="local-save-bar" role="region" aria-label="個人配置の保存">
         <p role="status">{planner.localSave.error || planner.localSave.message}</p>
         <button className="sharing-text-button" onClick={planner.clearLocalSave}>保存した個人配置を消去</button>
@@ -33,9 +34,11 @@ export function RoomPlanner() {
             <div><span>FURNITURE</span><strong>{items.length}<small> 点</small></strong></div>
           </div>
         </div>
+        <FloorPlanImporter customPlan={planner.customPlan} importFloorPlan={planner.importFloorPlan} disabled={collaboration.status !== 'local'} />
+        {planner.placementError && <p role="alert">{planner.placementError}</p>}
         <PlannerCanvas {...planner} />
         <div className="workspace-bottom">
-          <div className="hint"><span className="hint-key">TIP</span>{editable ? '家具をクリックして選択、ドラッグして配置を調整' : '接続が戻るまで配置の編集を一時停止しています'}</div>
+          <div className="hint"><span className="hint-key">TIP</span>{planner.customPlan ? '測った一辺の2点と長さで、全体のサイズを合わせられます' : editable ? '家具をクリックして選択、ドラッグして配置を調整' : '接続が戻るまで配置の編集を一時停止しています'}</div>
           <div className="controls-hint"><span>左ドラッグ：回転</span><span>スクロール：ズーム</span></div>
         </div>
         <FurnitureProperties active={active} plan={plan} rotate={rotate} update={update} editable={editable} />

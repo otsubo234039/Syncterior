@@ -1,0 +1,194 @@
+[
+  {
+    "method": "current",
+    "image": "monochrome",
+    "polygons": 31,
+    "floors": 1,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 1761.9847630000002,
+    "errors": []
+  },
+  {
+    "method": "blender",
+    "image": "monochrome",
+    "polygons": 6,
+    "floors": 1,
+    "doors": 1,
+    "windows": 11,
+    "elapsedMs": 111.84937699999864,
+    "errors": []
+  },
+  {
+    "method": "vectorizer-sealed",
+    "image": "monochrome",
+    "polygons": 2,
+    "floors": 14,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 35.46217900020565,
+    "errors": []
+  },
+  {
+    "method": "vectorizer-open",
+    "image": "monochrome",
+    "polygons": 14,
+    "floors": 1,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 6.721036000271852,
+    "errors": []
+  },
+  {
+    "method": "current",
+    "image": "colored",
+    "polygons": 41,
+    "floors": 1,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 1770.267749999999,
+    "errors": []
+  },
+  {
+    "method": "blender",
+    "image": "colored",
+    "polygons": 4,
+    "floors": 1,
+    "doors": 0,
+    "windows": 1,
+    "elapsedMs": 154.5711749995462,
+    "errors": []
+  },
+  {
+    "method": "vectorizer-sealed",
+    "image": "colored",
+    "polygons": 15,
+    "floors": 20,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 58.30013000013423,
+    "errors": []
+  },
+  {
+    "method": "vectorizer-open",
+    "image": "colored",
+    "polygons": 26,
+    "floors": 17,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 27.8781249999156,
+    "errors": []
+  },
+  {
+    "method": "current",
+    "image": "dark-background",
+    "polygons": 65,
+    "floors": 1,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 1863.576862,
+    "errors": []
+  },
+  {
+    "method": "blender",
+    "image": "dark-background",
+    "polygons": 1,
+    "floors": 1,
+    "doors": 0,
+    "windows": 0,
+    "elapsedMs": 85.66359500036924,
+    "errors": []
+  },
+  {
+    "method": "vectorizer-sealed",
+    "image": "dark-background",
+    "polygons": 18,
+    "floors": 34,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 47.26576600023691,
+    "errors": []
+  },
+  {
+    "method": "vectorizer-open",
+    "image": "dark-background",
+    "polygons": 41,
+    "floors": 24,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 25.355834000038158,
+    "errors": []
+  },
+  {
+    "method": "current",
+    "image": "textured",
+    "polygons": 68,
+    "floors": 1,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 1581.3686699999998,
+    "errors": []
+  },
+  {
+    "method": "blender",
+    "image": "textured",
+    "polygons": 18,
+    "floors": 1,
+    "doors": 1,
+    "windows": 30,
+    "elapsedMs": 473.57284700046876,
+    "errors": []
+  },
+  {
+    "method": "vectorizer-sealed",
+    "image": "textured",
+    "polygons": 1,
+    "floors": 37,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 62.36740300028032,
+    "errors": []
+  },
+  {
+    "method": "vectorizer-open",
+    "image": "textured",
+    "polygons": 49,
+    "floors": 22,
+    "doors": null,
+    "windows": null,
+    "elapsedMs": 24.093729999549396,
+    "errors": []
+  },
+  {
+    "method": "blueprint",
+    "image": "monochrome",
+    "walls": 31,
+    "rooms": 0,
+    "recognitionSource": "current",
+    "errors": []
+  },
+  {
+    "method": "blueprint",
+    "image": "colored",
+    "walls": 41,
+    "rooms": 0,
+    "recognitionSource": "current",
+    "errors": []
+  },
+  {
+    "method": "blueprint",
+    "image": "dark-background",
+    "walls": 65,
+    "rooms": 0,
+    "recognitionSource": "current",
+    "errors": []
+  },
+  {
+    "method": "blueprint",
+    "image": "textured",
+    "walls": 68,
+    "rooms": 0,
+    "recognitionSource": "current",
+    "errors": []
+  }
+]

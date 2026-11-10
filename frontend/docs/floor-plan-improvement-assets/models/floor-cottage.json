@@ -1,0 +1,1 @@
+{"method":"floor","image":"cottage","width":848,"height":903,"polygons":[],"floors":[{"outer":[[0,0],[848,0],[848,903],[0,903]],"holes":[]}],"plan":{"version":1,"name":"取込間取り","w":8,"d":8.518867924528301,"h":2.4,"wallThickness":0.05,"floors":[{"id":"floor-1","kind":"room","points":[[0,0],[8,0],[8,8.518867924528301],[0,8.518867924528301]]}],"walls":[]}}

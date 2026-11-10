@@ -13,11 +13,14 @@
     "test:e2e:ui": "node scripts/run-e2e.js --ui --ui-host=0.0.0.0 --ui-port=8080",
     "pretest:e2e": "node scripts/check-e2e-browser.js",
     "pretest:e2e:ui": "node scripts/check-e2e-browser.js",
-    "test:e2e:install": "playwright install --with-deps chromium"
+    "test:e2e:install": "playwright install --with-deps chromium",
+    "test:floor-plan": "node scripts/run-e2e.js --evaluate-floor-plan",
+    "pretest:floor-plan": "node scripts/check-e2e-browser.js"
   },
   "dependencies": {
     "@react-three/drei": "^10.0.0",
     "@react-three/fiber": "^9.0.0",
+    "@techstark/opencv-js": "4.12.0-release.1",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

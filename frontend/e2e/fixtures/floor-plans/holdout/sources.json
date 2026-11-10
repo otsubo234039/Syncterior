@@ -1,0 +1,27 @@
+[
+  {
+    "id": "riverside",
+    "file": "riverside.png",
+    "author": "Jacob Riis (1849–1914)",
+    "date": "1890",
+    "license": "Public domain (PD-US-expired; Wikimedia Commons file page)",
+    "source": "https://commons.wikimedia.org/wiki/File:Jacob_Riis_-_Floor_Plan_Of_One_Division_In_The_Riverside_Buildings,_Showing_Six_Apartments.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/3/34/Jacob_Riis_-_Floor_Plan_Of_One_Division_In_The_Riverside_Buildings%2C_Showing_Six_Apartments.png",
+    "retrieved": "2026-11-09",
+    "modifications": "元ファイルをそのまま保存。解析時のみ製品と同様に長辺1024pxへ縮小。",
+    "sha256": "52932d1584adceef5585c840f75363f726e513a64fa6dd107f7fc6abf4cbd28e"
+  },
+  {
+    "id": "cottage",
+    "file": "cottage.png",
+    "author": "G.H.Jarrell",
+    "date": "2026-02-07",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:4-Box_floorplan_as_described_by_T._Hubka,_vers2.png",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/5/52/4-Box_floorplan_as_described_by_T._Hubka%2C_vers2.png",
+    "retrieved": "2026-11-09",
+    "modifications": "なし",
+    "sha256": "9da73cdc9967254847e9a061511e868b6d193fcb7b51b79e1ada0acfe78a9ca5"
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "mode": "baseline",
+    "opaque": 4,
+    "transparent": 0,
+    "thin": 4
+  },
+  {
+    "mode": "alpha",
+    "opaque": 4,
+    "transparent": 4,
+    "thin": 4
+  },
+  {
+    "mode": "alpha-color",
+    "opaque": 4,
+    "transparent": 4,
+    "thin": 4
+  },
+  {
+    "mode": "bilateral",
+    "opaque": 4,
+    "transparent": 4,
+    "thin": 4
+  },
+  {
+    "mode": "clahe",
+    "opaque": 4,
+    "transparent": 4,
+    "thin": 4
+  },
+  {
+    "mode": "sauvola",
+    "opaque": 4,
+    "transparent": 4,
+    "thin": 4
+  },
+  {
+    "mode": "median",
+    "opaque": 4,
+    "transparent": 4,
+    "thin": 0
+  },
+  {
+    "mode": "safe-alpha",
+    "opaque": 4,
+    "transparent": 4,
+    "thin": 4
+  },
+  {
+    "mode": "guarded-clahe",
+    "opaque": 4,
+    "transparent": 4,
+    "thin": 4
+  }
+]

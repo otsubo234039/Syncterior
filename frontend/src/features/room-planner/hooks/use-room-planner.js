@@ -1,10 +1,13 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { isRoomLayout } from '../utils/room-state';
+import { findFurniturePosition } from '../utils/floor-plan-furniture';
 import { plans } from '../data/plans';
 import { initialFurniture, uid } from '../utils/furniture';
 import { createRoomSession } from '../utils/room-session';
 import { roomLink, sharedRoomId } from '../utils/room-link';
 import { roomApi } from '../api/room-api';
 import { createLocalRoomStorage } from '../utils/local-room-storage';
+import { CUSTOM_PLAN_KEY, isFloorPlan, polygonArea } from '../utils/floor-plan';
 
 export function useRoomPlanner() {
   const [local] = useState(() => {
@@ -25,11 +28,14 @@ export function useRoomPlanner() {
     onRoomChange: id => window.history.replaceState(null, '', roomLink(window.location.href, id)),
   }));
   const collaboration = useSyncExternalStore(session.subscribe, session.getSnapshot);
+  const [placementError, setPlacementError] = useState('');
   const [selected, setSelected] = useState(null);
   const [showSizes, setShowSizes] = useState(true);
   const { planKey, items } = collaboration.room;
   const editable = ['local', 'connected'].includes(collaboration.status) && !collaboration.changingPlan;
-  const plan = plans[planKey];
+  const customPlan = planKey === CUSTOM_PLAN_KEY ? collaboration.room.customPlan : null;
+  const plan = customPlan ? { ...customPlan, desc: '図面からの概算モデル・測った一辺でサイズを合わせられます',
+    area: customPlan.floors.filter(floor => floor.kind === 'room').reduce((area, floor) => area + polygonArea(floor.points), 0) } : plans[planKey];
   const active = items.find(item => item.id === selected);
 
   useEffect(() => {
@@ -41,15 +47,20 @@ export function useRoomPlanner() {
   }, [items, selected]);
 
   const changePlan = key => {
+    setPlacementError('');
     if (session.dispatch({ type: 'change-plan', planKey: key, items: initialFurniture(key) })) setSelected(null);
   };
   const addItem = catalogItem => {
     if (items.length >= 200) return;
-    const item = { ...catalogItem, id: uid(), x: 0, z: 0, rot: 0 };
+    const initial = { ...catalogItem, id: uid(), x: 0, z: 0, rot: 0 };
+    const item = customPlan ? findFurniturePosition(initial, customPlan) : initial;
+    setPlacementError(item ? '' : 'この家具が床と壁に収まる位置が見つかりませんでした。');
+    if (!item) return;
     if (session.dispatch({ type: 'add', item })) setSelected(item.id);
   };
   const update = (id, patch) => session.dispatch({ type: 'update', id, patch });
-  const moveItem = (id, x, z) => update(id, { x, z });
+  const moveItem = (id, x, z) => session.dispatch({ type: 'update', id, patch: { x, z },
+    ...(customPlan ? { slideAlongWalls: true } : {}) });
   const rotate = () => active && session.dispatch({ type: 'rotate', id: active.id });
   const removeSelected = () => {
     if (selected && session.dispatch({ type: 'remove', id: selected })) setSelected(null);
@@ -61,6 +72,14 @@ export function useRoomPlanner() {
     session.leave();
     setLocalSave({ error: '', message: '共有から退出しました。個人保存は変更していません。次の編集から保存します。' });
   };
+  const importFloorPlan = (value, preserveItems = false) => {
+    if (collaboration.status !== 'local' || !isFloorPlan(value)) return false;
+    const nextItems = preserveItems && customPlan ? items : [];
+    if (!isRoomLayout({ planKey: CUSTOM_PLAN_KEY, customPlan: value, items: nextItems })) return false;
+    setSelected(null);
+    setPlacementError('');
+    return session.dispatch({ type: 'change-plan', planKey: CUSTOM_PLAN_KEY, customPlan: value, items: nextItems });
+  };
 
   return {
     planKey, plan, items, selected, active, showSizes, editable,
@@ -68,6 +87,7 @@ export function useRoomPlanner() {
     toggleSizes: () => setShowSizes(value => !value),
     collaboration, shareRoom: session.share, reconnect: session.reconnect, leaveRoom,
     localSave, clearLocalSave,
+    customPlan, importFloorPlan, placementError,
     shareUrl: collaboration.roomId ? roomLink(window.location.href, collaboration.roomId) : '',
   };
 }

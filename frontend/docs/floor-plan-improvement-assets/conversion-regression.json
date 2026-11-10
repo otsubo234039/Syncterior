@@ -1,0 +1,7 @@
+{
+  "beforeCommit": "b11497e",
+  "rawSha256": "75d4b9a70fd1bfa782538d25395e44855c90ddd1d40ab21cfea0d75d6507bd4b",
+  "beforeError": "間取りを生成できませんでした。余白の少ない画像をお試しください。",
+  "afterWalls": 109,
+  "minimumMetres": 0.02
+}

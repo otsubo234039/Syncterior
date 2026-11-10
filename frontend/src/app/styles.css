@@ -15,3 +15,12 @@ button:disabled{opacity:.5;cursor:not-allowed}.sharing-notice{display:flex;align
 @media(max-width:1000px){.sharing-bar{align-items:flex-start}.sharing-summary>span{flex-basis:100%;margin-left:25px}.sharing-notice{flex-direction:column;align-items:flex-start}}
 @media(max-width:720px){.sharing-bar{padding:10px;gap:8px}.sharing-actions{flex-direction:column}.sharing-button{padding:8px 10px;font-size:10px}.share-dialog{padding:22px}.share-dialog h2{font-size:19px}.share-link-field{flex-direction:column}}
 .local-save-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:0 2px;color:#68766d}.local-save-bar p{margin:0;font-size:11px;line-height:1.7}.local-save-bar button{flex-shrink:0}@media(max-width:720px){.local-save-bar{align-items:flex-start;flex-direction:column;gap:4px}}
+/* Floor-plan image import */
+.floor-import{margin:0 0 18px;padding:14px;border:1px solid #dce3d7;border-radius:9px;background:#fbfbf8;min-width:0}
+.floor-import summary{cursor:pointer;font-size:14px;font-weight:700;color:#345e4e}.floor-import p{font-size:11px;line-height:1.8;color:#68766d}
+.floor-import fieldset{min-width:0;border:0;padding:0;margin:0}.floor-import-controls,.floor-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.floor-import label{display:flex;flex-direction:column;gap:5px;font-size:11px;min-width:0}.floor-import input{max-width:100%;min-width:0;border:1px solid #cddccc;border-radius:5px;padding:8px;background:white;color:#345e4e;font:inherit}
+.floor-import input[type=file]{width:230px}.floor-editor-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(210px,1fr);gap:16px;margin:14px 0}.floor-drawing{width:100%;max-height:600px;background:#fff;border:1px solid #dce3d7;cursor:crosshair}.floor-fields{display:flex;flex-direction:column;gap:14px}.floor-fields form{display:grid;grid-template-columns:minmax(0,1fr);gap:9px}.floor-fields h3{margin:0;font-size:13px}.floor-import .floor-error{color:#9a4a35}.floor-import :focus-visible{outline:2px solid #5b8f78;outline-offset:2px}
+@media(max-width:1000px){.floor-editor-grid{grid-template-columns:minmax(0,1fr)}.floor-drawing{max-height:470px}}@media(max-width:720px){.floor-import{padding:10px}.floor-import-controls>*{width:100%}.floor-import input[type=file]{width:100%}.floor-toolbar>*{max-width:100%}}
+
+.floor-measure-point{touch-action:none;cursor:grab}.floor-measure-point:active{cursor:grabbing}

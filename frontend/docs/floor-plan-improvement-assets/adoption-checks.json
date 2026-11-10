@@ -1,0 +1,29 @@
+{
+  "unchangedImages": [
+    {
+      "image": "monochrome",
+      "unchangedPlan": true
+    },
+    {
+      "image": "colored",
+      "unchangedPlan": true
+    },
+    {
+      "image": "dark-background",
+      "unchangedPlan": true
+    },
+    {
+      "image": "textured",
+      "unchangedPlan": true
+    },
+    {
+      "image": "riverside",
+      "unchangedPlan": true
+    }
+  ],
+  "cottageMatchesColorTrial": true,
+  "experimentCases": 48,
+  "screenshots": 96,
+  "productScreenshots": 2,
+  "all48ModelsValid": true
+}
