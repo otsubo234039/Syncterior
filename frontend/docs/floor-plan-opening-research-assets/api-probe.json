@@ -1,0 +1,40 @@
+{
+  "version": "4.12.0",
+  "apis": {
+    "Canny": "function",
+    "findContours": "function",
+    "approxPolyDP": "function",
+    "fitEllipse": "function",
+    "HoughCircles": "function",
+    "HoughLinesP": "function",
+    "matchTemplate": "function",
+    "distanceTransform": "function",
+    "ORB": "function",
+    "ORB_create": "undefined",
+    "BFMatcher": "function",
+    "BFMatcher_create": "undefined",
+    "SURF": "undefined",
+    "SURF_create": "undefined",
+    "xfeatures2d": "undefined",
+    "createLineSegmentDetector": "undefined",
+    "LineSegmentDetector": "undefined",
+    "warpAffine": "function",
+    "minMaxLoc": "function"
+  },
+  "smoke": {
+    "quarter": {
+      "circles": 0,
+      "values": []
+    },
+    "circle": {
+      "circles": 1,
+      "values": [
+        80.5,
+        81.5,
+        34.900001525878906
+      ]
+    },
+    "ORBConstructor": true,
+    "BFMatcherConstructor": true
+  }
+}

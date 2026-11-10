@@ -45,6 +45,10 @@ src/
 
 Issue #28の画像取り込みに関するライブラリ・参考実装、追加画像での試作の状況と制約は、[間取り画像の取り込み調査](docs/floor-plan-import-research.md)を参照してください。取り込み機能の使い方と制約は下記を参照してください。
 
+扉・窓の候補抽出と開口変換を試した[全6枚・8方式の検証](docs/floor-plan-opening-experiments.md)には、認識・実3Dの96画像、誤検出への対策、自動適用を見送った理由と再実行手順を記録しています。比較は手動実験専用です。
+
+扉・窓の候補を壁と分ける方式、公開実装、全6枚の円検出による診断は[開口部検出の調査](docs/floor-plan-opening-detection-research.md)にまとめています。製品への自動認識の組込みは未実施です。
+
 全6枚・9方式の前処理比較と認識・3Dの108画像は[前処理実験](docs/floor-plan-preprocessing-experiments.md)を参照してください。透明な無彩色画像の白補完と、黒背景に限定したCLAHEを採用しています。比較スクリプトは手動実験専用です。
 
 候補抽出前の処理については[前処理の追加調査](docs/floor-plan-preprocessing-research.md)に、候補・リスク・実行可能なAPIと次の比較方法をまとめています。

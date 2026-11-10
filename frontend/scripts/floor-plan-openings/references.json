@@ -1,0 +1,335 @@
+{
+  "description": "原図の目視で事前に選んだ部分注釈。window-bandは窓・引き戸の区別を含まない枠記号。openingは種類未確定。全数正解ではなく、参照外の候補は未評価。各座標は長辺1024以下の画像上。",
+  "images": {
+    "monochrome": {
+      "positive": [
+        {
+          "kind": "door",
+          "segment": [
+            45,
+            24,
+            45,
+            59
+          ]
+        },
+        {
+          "kind": "door",
+          "segment": [
+            180,
+            90,
+            180,
+            134
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            143,
+            378,
+            177,
+            378
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            203,
+            378,
+            289,
+            378
+          ]
+        }
+      ],
+      "negative": [
+        [
+          271,
+          36,
+          305,
+          82
+        ],
+        [
+          225,
+          152,
+          261,
+          183
+        ]
+      ]
+    },
+    "colored": {
+      "positive": [
+        {
+          "kind": "door",
+          "segment": [
+            245,
+            179,
+            277,
+            179
+          ]
+        },
+        {
+          "kind": "door",
+          "segment": [
+            283,
+            319,
+            319,
+            319
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            180,
+            31,
+            272,
+            31
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            138,
+            464,
+            234,
+            464
+          ]
+        }
+      ],
+      "negative": [
+        [
+          346,
+          42,
+          396,
+          80
+        ],
+        [
+          174,
+          75,
+          241,
+          120
+        ]
+      ]
+    },
+    "dark-background": {
+      "positive": [
+        {
+          "kind": "door",
+          "segment": [
+            193,
+            164,
+            193,
+            198
+          ]
+        },
+        {
+          "kind": "door",
+          "segment": [
+            193,
+            295,
+            193,
+            329
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            66,
+            29,
+            153,
+            29
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            196,
+            29,
+            254,
+            29
+          ]
+        }
+      ],
+      "negative": [
+        [
+          329,
+          41,
+          359,
+          94
+        ],
+        [
+          75,
+          187,
+          142,
+          270
+        ]
+      ]
+    },
+    "textured": {
+      "positive": [
+        {
+          "kind": "door",
+          "segment": [
+            161,
+            70,
+            192,
+            70
+          ]
+        },
+        {
+          "kind": "door",
+          "segment": [
+            211,
+            283,
+            211,
+            311
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            91,
+            194,
+            91,
+            232
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            244,
+            407,
+            302,
+            407
+          ]
+        }
+      ],
+      "negative": [
+        [
+          228,
+          213,
+          272,
+          268
+        ],
+        [
+          102,
+          326,
+          134,
+          384
+        ]
+      ]
+    },
+    "cottage": {
+      "positive": [
+        {
+          "kind": "door",
+          "segment": [
+            448,
+            32,
+            548,
+            32
+          ]
+        },
+        {
+          "kind": "door",
+          "segment": [
+            438,
+            770,
+            538,
+            770
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            180,
+            32,
+            282,
+            32
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            790,
+            192,
+            790,
+            280
+          ]
+        }
+      ],
+      "negative": [
+        [
+          125,
+          195,
+          375,
+          250
+        ],
+        [
+          470,
+          550,
+          740,
+          680
+        ]
+      ]
+    },
+    "riverside": {
+      "positive": [
+        {
+          "kind": "opening",
+          "segment": [
+            117,
+            343,
+            145,
+            343
+          ]
+        },
+        {
+          "kind": "opening",
+          "segment": [
+            348,
+            359,
+            378,
+            359
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            95,
+            109,
+            140,
+            109
+          ]
+        },
+        {
+          "kind": "window-band",
+          "segment": [
+            177,
+            109,
+            216,
+            109
+          ]
+        }
+      ],
+      "negative": [
+        [
+          456,
+          452,
+          579,
+          555
+        ],
+        [
+          540,
+          190,
+          620,
+          270
+        ]
+      ]
+    }
+  },
+  "audit": [
+    {
+      "image": "monochrome",
+      "reason": "初期の2点を玄関・浴室側の開口へ置き換え、小窓の範囲も見直した。実験後の変更で、座標補正だけでなく評価対象の再選定を含む探索的な評価。独立した検証には使わず、初期版references-initial.jsonの評価も残す。"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "baselineCommit": "023c70d",
+  "date": "2026-11-10",
+  "opencvPackage": "4.12.0-release.1",
+  "cases": 48,
+  "screenshots": 96,
+  "note": "初回・厳格版・壁保護版の順に探索的に追加。判定に影響しない監査フィールドisolatedArcは最後に追加したため初回rawにはない。",
+  "sha256": {
+    "scripts/floor-plan-openings/detect.js": "8cc432df8118980b1f09b43e31a336090902dce00e9129cebfac69e5543a9888",
+    "scripts/floor-plan-openings/apply.js": "e5503b4b1886afc6728c2291cb1d050ced861b33e776bac801d31e743d45abe9",
+    "scripts/floor-plan-openings/capture.mjs": "1a79c4e319431030ba714950a0b8aa66897c9f5e705869573b26236356137067",
+    "scripts/floor-plan-openings/evaluate.mjs": "b988cf7fb769bfeff0de30bc5a75be9747ac787d7273638b22bc79d225152587",
+    "scripts/floor-plan-openings/references.json": "b6d329e8301ddfde55b30fe04341c272276590953e810cef812d56b73078afc6",
+    "scripts/floor-plan-openings/references-initial.json": "408c8a418c703e4d3c67defa324d6a6cf73a27dc36a69cd742424b9a65f09144",
+    "scripts/floor-plan-openings/detect.test.js": "88ee9aa4f7288242ae7db2479fcfd35321b22b6836d42431d59591c7f2bed52c",
+    "e2e/fixtures/floor-plans/monochrome.jpg": "d2d5eac21cbcd72e336412ba5b0e78429316031dabb62edd6e511f1ece291896",
+    "e2e/fixtures/floor-plans/colored.jpg": "777b52516f3f1e82a6d0825023c08395f544cabc8d4c3a8e91c134b544e40b66",
+    "e2e/fixtures/floor-plans/dark-background.jpg": "63f982d86db9c2fb94ec1a836498ccfb2f17ee4b707173a9e31795be69270307",
+    "e2e/fixtures/floor-plans/textured.jpg": "bf96f95cf423a6a5582f54374698676d0ffd8d8e9dd8baad134f121dab343333",
+    "e2e/fixtures/floor-plans/holdout/cottage.png": "9da73cdc9967254847e9a061511e868b6d193fcb7b51b79e1ada0acfe78a9ca5",
+    "e2e/fixtures/floor-plans/holdout/riverside.png": "52932d1584adceef5585c840f75363f726e513a64fa6dd107f7fc6abf4cbd28e",
+    "docs/floor-plan-opening-experiment-assets/baseline-worker.js": "2de9ed46f611cc06041253d9aff46e3a829828caf05b3967f3b842c694c24257"
+  }
+}

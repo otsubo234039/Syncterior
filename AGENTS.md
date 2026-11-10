@@ -67,6 +67,8 @@ frontend/
 
 ### 間取り画像の取り込み（Issue #28）
 
+- 扉・窓の候補抽出は[手動実験](frontend/docs/floor-plan-opening-experiments.md)を参照します。`node frontend/scripts/floor-plan-openings/capture.mjs`で全6枚・8方式の実WorkerとWebGL、`node frontend/scripts/floor-plan-openings/evaluate.mjs`で部分注釈を比較します。実験用テストは`node --test --test-isolation=none frontend/scripts/floor-plan-openings/detect.test.js`で実行し、製品のユニットテストやCIとは区別します。円弧・扉板だけで窓・扉と断定せず、実壁との混同・開口の誤削除・円弧なしの取り逃がしを確認してください。窓らしい帯には引き戸や階段が混ざり、現時点で製品の自動適用は採用していません。
+
 - 前処理は[全6画像の比較](frontend/docs/floor-plan-preprocessing-experiments.md)を参照します。無彩色画像の透明部分だけ白背景へ合成し、外周接続の黒が10%以上を占める不透明画像だけCLAHEで補正します。一律の平滑化・CLAHE・色保持は薄い壁の欠落や文字の壁化を起こすため、部分網羅率だけで採用しないでください。色付き透明画像は既存の色救済を維持し、未対応のポーチ等は自動復元済みと報告しません。手動比較は`node frontend/scripts/floor-plan-preprocessing/capture.mjs`、合成比較は`node --test --test-isolation=none frontend/scripts/floor-plan-preprocessing/variants.test.js`を使い、通常CIとは区別します。
 
 - `floor-plan-image.js`で画像を検証・縮小し、`opencv-worker.js`でOpenCV.jsを使って壁候補を抽出します。OpenCVは同梱した固定バージョンを取り込み時だけ読み込み、画像を外部へ送信しません。処理の中止・差し替え・アンマウント・タイムアウト時はWorkerを終了し、OpenCVのMatはfinallyで破棄します。
