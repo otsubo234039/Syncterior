@@ -12,7 +12,9 @@ export function Room({
   moveItem,
   editable = true
 }) {
-  if (planKey === 'custom') return <FloorPlanShell plan={plan} />;
+  if (planKey === 'custom') return <group><FloorPlanShell plan={plan} />
+    {items.map(item => <Furniture key={item.id} item={item} selected={selected === item.id} onSelect={setSelected} onMove={moveItem} editable={editable} />)}
+  </group>;
   const p = plans[planKey],
     wall = .09;
   return <group>

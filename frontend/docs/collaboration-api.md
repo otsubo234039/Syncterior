@@ -152,6 +152,8 @@ JSONで`{ "error": "表示可能な日本語メッセージ" }`を返してく�
 
 `planKey: custom` と床輪郭・壁・開口部は、現在は個人編集専用です。現行APIの要求・snapshotには追加せず、作成時と共同編集中の形状変更をフロントで拒否します。テスト専用APIも未対応です。
 
-個人保存の第2版は `{version: 2, room: {planKey: 'custom', items: [], customPlan}}`。`customPlan` は `version/name/w/d/h/wallThickness/floors/walls`、床は `{id,kind,points}`、壁は `{id,start,end,openings,thicknessRatio?}`、開口部は `{id,kind,offset,width,bottom,height}` です。座標は画像左上を基準に右方向X・下方向Zのメートルで、表示時に部屋中央へ移します。`thicknessRatio`は基準厚さに対する倍率（有限数0.1〜8、省略時1）で、壁の実際の厚さは`wallThickness * thicknessRatio`です。全体寸法変更でも倍率を保持します。画像・プレビュー・表示倍率は保存しません。
+個人保存の第2版は `{version: 2, room: {planKey: 'custom', items: [/* 家具 */], customPlan}}`。`customPlan` は `version/name/w/d/h/wallThickness/floors/walls`、床は `{id,kind,points}`、壁は `{id,start,end,openings,thicknessRatio?}`、開口部は `{id,kind,offset,width,bottom,height}` です。座標は画像左上を基準に右方向X・下方向Zのメートルで、表示時に部屋中央へ移します。`thicknessRatio`は基準厚さに対する倍率（有限数0.1〜8、省略時1）で、壁の実際の厚さは`wallThickness * thicknessRatio`です。全体寸法変更でも倍率を保持します。画像・プレビュー・表示倍率は保存しません。
 
 共有への拡張は[BE-11 / #43](https://github.com/otsubo234039/Syncterior/issues/43)で追跡します。作成・保存・取得・形状置換・配信の契約、サーバー側の形状検証、planVersionと再送・競合処理、フロントのシリアライズとsnapshot検証を揃えてから共有を有効にします。現在のクライアント検証を実サーバー側の検証の代わりにしません。
+
+取込間取りの家具は現在フロントの個人編集・第2版の個人保存で扱います。家具座標はプリセットと同じ部屋中央原点のメートルで、形状の座標系とは異なります。共有APIでは引き続き取込間取りを拒否します。将来の#43対応では、`floor-plan-furniture.js`の床への包含・回転外形と壁ボックス（開口・高さを含む）の検証をサーバーの確定snapshotにも適用する必要があります。

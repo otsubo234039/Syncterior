@@ -13,6 +13,7 @@ export function FloorPlanImporter({ customPlan, importFloorPlan, disabled }) {
   const [target, setTarget] = useState(0);
   const [length, setLength] = useState('');
   const [undo, setUndo] = useState(null);
+  const replaceFurniture = useRef(false);
   const request = useRef(null), dragging = useRef(null), applied = useRef(false), suppressClick = useRef(false);
   useEffect(() => {
     if (applied.current && customPlan) { applied.current = false; setDraft(customPlan); return; }
@@ -31,6 +32,7 @@ export function FloorPlanImporter({ customPlan, importFloorPlan, disabled }) {
       if (controller.signal.aborted) return;
       const result = await recognizeFloorPlan(nextImage, controller.signal);
       if (controller.signal.aborted) return;
+      replaceFurniture.current = true;
       setImage(nextImage); setDraft(result.plan); setPoints([]); setTarget(0); setLength(''); setUndo(null);
       setMessage(`${result.engine}で壁候補を${result.plan.walls.length}本抽出しました。床は仮の長方形です。測った一辺の両端を指定してください。`);
     } catch (cause) {
@@ -124,11 +126,11 @@ export function FloorPlanImporter({ customPlan, importFloorPlan, disabled }) {
           {undo && <button className="sharing-text-button" onClick={() => { setDraft(undo); setUndo(null); setError(''); setMessage('補正前のサイズに戻しました。3Dに適用すると保存されます。'); }}>サイズ補正を取り消す</button>}
         </div>
       </div>
-      <p>床は仮の長方形で、壁・扉・窓には認識の誤りが残ります。適用すると現在の間取りと家具を置き換えます。</p>
+      <p>床は仮の長方形で、壁・扉・窓には認識の誤りが残ります。新しく画像を解析して適用すると現在の間取りと家具を置き換えます。同じ図面のサイズ補正では家具の実寸を維持します。</p>
       <button className="sharing-button primary" onClick={() => {
         applied.current = true;
-        if (importFloorPlan(draft)) { setError(''); setMessage('3Dの枠に適用しました。個人配置として保存します。'); }
-        else { applied.current = false; setError('間取りを適用できませんでした。'); }
+        if (importFloorPlan(draft, !replaceFurniture.current)) { replaceFurniture.current = false; setError(''); setMessage('3Dの枠に適用しました。個人配置として保存します。'); }
+        else { applied.current = false; setError('家具が新しい床や壁に収まりません。家具を移動・削除してから適用してください。'); }
       }}>この枠で3Dを作成</button>
     </fieldset>}
   </details>;

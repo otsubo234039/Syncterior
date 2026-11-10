@@ -12,7 +12,7 @@ function validLayout(room) {
     (room.planKey === CUSTOM_PLAN_KEY ? ['planKey', 'items', 'customPlan'] : ['planKey', 'items']).includes(key))
     && room.items.every(item => {
       if (!Object.keys(item).every(key => ITEM_FIELDS.includes(key))) return false;
-      const bounded = constrainFurnitureToRoom(item, plans[room.planKey]);
+      const bounded = constrainFurnitureToRoom(item, room.planKey === CUSTOM_PLAN_KEY ? room.customPlan : plans[room.planKey]);
       return bounded && Math.abs(bounded.x - item.x) <= 1e-9 && Math.abs(bounded.z - item.z) <= 1e-9;
     });
 }

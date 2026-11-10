@@ -80,7 +80,7 @@ test('取込間取りは個人保存の第2版で復元し、画像・表示倍�
   assert.equal(storage.load().room, null);
 });
 
-test('取込間取りへ家具を追加せず、プリセットに戻ると取込データを除く', () => {
+test('取込間取りで不正な家具を拒否し、プリセットに戻ると取込データを除く', () => {
   const value = layout();
   assert.equal(applyRoomOperation(value, { type: 'add', item: { id: 'test' } }), value);
   assert.equal(applyRoomOperation(value, { type: 'change-plan', ...value, items: [{}] }), value);
