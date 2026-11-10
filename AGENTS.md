@@ -67,6 +67,8 @@ frontend/
 
 ### 間取り画像の取り込み（Issue #28）
 
+- 取り込みUIは画像解析と任意の2点・一辺の実測値によるサイズ合わせに絞ります。部屋認識や壁全体の長さに依存せず、計測点は正規化座標で持ち、ドラッグ・キーボードでも調整できます。`floor-plan-calibration.js`で平面形状・壁厚・開口の位置と幅を一様に補正し、高さは維持します。近すぎる2点・不正値・範囲外は適用せず、同じ値の再適用は変更扱いにしません。計測・補正・取消は未確定状態で、3Dへの適用時だけ個人保存します。数値による壁追加・空枠編集・個別寸法フォーム・1/n表示を戻さず、詳細編集は将来の2Dモードで扱います。
+
 - 扉・窓の候補抽出は[手動実験](frontend/docs/floor-plan-opening-experiments.md)を参照します。`node frontend/scripts/floor-plan-openings/capture.mjs`で全6枚・8方式の実WorkerとWebGL、`node frontend/scripts/floor-plan-openings/evaluate.mjs`で部分注釈を比較します。実験用テストは`node --test --test-isolation=none frontend/scripts/floor-plan-openings/detect.test.js`で実行し、製品のユニットテストやCIとは区別します。円弧・扉板だけで窓・扉と断定せず、実壁との混同・開口の誤削除・円弧なしの取り逃がしを確認してください。窓らしい帯には引き戸や階段が混ざり、現時点で製品の自動適用は採用していません。
 
 - 前処理は[全6画像の比較](frontend/docs/floor-plan-preprocessing-experiments.md)を参照します。無彩色画像の透明部分だけ白背景へ合成し、外周接続の黒が10%以上を占める不透明画像だけCLAHEで補正します。一律の平滑化・CLAHE・色保持は薄い壁の欠落や文字の壁化を起こすため、部分網羅率だけで採用しないでください。色付き透明画像は既存の色救済を維持し、未対応のポーチ等は自動復元済みと報告しません。手動比較は`node frontend/scripts/floor-plan-preprocessing/capture.mjs`、合成比較は`node --test --test-isolation=none frontend/scripts/floor-plan-preprocessing/variants.test.js`を使い、通常CIとは区別します。
@@ -76,7 +78,7 @@ frontend/
 - 感度を利用者に選ばせず、局所的な二値化・長い帯からの線幅推定・中心線抽出を内部で行います。細線の救済と交点の補正は画像上の接続を根拠とし、白い開口を一律に結合しません。帯の太さが変わる区間を分割し、短い折れ返しは両端の接続、輪郭の厚壁化は両端のキャップを確認します。壁固有の`thicknessRatio`（省略時1、0.1〜8）を保存・復元・寸法変更・3D描画で維持します。入口の非壁点と出っ張り内外の点も実際の壁ボックスで回帰検証してください。規則的な薄い線の除外を強める場合も、短い壁や細い外枠の欠落を確認します。
 - 認識結果の変換は`floor-plan-detection.js`、実寸モデルの検証・寸法変更・開口部を避けた壁分割は`floor-plan.js`に配置します。画素上で有効な短い断片でも、実寸に直すと最小壁長0.02mを下回る場合はその断片だけを除き、間取り全体を失敗させません。UIや画像・表示倍率を実寸データへ混ぜません。自動認識を正解扱いせず、床が仮の長方形であることと修正が必要なことを表示します。
 - 取込間取りは家具なしの個人編集専用です。個人保存は第2版、従来のプリセットは第1版を維持します。共有APIの形状対応はBE-11 / #43が完了するまで有効にしません。
-- `e2e/fixtures/floor-plans/`の既存4画像と`holdout/`の追加2画像で実際のOpenCV Workerをデスクトップ・モバイル幅から検証し、`floor-plan.3d.spec.js`で実WebGLの枠表示と倍率変更を検証します。壁候補数を認識精度と報告しないでください。`references.json`は手動で選んだ一部の壁・非壁領域で、図面全体の正解ではありません。通常E2Eはこの部分評価も検証します。`npm run test:floor-plan --prefix frontend`で従来の線データとの比較を再現でき、通常E2Eと同じロックとブラウザ起動前確認を使います。OpenCVそのものの合成画像テストは`floor-plan-recognition.test.js`で行い、Node.js上のテストだけでブラウザのWorkerを検証したと扱いません。候補実装の全画像比較と認識・3D画像は[実装比較](frontend/docs/floor-plan-implementation-comparison.md)を参照します。比較キャプチャも通常E2Eと同じロックを使い、手動実験はCIや製品テストの成功と区別します。改善案の全6画像比較・採否・認識と3D画像は[改善実験](frontend/docs/floor-plan-improvement-experiments.md)へ記録します。追加画像の出典・利用条件は`holdout/sources.json`に残し、注釈の誤りを修正した場合は元の評価も維持します。手動の実験テストは`node --test frontend/scripts/floor-plan-improvements/refinements.test.js`で実行し、通常の製品テストやCIには混ぜません。調査・制約は[取り込み調査](frontend/docs/floor-plan-import-research.md)を更新します。
+- `e2e/fixtures/floor-plans/`の既存4画像と`holdout/`の追加2画像で実際のOpenCV Workerをデスクトップ・モバイル幅から検証し、`floor-plan.3d.spec.js`で実WebGLの枠表示と一辺による実寸補正を検証します。壁候補数を認識精度と報告しないでください。`references.json`は手動で選んだ一部の壁・非壁領域で、図面全体の正解ではありません。通常E2Eはこの部分評価も検証します。`npm run test:floor-plan --prefix frontend`で従来の線データとの比較を再現でき、通常E2Eと同じロックとブラウザ起動前確認を使います。OpenCVそのものの合成画像テストは`floor-plan-recognition.test.js`で行い、Node.js上のテストだけでブラウザのWorkerを検証したと扱いません。候補実装の全画像比較と認識・3D画像は[実装比較](frontend/docs/floor-plan-implementation-comparison.md)を参照します。比較キャプチャも通常E2Eと同じロックを使い、手動実験はCIや製品テストの成功と区別します。改善案の全6画像比較・採否・認識と3D画像は[改善実験](frontend/docs/floor-plan-improvement-experiments.md)へ記録します。追加画像の出典・利用条件は`holdout/sources.json`に残し、注釈の誤りを修正した場合は元の評価も維持します。手動の実験テストは`node --test frontend/scripts/floor-plan-improvements/refinements.test.js`で実行し、通常の製品テストやCIには混ぜません。調査・制約は[取り込み調査](frontend/docs/floor-plan-import-research.md)を更新します。
 
 ## 実行・検証
 

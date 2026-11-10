@@ -35,12 +35,9 @@ export function RoomPlanner() {
           </div>
         </div>
         <FloorPlanImporter customPlan={planner.customPlan} importFloorPlan={planner.importFloorPlan} disabled={collaboration.status !== 'local'} />
-        {planner.customPlan && <label className="floor-scale">模型の表示倍率<select value={planner.displayScale} onChange={event => planner.setDisplayScale(Number(event.target.value))}>
-          {[1, 10, 20, 50, 100].map(value => <option key={value} value={value}>1/{value}</option>)}
-        </select><span>実寸データは維持します。画面上の物理的な縮尺ではありません。</span></label>}
         <PlannerCanvas {...planner} />
         <div className="workspace-bottom">
-          <div className="hint"><span className="hint-key">TIP</span>{planner.customPlan ? '画像に重ねた候補を修正し、3Dに適用できます' : editable ? '家具をクリックして選択、ドラッグして配置を調整' : '接続が戻るまで配置の編集を一時停止しています'}</div>
+          <div className="hint"><span className="hint-key">TIP</span>{planner.customPlan ? '測った一辺の2点と長さで、全体のサイズを合わせられます' : editable ? '家具をクリックして選択、ドラッグして配置を調整' : '接続が戻るまで配置の編集を一時停止しています'}</div>
           <div className="controls-hint"><span>左ドラッグ：回転</span><span>スクロール：ズーム</span></div>
         </div>
         {!planner.customPlan && <FurnitureProperties active={active} plan={plan} rotate={rotate} update={update} editable={editable} />}
