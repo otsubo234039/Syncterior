@@ -1,10 +1,11 @@
+import { openLayout } from './fixtures/workspace.js';
 import { PerspectiveCamera, Vector3 } from 'three';
 import { test, expect, waitForSceneToSettle } from './fixtures/test.js';
 
 test.use({ sceneMode: 'full' });
 
 test('実際の3Dキャンバス上で家具をドラッグできる', async ({ page }) => {
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button', { name: /^デスク/ }).click();
   await page.getByLabel('左右位置 (X)').fill('0.5');
   const canvas = page.locator('canvas');
@@ -30,7 +31,7 @@ test('実際の3Dキャンバス上で家具をドラッグできる', async ({ 
 });
 
 test('回転した家具を壁際へドラッグしても外形が部屋に収まり、そのまま内側へ戻せる', async ({ page }) => {
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button', { name: /^デスク/ }).click();
   await page.getByRole('button', { name: '90° 回転' }).click();
   const xInput = page.getByLabel('左右位置 (X)');

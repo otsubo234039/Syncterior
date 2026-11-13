@@ -1,9 +1,10 @@
+import { openLayout } from './fixtures/workspace.js';
 import { test, expect } from './fixtures/test.js';
 
 test.use({ sceneMode: 'full' });
 
 test('静止中は描画を止め、家具と視点の変更時に3D表示を更新する', async ({ page }) => {
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button', { name: /^デスク/ }).click();
   const canvas = page.locator('canvas');
   await canvas.scrollIntoViewIfNeeded();

@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { createLocalRoomStorage, LOCAL_ROOM_KEY } from '../local-room-storage.js';
 import { initialFurniture } from '../furniture.js';
 import { createRoomSession } from '../room-session.js';
+import { newDrawing } from '../drawing-document.js';
 
 const room = () => ({ planKey: 'studio', items: initialFurniture('studio') });
 const encoded = layout => JSON.stringify({ version: 1, room: layout });
@@ -20,6 +21,27 @@ test('保存がない場合は復元せず、初期表示だけでは保存領�
   const { local, data } = setup();
   assert.deepEqual(local.load(), { room: null, error: '' });
   assert.equal(data.size, 0);
+});
+
+test('custom配置の元図面IDをモデル外に保存し、従来形式とプリセットの保存を維持する', () => {
+  const { local, data } = setup();
+  const layout = { planKey: 'custom', customPlan: newDrawing(), items: [] };
+  assert.equal(local.save(layout, 'drawing-a').error, '');
+  assert.deepEqual(local.load(), { room: layout, drawingId: 'drawing-a', error: '' });
+  assert.equal(Object.hasOwn(JSON.parse(data.get(LOCAL_ROOM_KEY)).room, 'drawingId'), false);
+  assert.equal(local.save(layout).error, '');
+  assert.deepEqual(local.load(), { room: layout, error: '' });
+  assert.equal(local.save(room(), 'drawing-a').error, '');
+  assert.equal(Object.hasOwn(JSON.parse(data.get(LOCAL_ROOM_KEY)), 'drawingId'), false);
+  const before = data.get(LOCAL_ROOM_KEY);
+  assert.ok(local.save(layout, '../bad').error);
+  assert.equal(data.get(LOCAL_ROOM_KEY), before);
+  for (const drawingId of [null, {}, '']) {
+    data.set(LOCAL_ROOM_KEY, JSON.stringify({ version: 2, room: layout, drawingId }));
+    assert.ok(local.load().error);
+  }
+  data.set(LOCAL_ROOM_KEY, JSON.stringify({ version: 1, room: room(), drawingId: 'drawing-a' }));
+  assert.ok(local.load().error);
 });
 
 test('間取り・位置・回転・色・家具IDをバージョン付きで保存し、独立した配置として復元する', () => {

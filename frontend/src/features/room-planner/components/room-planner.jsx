@@ -3,7 +3,7 @@ import { useRoomPlanner } from '../hooks/use-room-planner';
 import { PlannerSidebar } from './planner-sidebar';
 import { PlannerCanvas } from './planner-canvas';
 import { FurnitureProperties } from './furniture-properties';
-import { FloorPlanImporter } from './floor-plan-importer';
+import { DrawingWorkspace } from './drawing-workspace';
 import { RoomSharing } from './room-sharing';
 
 export function RoomPlanner() {
@@ -12,7 +12,14 @@ export function RoomPlanner() {
     collaboration, shareRoom, shareUrl, reconnect, leaveRoom } = planner;
   const totalArea = (plan.area ?? plan.w * plan.d).toFixed(1);
 
+  const drawingMode = planner.workspaceMode === 'drawing' && collaboration.status === 'local';
   return <>
+    <nav className="workspace-modes" aria-label="作業モード">
+      <button aria-pressed={drawingMode} disabled={collaboration.status !== 'local'} onClick={() => planner.setWorkspaceMode('drawing')}>図面モード</button>
+      <button aria-pressed={!drawingMode} onClick={() => planner.setWorkspaceMode('layout')}>3D・家具配置</button>
+      <span>図面を作成・保存 → 3Dで確認・家具を配置</span>
+    </nav>
+    {drawingMode ? <DrawingWorkspace planner={planner} /> : <>
     <PlannerSidebar planKey={planKey} changePlan={changePlan} addItem={addItem}
       editable={editable} canAdd={items.length < 200} custom={Boolean(planner.customPlan)} />
     <section className="workspace">
@@ -34,15 +41,16 @@ export function RoomPlanner() {
             <div><span>FURNITURE</span><strong>{items.length}<small> 点</small></strong></div>
           </div>
         </div>
-        <FloorPlanImporter customPlan={planner.customPlan} importFloorPlan={planner.importFloorPlan} disabled={collaboration.status !== 'local'} />
+        {collaboration.status === 'local' && <p className="drawing-layout-entry">壁・床・開口の作成や画像の変換は「図面モード」で行います。<button className="sharing-text-button" onClick={() => planner.setWorkspaceMode('drawing')}>図面の編集へ</button></p>}
         {planner.placementError && <p role="alert">{planner.placementError}</p>}
         <PlannerCanvas {...planner} />
         <div className="workspace-bottom">
-          <div className="hint"><span className="hint-key">TIP</span>{planner.customPlan ? '測った一辺の2点と長さで、全体のサイズを合わせられます' : editable ? '家具をクリックして選択、ドラッグして配置を調整' : '接続が戻るまで配置の編集を一時停止しています'}</div>
+          <div className="hint"><span className="hint-key">TIP</span>{planner.customPlan ? '壁・床・開口の変更は図面モードで編集してから3Dへ反映' : editable ? '家具をクリックして選択、ドラッグして配置を調整' : '接続が戻るまで配置の編集を一時停止しています'}</div>
           <div className="controls-hint"><span>左ドラッグ：回転</span><span>スクロール：ズーム</span></div>
         </div>
         <FurnitureProperties active={active} plan={plan} rotate={rotate} update={update} editable={editable} />
       </>}
     </section>
+    </>}
   </>;
 }

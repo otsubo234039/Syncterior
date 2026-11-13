@@ -1,3 +1,4 @@
+import { openLayout } from './workspace.js';
 import { test, expect, waitForScene, drawCalls } from './test.js';
 
 const count = page => page.locator('.room-metrics > div').filter({ hasText: 'FURNITURE' }).locator('strong');
@@ -12,7 +13,7 @@ async function share(page) {
 export async function verifySharedRoom({ page, guestPage: guest, sceneMode }) {
   // Two software-rendered canvases and a full edit/plan/leave flow need a larger budget.
   test.setTimeout(120_000);
-  await page.goto('/');
+  await openLayout(page);
   await page.getByRole('button', { name: /^デスク/ }).click();
   const url = await share(page);
   await page.getByRole('button', { name: '共有ダイアログを閉じる' }).click();
@@ -25,6 +26,12 @@ export async function verifySharedRoom({ page, guestPage: guest, sceneMode }) {
     await waitForScene(page);
     await waitForScene(guest);
   }
+  await page.getByRole('button', { name: '平面図', exact: true }).click();
+  await expect(page.getByLabel('部屋の平面図')).toBeVisible();
+  await expect(guest.getByRole('button', { name: '3D', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: '正面', exact: true }).click();
+  await page.getByRole('button', { name: '初期視点', exact: true }).click();
+  await expect(guest.getByRole('button', { name: '3D', exact: true })).toHaveAttribute('aria-pressed', 'true');
   const guestDraws = sceneMode === 'full' ? await drawCalls(guest) : 0;
   await page.getByLabel('左右位置 (X)').fill('99');
   await page.getByLabel('前後位置 (Z)').fill('99');

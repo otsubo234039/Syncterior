@@ -3,7 +3,7 @@ import { wallLength } from '../utils/floor-plan';
 import { calibrateFloorPlan, measurementLength } from '../utils/floor-plan-calibration';
 import { readFloorPlanImage, recognizeFloorPlan } from '../utils/floor-plan-image';
 
-export function FloorPlanImporter({ customPlan, importFloorPlan, disabled }) {
+export function FloorPlanImporter({ customPlan, sourceImage, convertToDrawing, disabled }) {
   const [draft, setDraft] = useState(customPlan);
   const [image, setImage] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -13,13 +13,13 @@ export function FloorPlanImporter({ customPlan, importFloorPlan, disabled }) {
   const [target, setTarget] = useState(0);
   const [length, setLength] = useState('');
   const [undo, setUndo] = useState(null);
-  const replaceFurniture = useRef(false);
-  const request = useRef(null), dragging = useRef(null), applied = useRef(false), suppressClick = useRef(false);
+  const request = useRef(null), dragging = useRef(null), suppressClick = useRef(false);
+  const newDocument = useRef(false);
   useEffect(() => {
-    if (applied.current && customPlan) { applied.current = false; setDraft(customPlan); return; }
-    applied.current = false; request.current?.abort(); releaseDrag(); setBusy(false);
-    setDraft(customPlan); setImage(null); setPoints([]); setTarget(0); setLength(''); setUndo(null);
-  }, [customPlan]);
+    request.current?.abort(); releaseDrag(); setBusy(false);
+    setDraft(customPlan); setImage(sourceImage ?? null); setPoints([]); setTarget(0); setLength(''); setUndo(null);
+    newDocument.current = false;
+  }, [customPlan, sourceImage]);
   useEffect(() => () => { request.current?.abort(); releaseDrag(); }, []);
   useEffect(() => { if (disabled) { request.current?.abort(); releaseDrag(); setBusy(false); } }, [disabled]);
 
@@ -32,7 +32,7 @@ export function FloorPlanImporter({ customPlan, importFloorPlan, disabled }) {
       if (controller.signal.aborted) return;
       const result = await recognizeFloorPlan(nextImage, controller.signal);
       if (controller.signal.aborted) return;
-      replaceFurniture.current = true;
+      if (file) newDocument.current = true;
       setImage(nextImage); setDraft(result.plan); setPoints([]); setTarget(0); setLength(''); setUndo(null);
       setMessage(`${result.engine}で壁候補を${result.plan.walls.length}本抽出しました。床は仮の長方形です。測った一辺の両端を指定してください。`);
     } catch (cause) {
@@ -61,10 +61,10 @@ export function FloorPlanImporter({ customPlan, importFloorPlan, disabled }) {
     if (active?.node.hasPointerCapture(active.pointerId)) active.node.releasePointerCapture(active.pointerId);
   }
   const measured = draft && measurementLength(draft, points);
-  return <details className="floor-import" open={customPlan ? true : undefined}>
-    <summary>間取り画像から3Dの枠を作る</summary>
+  return <details className="floor-import">
+    <summary>間取り画像を図面へ変換</summary>
     <p>画像は端末内で解析します。自動抽出は概算です。部屋で測った一辺の両端と実際の長さで、間取り全体のサイズを合わせます。</p>
-    {disabled && <p role="status">画像の取り込みは個人編集中に利用できます。</p>}
+    {disabled && <p role="status">図面への変換は個人編集中に利用できます。</p>}
     <fieldset disabled={disabled || busy} className="floor-import-controls">
       <label>間取り画像<input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => {
         const file = event.target.files?.[0]; event.target.value = ''; if (file) void analyze(file);
@@ -118,20 +118,21 @@ export function FloorPlanImporter({ customPlan, importFloorPlan, disabled }) {
             event.preventDefault(); const next = calibrateFloorPlan(draft, points, Number(length));
             if (!next) { setError('有効な2点と長さを指定してください。補正後の幅・奥行きは1〜100m、壁厚は0.05〜1mの範囲が必要です。'); return; }
             if (next === draft) { setError(''); setMessage('指定した長さに合っています。'); return; }
-            setUndo(draft); setDraft(next); setError(''); setMessage('指定した一辺に合わせて全体のサイズを補正しました。3Dに適用すると保存されます。');
+            setUndo(draft); setDraft(next); setError(''); setMessage('指定した一辺に合わせて全体のサイズを補正しました。「図面へ変換」で編集画面に反映できます。');
           }}>
             <label>測った一辺の長さ (m)<input type="number" min="0.02" step="any" required value={length} onChange={event => setLength(event.target.value)} /></label>
             <button className="sharing-button" disabled={measured == null}>この長さで全体を補正</button>
           </form>
-          {undo && <button className="sharing-text-button" onClick={() => { setDraft(undo); setUndo(null); setError(''); setMessage('補正前のサイズに戻しました。3Dに適用すると保存されます。'); }}>サイズ補正を取り消す</button>}
+          {undo && <button className="sharing-text-button" onClick={() => { setDraft(undo); setUndo(null); setError(''); setMessage('補正前のサイズに戻しました。「図面へ変換」で編集画面に反映できます。'); }}>サイズ補正を取り消す</button>}
         </div>
       </div>
-      <p>床は仮の長方形で、壁・扉・窓には認識の誤りが残ります。新しく画像を解析して適用すると現在の間取りと家具を置き換えます。同じ図面のサイズ補正では家具の実寸を維持します。</p>
-      <button className="sharing-button primary" onClick={() => {
-        applied.current = true;
-        if (importFloorPlan(draft, !replaceFurniture.current)) { replaceFurniture.current = false; setError(''); setMessage('3Dの枠に適用しました。個人配置として保存します。'); }
-        else { applied.current = false; setError('家具が新しい床や壁に収まりません。家具を移動・削除してから適用してください。'); }
-      }}>この枠で3Dを作成</button>
+      <p>自動認識直後の床は仮の長方形です。変換後、図面モードで壁・床・扉・窓を確認・修正し、図面として保存してください。この操作では3D配置を変更しません。</p>
+      <button className="sharing-button primary" onClick={event => {
+        if (convertToDrawing(draft, image, { newDocument: newDocument.current })) {
+          setError(''); setMessage('編集可能な図面へ変換しました。');
+          event.currentTarget.closest('details').open = false;
+        }
+      }}>図面へ変換</button>
     </fieldset>}
   </details>;
 }
