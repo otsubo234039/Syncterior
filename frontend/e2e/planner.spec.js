@@ -1,9 +1,10 @@
+import { openLayout } from './fixtures/workspace.js';
 import { test, expect } from './fixtures/test.js';
 
 const furnitureCount = page => page.locator('.room-metrics > div').filter({ hasText: 'FURNITURE' }).locator('strong');
 
 test('初期配置・間取り切り替え・寸法表示・モバイル幅のレイアウトを確認する', async ({ page }) => {
-  await page.goto('/');
+  await openLayout(page, '/');
   await expect(page.getByRole('heading', { name: 'ワンルーム / 3Dレイアウト' })).toBeVisible();
   await expect(furnitureCount(page)).toContainText('4');
   await expect(page.getByRole('region', { name: '部屋の3Dプレビュー' })).toBeVisible();
@@ -20,7 +21,7 @@ test('初期配置・間取り切り替え・寸法表示・モバイル幅の�
 });
 
 test('家具を追加し、選択した家具の編集・回転・削除ができる', async ({ page }) => {
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button', { name: /^デスク/ }).click();
   await expect(furnitureCount(page)).toContainText('5');
   await expect(page.getByRole('heading', { name: 'デスク', exact: true })).toBeVisible();
@@ -38,7 +39,7 @@ test('家具を追加し、選択した家具の編集・回転・削除がで�
 });
 
 test('共有API未設定時に利用状況を案内し、Escapeキーでダイアログを閉じられる', async ({ page }) => {
-  await page.goto('http://127.0.0.1:4174');
+  await openLayout(page, 'http://127.0.0.1:4174');
   await page.getByRole('button', { name: '部屋を共有', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
@@ -51,7 +52,7 @@ test('共有API未設定時に利用状況を案内し、Escapeキーでダイ�
 });
 
 test('長方形家具を壁際で回転・数値移動しても各方向の境界に収まり中央へ戻らない', async ({ page }) => {
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button', { name: /^ダブルベッド/ }).click();
   const x = page.getByLabel('左右位置 (X)');
   const z = page.getByLabel('前後位置 (Z)');

@@ -1,16 +1,17 @@
+import { openLayout, reloadLayout } from './fixtures/workspace.js';
 import { PerspectiveCamera, Vector3 } from 'three';
 import { test, expect, waitForSceneToSettle } from './fixtures/test.js';
 
 test.use({ sceneMode: 'full' });
 
 test('再読み込みで復元した家具が実3Dに描画され、元の位置と色で再選択できる', async ({ page }) => {
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button', { name: /^デスク/ }).click();
   await page.getByLabel('左右位置 (X)').fill('0.7');
   await page.getByLabel('前後位置 (Z)').fill('0.5');
   await page.getByLabel('家具の色').fill('#123456');
   await page.getByRole('button', { name: '90° 回転' }).click();
-  await page.reload();
+  await reloadLayout(page);
   await expect(page.getByRole('region', { name: '個人配置の保存' })).toContainText('復元しました');
   const canvas = page.locator('canvas');
   await canvas.scrollIntoViewIfNeeded();

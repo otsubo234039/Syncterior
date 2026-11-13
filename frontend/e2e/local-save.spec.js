@@ -1,3 +1,4 @@
+import { openLayout, reloadLayout } from './fixtures/workspace.js';
 import { test, expect } from './fixtures/test.js';
 
 const KEY = 'syncterior.personal-room';
@@ -6,7 +7,7 @@ const saving = page => page.getByRole('region', { name: '個人配置の保存' 
 const saved = page => page.evaluate(key => localStorage.getItem(key), KEY);
 
 test('個人編集を再読み込みと別タブで復元し、保存だけを消去して次の編集から再保存できる', async ({ page, context }) => {
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button', { name: /^1LDK/ }).click();
   await page.getByRole('button', { name: /^デスク/ }).click();
   await page.getByLabel('左右位置 (X)').fill('0.7');
@@ -20,7 +21,7 @@ test('個人編集を再読み込みと別タブで復元し、保存だけを�
   expect(Object.keys(data.room).sort()).toEqual(['items', 'planKey']);
   const desk = data.room.items.find(item => item.type === 'desk');
   expect(desk).toMatchObject({ x: .7, z: -.5, color: '#123456', rot: Math.PI / 2 });
-  await page.reload();
+  await reloadLayout(page);
   await expect(page.getByRole('heading', { name: '1LDK / 3Dレイアウト' })).toBeVisible();
   await expect(count(page)).toContainText('5');
   await expect(saving(page)).toContainText('復元しました');
@@ -28,7 +29,7 @@ test('個人編集を再読み込みと別タブで復元し、保存だけを�
   expect(await saved(page)).toBe(raw);
   const tab = await context.newPage();
   try {
-    await tab.goto('/');
+    await openLayout(tab);
     await expect(tab.getByRole('heading', { name: '1LDK / 3Dレイアウト' })).toBeVisible();
     await expect(count(tab)).toContainText('5');
   } finally { await tab.close(); }
@@ -36,7 +37,7 @@ test('個人編集を再読み込みと別タブで復元し、保存だけを�
   expect(await saved(page)).toBe(null);
   await expect(count(page)).toContainText('5');
   await expect(saving(page)).toContainText('消去しました');
-  await page.reload();
+  await reloadLayout(page);
   await expect(page.getByRole('heading', { name: 'ワンルーム / 3Dレイアウト' })).toBeVisible();
   await expect(count(page)).toContainText('4');
   expect(await saved(page)).toBe(null);
@@ -46,15 +47,15 @@ test('個人編集を再読み込みと別タブで復元し、保存だけを�
 });
 
 test('破損した個人保存は案内して初期配置を表示し、編集すると有効な保存へ更新する', async ({ page }) => {
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.evaluate(key => localStorage.setItem(key, '{broken'), KEY);
-  await page.reload();
+  await reloadLayout(page);
   await expect(saving(page)).toContainText('読み込めませんでした');
   await expect(count(page)).toContainText('4');
   expect(await saved(page)).toBe('{broken');
   await page.getByRole('button', { name: /^デスク/ }).click();
   await expect(saving(page)).toContainText('保存しました');
-  await page.reload();
+  await reloadLayout(page);
   await expect(count(page)).toContainText('5');
   await expect(saving(page)).toContainText('復元しました');
 });
@@ -69,7 +70,7 @@ test('保存領域の読み書き・消去が拒否されても編集を続け�
       };
     }
   }, KEY);
-  await page.goto('/');
+  await openLayout(page, '/');
   await expect(saving(page)).toContainText('読み込めませんでした');
   await page.getByRole('button', { name: /^デスク/ }).click();
   await expect(count(page)).toContainText('5');
@@ -85,7 +86,7 @@ test('保存領域の読み書き・消去が拒否されても編集を続け�
 });
 
 test('共有リンクは個人配置を送信せず、共有の確定・未確定操作と退出でも個人保存を上書きしない', async ({ page, request }) => {
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button', { name: /^ファミリー/ }).click();
   await page.getByRole('button', { name: /^デスク/ }).click();
   const personal = await saved(page);
@@ -94,7 +95,7 @@ test('共有リンクは個人配置を送信せず、共有の確定・未確�
   const shared = await response.json();
   const posts = [];
   page.on('request', request => { if (request.method() === 'POST') posts.push(request.url()); });
-  await page.goto(`/?room=${shared.id}`);
+  await openLayout(page, `/?room=${shared.id}`);
   await expect(page.locator('.sharing-summary')).toContainText('共同編集中');
   await expect(count(page)).toContainText('0');
   await expect(saving(page)).toHaveCount(0);
@@ -112,7 +113,7 @@ test('共有リンクは個人配置を送信せず、共有の確定・未確�
   await expect(page.locator('.sharing-summary')).toContainText('個人で編集中');
   await expect(count(page)).toContainText('1');
   expect(await saved(page)).toBe(personal);
-  await page.reload();
+  await reloadLayout(page);
   await expect(page.getByRole('heading', { name: 'ファミリー / 3Dレイアウト' })).toBeVisible();
   await expect(count(page)).toContainText('5');
   await expect(saving(page)).toContainText('復元しました');

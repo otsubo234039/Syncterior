@@ -1,3 +1,4 @@
+import { openLayout, reloadLayout } from './fixtures/workspace.js';
 import { PerspectiveCamera, Vector3 } from 'three';
 import { test, expect, waitForSceneToSettle } from './fixtures/test.js';
 
@@ -7,7 +8,7 @@ const layout={version:2,room:{planKey:'custom',items:[],customPlan:{version:1,na
 
 test('取込間取りの実際の3D家具をドラッグ・回転し、壁沿いに滑らせて反対側へ移動・保存できる',async({page},testInfo)=>{
   await page.addInitScript(value=>{if(!localStorage.getItem('syncterior.personal-room'))localStorage.setItem('syncterior.personal-room',JSON.stringify(value));},layout);
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button',{name:/^デスク/}).click();
   await page.getByRole('button',{name:'90° 回転'}).click();
   const canvas=page.locator('canvas');
@@ -46,7 +47,7 @@ test('取込間取りの実際の3D家具をドラッグ・回転し、壁沿い
   } finally { await page.mouse.up(); }
   const finalX = await x.inputValue();
   await testInfo.attach('取込間取りの家具',{body:await canvas.screenshot(),contentType:'image/png'});
-  await page.reload();
+  await reloadLayout(page);
   await waitForSceneToSettle(page);
   const items=await page.evaluate(()=>JSON.parse(localStorage.getItem('syncterior.personal-room')).room.items);
   expect(items).toHaveLength(1);expect(items[0].rot).toBeCloseTo(Math.PI/2);

@@ -63,7 +63,7 @@ export function RoomSharing({ collaboration, shareRoom, shareUrl, reconnect, lea
         <p className="share-permission">このリンクには編集権限があります。共有する相手を確認してください。</p>
         {copyError && <p className="share-error" role="alert">{copyError}</p>}
       </> : <>
-        {custom && <p className="share-error" role="status">取込間取りの共有は未対応です。個人編集と保存は利用できます。</p>}
+        {custom && <p className="share-error" role="status">図面から作成した間取りの共有は未対応です。個人編集と保存は利用できます。</p>}
         {!configured && <p className="share-error" role="status">共同編集は現在利用できません。個人での編集は引き続き利用できます。</p>}
         {error && configured && <p className="share-error" role="alert">{error}</p>}
         <button className="sharing-button primary share-create" disabled={!configured || busy || custom} onClick={shareRoom}><Share2 size={16} />{status === 'creating' ? 'リンクを作成中…' : '共有リンクを作成'}</button>

@@ -1,3 +1,4 @@
+import { reloadLayout, openImageImport, convertAndPreview } from './fixtures/workspace.js';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import { isFloorPlan, wallLength } from '../src/features/room-planner/utils/floor-plan.js';
@@ -10,7 +11,7 @@ const storage = page => page.evaluate(() => JSON.parse(localStorage.getItem('syn
 for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'colored'], ['黒背景の図面', 'dark-background'], ['木目のある図面', 'textured']]) {
   test(`${name}を実際のOpenCVで解析し、一辺でサイズを合わせた枠を保存・復元できる`, async ({ page }, testInfo) => {
     await page.goto('/');
-    await page.getByText('間取り画像から3Dの枠を作る', { exact: true }).click();
+    await openImageImport(page);
     await expect(page.getByRole('combobox', { name: '検出感度' })).toHaveCount(0);
     await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL(`./fixtures/floor-plans/${file}.jpg`, import.meta.url)));
     await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
@@ -22,7 +23,7 @@ for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'co
     const before = await calibrateDrawing(page);
     await testInfo.attach(`${file}-calibration`, { body: await page.locator('.floor-import').screenshot(), contentType: 'image/png' });
     expect(await storage(page)).toBeNull();
-    await page.getByRole('button', { name: 'この枠で3Dを作成', exact: true }).click();
+    await convertAndPreview(page);
     await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
     const value = await storage(page);
     expect(value.version).toBe(2); expect(value.room.items).toHaveLength(0);
@@ -39,12 +40,14 @@ for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'co
     expect(metrics.nonWallLength, '指定した文字・家具・タイル領域の誤検出を抑える').toBeLessThanOrEqual(reference.maxNonWallLength);
     await testInfo.attach(`${file}-partial-evaluation`, { body: JSON.stringify(metrics), contentType: 'application/json' });
     await testInfo.attach(`${file}-model`, { body: JSON.stringify(value, null, 2), contentType: 'application/json' });
-    await page.reload();
+    await reloadLayout(page);
     await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+    await openImageImport(page);
     await expect(measurementDrawing(page)).toBeVisible();
+    await page.getByRole('button', { name: '3D・家具配置', exact: true }).click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.getByRole('button', { name: '部屋を共有', exact: true }).click();
-    await expect(page.getByRole('dialog')).toContainText('取込間取りの共有は未対応');
+    await expect(page.getByRole('dialog')).toContainText('図面から作成した間取りの共有は未対応');
     await expect(page.getByRole('button', { name: '共有リンクを作成', exact: true })).toBeDisabled();
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: /^ワンルーム/ }).click();
@@ -54,11 +57,11 @@ for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'co
 
 test('不正な画像と中止後の再解析を処理し、既存の配置を保持する', async ({ page }) => {
   await page.goto('/');
-  await page.getByText('間取り画像から3Dの枠を作る', { exact: true }).click();
+  await openImageImport(page);
   const input = page.getByLabel('間取り画像', { exact: true });
   await input.setInputFiles({ name: 'invalid.txt', mimeType: 'text/plain', buffer: Buffer.from('invalid') });
   await expect(page.getByRole('alert')).toContainText('JPEG・PNG・WebP');
-  await expect(page.getByRole('heading', { name: 'ワンルーム / 3Dレイアウト' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '図面モード', exact: true })).toBeVisible();
   await input.setInputFiles({ name: 'broken.png', mimeType: 'image/png', buffer: Buffer.from('invalid') });
   await expect(page.getByRole('alert')).toBeVisible();
   // OpenCV配布の読み込み中に中止し、古い解析結果が後から適用されないことを確認する。
@@ -75,7 +78,7 @@ test('不正な画像と中止後の再解析を処理し、既存の配置を�
 
 test('認識された長い壁の途中でも任意の2点を基準にでき、補正の取消と再適用で保存前の配置を保つ', async ({ page }) => {
   await page.goto('/');
-  await page.getByText('間取り画像から3Dの枠を作る', { exact: true }).click();
+  await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/colored.jpg', import.meta.url)));
   await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
   const before = await calibrateDrawing(page);
@@ -110,29 +113,29 @@ test('認識された長い壁の途中でも任意の2点を基準にでき、�
 
 test('長辺1024pxへ縮小する追加図面を解析し、短い断片があっても保存・復元できる', async ({ page }) => {
   await page.goto('/');
-  await page.getByText('間取り画像から3Dの枠を作る', { exact: true }).click();
+  await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/holdout/riverside.png', import.meta.url)));
   await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
   await calibrateDrawing(page);
-  await page.getByRole('button', { name: 'この枠で3Dを作成', exact: true }).click();
+  await convertAndPreview(page);
   await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
   const saved = await storage(page);
   expect(isFloorPlan(saved.room.customPlan)).toBe(true);
   expect(saved.room.customPlan.walls.length).toBeGreaterThan(50);
   expect(saved.room.customPlan.walls.every(wall => wallLength(wall) >= .02)).toBe(true);
-  await page.reload();
+  await reloadLayout(page);
   await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
   expect(await storage(page)).toEqual(saved);
 });
 
 test('通常解析が空になる色付き壁の追加図面を自動再解析し、保存して編集を続けられる', async ({ page }) => {
   await page.goto('/');
-  await page.getByText('間取り画像から3Dの枠を作る', { exact: true }).click();
+  await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/holdout/cottage.png', import.meta.url)));
   await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
 
   await calibrateDrawing(page);
-  await page.getByRole('button', { name: 'この枠で3Dを作成', exact: true }).click();
+  await convertAndPreview(page);
   await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
   expect((await storage(page)).room.customPlan.walls.length).toBeGreaterThan(10);
 });
@@ -141,8 +144,8 @@ test('透明PNGの黒い枠を白背景と同じ形状で取り込み保存で�
   await page.goto('/');
   const plans = [];
   for (const transparent of [false, true]) {
-    // 取込間取りの復元後は入力欄が自動で開く。
-    if (transparent) await page.reload();
+    // 復元した配置から図面モードの変換パネルを開き直す。
+    if (transparent) await reloadLayout(page);
     const bytes = await page.evaluate(transparent => {
       const canvas = document.createElement('canvas'); canvas.width = canvas.height = 200;
       const ctx = canvas.getContext('2d');
@@ -152,23 +155,23 @@ test('透明PNGの黒い枠を白背景と同じ形状で取り込み保存で�
       ctx.fillRect(180,20,5,165); ctx.fillRect(20,180,165,5);
       return Array.from(Uint8Array.from(atob(canvas.toDataURL('image/png').split(',')[1]), char => char.charCodeAt(0)));
     }, transparent);
-    if (!transparent) await page.getByText('間取り画像から3Dの枠を作る', { exact: true }).click();
+    await openImageImport(page);
     await page.getByLabel('間取り画像', { exact: true }).setInputFiles({ name: 'frame.png', mimeType: 'image/png', buffer: Buffer.from(bytes) });
     await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
     await expect(page.locator('.floor-drawing line')).toHaveCount(4);
-    await page.getByRole('button', { name: 'この枠で3Dを作成', exact: true }).click();
+    await convertAndPreview(page);
     await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
     plans.push((await storage(page)).room.customPlan);
   }
   expect(plans[1]).toEqual(plans[0]);
-  await page.reload();
+  await reloadLayout(page);
   await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
   expect((await storage(page)).room.customPlan).toEqual(plans[1]);
 });
 
 test('計測点をドラッグしても保存せず、ポインターのキャンセル後も選び直せる', async ({ page }) => {
   await page.goto('/');
-  await page.getByText('間取り画像から3Dの枠を作る', { exact: true }).click();
+  await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/monochrome.jpg', import.meta.url)));
   await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
   await pickMeasurementPoint(page, [.22, .42]); await pickMeasurementPoint(page, [.47, .42]);

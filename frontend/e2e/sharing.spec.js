@@ -1,3 +1,4 @@
+import { openLayout } from './fixtures/workspace.js';
 import { test, expect } from './fixtures/test.js';
 import { verifySharedRoom } from './fixtures/shared-room-flow.js';
 
@@ -11,7 +12,7 @@ async function share(page) {
 
 test('共有リンクを作成・コピーし、確定済みの配置を保って退出できる', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button', { name: /^デスク/ }).click();
   const url = await share(page);
   expect(new URL(url).searchParams.get('room')).toMatch(/^[\w-]{32}$/);
@@ -31,7 +32,7 @@ test('クリップボードへのアクセスが拒否された場合に手動�
   await page.addInitScript(() => Object.defineProperty(navigator, 'clipboard', {
     value: { writeText: async () => { throw new Error('permission denied'); } },
   }));
-  await page.goto('/');
+  await openLayout(page, '/');
   const url = await share(page);
   await page.getByRole('button', { name: 'コピー', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('手動でコピー');
@@ -44,7 +45,7 @@ test('クリップボードへのアクセスが拒否された場合に手動�
 test('2つのブラウザから同じ部屋に参加し、家具・間取り・参加人数が同期される', verifySharedRoom);
 
 test('送信失敗時は編集を停止し、再接続後に未確定の操作を再送する', async ({ page }) => {
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button', { name: /^デスク/ }).click();
   await share(page);
   await page.getByRole('button', { name: '共有ダイアログを閉じる' }).click();
@@ -63,7 +64,7 @@ test('送信失敗時は編集を停止し、再接続後に未確定の操作�
 });
 
 test('存在しない部屋を案内し、初期配置を送信せずに個人編集へ戻れる', async ({ page }) => {
-  await page.goto(`/?room=${'z'.repeat(32)}`);
+  await openLayout(page, `/?room=${'z'.repeat(32)}`);
   await expect(page.getByRole('heading', { name: '共有された部屋を開けませんでした' })).toBeVisible();
   await expect(page.getByRole('region', { name: '部屋の3Dプレビュー' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: /^デスク/ })).toBeDisabled();
@@ -75,7 +76,7 @@ test('存在しない部屋を案内し、初期配置を送信せずに個人�
 
 test('リンクの作成失敗時も配置を保持し、再試行できる', async ({ page }) => {
   await page.route('**/api/rooms', route => route.fulfill({ status: 503, json: { error: '共有を開始できませんでした。' } }));
-  await page.goto('/');
+  await openLayout(page, '/');
   await page.getByRole('button', { name: /^デスク/ }).click();
   await page.getByRole('button', { name: '部屋を共有', exact: true }).click();
   await page.getByRole('button', { name: '共有リンクを作成', exact: true }).click();

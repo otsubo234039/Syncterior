@@ -31,7 +31,7 @@ export function PlannerSidebar({
         const Icon = furnitureIcons[c.type];
         return <button key={c.type} disabled={!editable || !canAdd} className="catalog-item" onClick={() => addItem(c)}><span className="catalog-icon"><Icon size={19} /></span><span className="catalog-name">{c.name}<small>{c.w} × {c.d} × {c.h} m</small></span><span className="add">＋</span></button>;
       })}</div>
-    {custom && <p className="sharing-limit">家具は床と壁に収まる位置へ追加します。取込間取りは個人保存のみ対応しています。</p>}
+    {custom && <p className="sharing-limit">家具は床と壁に収まる位置へ追加します。図面から作成した間取りは個人保存のみ対応しています。</p>}
     {!canAdd && <p className="sharing-limit" role="status">家具は200点まで配置できます。</p>}
     <div className="sidebar-note"><span className="note-icon">i</span><span>家具はドラッグで移動、選択後に回転できます。寸法は一般的な製品の目安です。</span></div>
    </aside>;
