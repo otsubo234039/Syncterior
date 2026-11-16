@@ -1,0 +1,116 @@
+:root{--bg:#f7f7f3;--alt:#eff1ea;--ink:#262c29;--muted:#5a645d;--green:#345e4e;--line:#e3e4dd}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans JP','Hiragino Sans','Yu Gothic',Meiryo,sans-serif;line-height:1.8}
+h1,h2,h3,p,ol,ul{margin:0}
+ol,ul{padding:0;list-style:none}
+a:focus-visible,summary:focus-visible{outline:3px solid #d9a548;outline-offset:3px}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 32px}
+.band{padding:72px 0}
+.alt{background:var(--alt)}
+.eyebrow{font:500 11px monospace;letter-spacing:.2em;color:#5f7568;margin-bottom:12px}
+h2{font-size:34px;font-weight:800;margin-bottom:32px}
+h3{font-size:18px}
+.desc{font-size:14px;line-height:1.8;color:var(--muted)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.row{display:flex;justify-content:space-between;align-items:center}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+
+.btn{display:inline-flex;align-items:center;padding:14px 26px;border-radius:999px;background:var(--green);color:#fff;border:1px solid transparent;font-weight:700;font-size:15px;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--green);border-color:#b9cbbf}
+.btn.white{background:#fff;color:var(--green)}
+.badge{font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;background:#e2f0e6;color:#2f6a4a}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chips li{padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;background:#eef3ee;color:#2f5a46}
+
+.top{display:flex;align-items:center;justify-content:space-between;height:68px;padding:0 48px;background:#fbfbf8;border-bottom:1px solid var(--line)}
+.logo{font-weight:800;font-size:20px;letter-spacing:.04em}
+.logo span{color:#5b8f78}
+.top nav{display:flex;gap:28px;font-size:14px}
+.top nav a{color:var(--muted);text-decoration:none}
+
+.hero{padding:72px 0 56px}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:32px;align-items:center}
+.hero .badge{display:inline-block;margin-bottom:18px;font-size:12px}
+.hero h1{font-size:56px;line-height:1.2;letter-spacing:-.02em;font-weight:800}
+.hero .lead{margin-top:22px;font-size:17px;line-height:1.9;color:var(--muted)}
+.hero .btns{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap}
+.hero .note{margin-top:18px;font-size:12px;color:var(--muted)}
+.hero svg{width:100%;height:auto}
+.pills{display:flex;justify-content:center;gap:16px;margin-top:40px;flex-wrap:wrap}
+.pills li{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:12px 22px;font-weight:700;font-size:15px}
+.num{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--green);color:#fff;font-size:13px}
+
+.icon{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#e8f0e9}
+.card h3{margin:14px 0 10px}
+.step .num{width:34px;height:34px;font-weight:800;margin-bottom:14px}
+.step h3{margin:0 0 8px}
+.label{margin-top:16px;font-size:11px;font-weight:700;letter-spacing:.08em;color:#5f7568}
+.label.go{color:var(--green)}
+.label+.desc{margin-top:6px}
+
+details{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:12px}
+summary{cursor:pointer;font-weight:700;font-size:15px}
+details .desc{margin-top:12px}
+
+.cta{background:var(--green);color:#fff;text-align:center;padding:72px 32px}
+.cta h2{font-size:32px;margin-bottom:24px}
+.cta p{margin-top:20px;font-size:13px;color:#cfe0d6}
+.bar{display:flex;justify-content:space-between;padding:20px 48px;font:11px monospace;color:#6a746d;border-top:1px solid var(--line)}
+.bar a{color:inherit}
+
+@media (max-width:800px){
+  .top{padding:0 20px}.top nav{display:none}
+  .hero-grid,.grid3{grid-template-columns:1fr}
+  .hero h1{font-size:40px}
+  .band{padding:48px 0}
+  .bar{padding:20px;flex-direction:column;gap:6px}
+  .step{grid-template-columns:1fr;gap:20px}
+}
+
+.steps{display:grid;gap:20px}
+.step{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:center}
+.media{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:12px}
+.placeholder{display:grid;place-items:center;border:2px dashed #b9cbbf;background:#f4f7f3;color:#5f7568;font-size:14px}
+
+/* AIっぽさ軽減(消せば元に戻る) */
+.eyebrow,.hero .badge,.icon,.pills{display:none}
+
+.btn{border-radius:6px}
+.alt{background:#f1f1ee}
+.media{border-radius:6px}
+details{border-radius:6px}
+.label{letter-spacing:0;font-size:12px}
+h1,h2{font-weight:700}
+
+#features .card,#cases .card,#howto .card{
+  background:none;border:0;border-radius:0;
+  border-top:1px solid #b9bdb4;padding:24px 0 0;
+}
+#howto .card{padding:32px 0}
+
+.step .num{
+  display:block;width:auto;height:auto;border-radius:0;
+  background:none;color:var(--green);
+  font-size:44px;font-weight:700;line-height:1;margin-bottom:14px;
+}
+
+.chips{display:block}
+.chips li{
+  display:inline;padding:0;background:none;
+  color:var(--muted);font-weight:400;font-size:13px;
+}
+.chips li+li::before{content:" ・ "}
+
+.bar{font-family:inherit;font-size:12px}
+
+/* 特徴: カードとアイコンを復活 */
+#features .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:32px}
+#features .icon{display:grid}
+#features .grid3{gap:24px}
+#features h2{margin-bottom:48px}
+
+/* 使い方: アイコン付きのカード(横3枚) */
+.st-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:28px}
+.st-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:22px 8px 18px;background:#e8eee9;text-align:center;font-size:13px;font-weight:700;line-height:1.5;color:#2f5a46}
