@@ -113,6 +113,13 @@ export function useRoomPlanner() {
     setDrawingNotice({ error: '', message: '図面を開きました。「図面を保存」でこのブラウザに保存できます。' });
     return true;
   };
+  const startDrawingImport = () => {
+    if (collaboration.status !== 'local') return false;
+    setDrawing(previous => ({ plan: null, image: null, generation: previous.generation + 1,
+      drawingId: newDrawingId(), modified: true }));
+    setDrawingNotice({ error: '', message: '新しい画像へ切り替えました。サイズを合わせて「図面へ変換」を押してください。' });
+    return true;
+  };
   const saveDrawing = value => {
     if (collaboration.status !== 'local') return false;
     const result = drawingStore.save(value, drawing.drawingId);
@@ -142,12 +149,11 @@ export function useRoomPlanner() {
     localSave, clearLocalSave,
     customPlan, importFloorPlan, placementError,
     workspaceMode, setWorkspaceMode, drawing, drawingDirty, savedDrawing, savedDrawingId, drawingNotice, preserveDrawingItems,
-    replaceDrawing, saveDrawing, generateFromDrawing,
+    replaceDrawing, startDrawingImport, saveDrawing, generateFromDrawing,
     updateDrawing: (value, generation) => {
       if (collaboration.status === 'local') setDrawing(previous => previous.generation === generation
         ? { ...previous, plan: value, modified: true } : previous);
     },
-    setDrawingImage: image => setDrawing(previous => ({ ...previous, image })),
     shareUrl: collaboration.roomId ? roomLink(window.location.href, collaboration.roomId) : '',
   };
 }

@@ -1,5 +1,6 @@
 import opencvUrl from '@techstark/opencv-js/dist/opencv.js?url';
 import { floorPlanFromLines } from './floor-plan-detection.js';
+import { measurementPolygonArea } from './floor-plan-calibration.js';
 
 export async function readFloorPlanImage(file) {
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
@@ -32,7 +33,11 @@ export function recognizeFloorPlan(image, signal) {
     worker.onerror = () => finish(new Error('画像解析を起動できませんでした。再試行してください。'));
     worker.onmessage = ({ data }) => {
       if (data.error) return finish(new Error(data.error));
-      try { finish(null, { plan: floorPlanFromLines(data), engine: data.engine }); }
+      try {
+        const plan = floorPlanFromLines(data);
+        const roomCandidates = (data.roomCandidates ?? []).filter(points => measurementPolygonArea(plan, points) !== null);
+        finish(null, { plan, roomCandidates, engine: data.engine });
+      }
       catch (error) { finish(error); }
     };
     signal?.addEventListener('abort', abort, { once: true });

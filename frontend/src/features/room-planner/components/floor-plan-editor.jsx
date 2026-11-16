@@ -134,7 +134,7 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
     </div>
     {image ? <div className="floor-underlay-controls"><label><input type="checkbox" checked={showImage} onChange={event => setShowImage(event.target.checked)} />下絵を表示</label>
       <label>下絵の濃さ<input type="range" min="0" max="1" step=".05" value={opacity} onChange={event => setOpacity(Number(event.target.value))} /></label><span>下絵の位置・縮尺は固定</span></div>
-      : <p>下絵がありません。「手直し用の下絵」で同じ画像を選び直せます。</p>}
+      : <p>下絵がありません。新しい画像は「間取り画像を図面へ変換」から読み込めます。</p>}
     <div className="floor-underlay-controls"><label><input type="checkbox" checked={showGrid} onChange={event => setShowGrid(event.target.checked)} />グリッドを表示</label>
       <span>1目盛 {planGridStep(draft)} m・太線 {planGridStep(draft) * 4} m</span></div>
     <p role="status">{mode === 'wall' ? pending ? '壁の終点を指定してください。' : '壁の始点を指定してください。' : mode === 'door' || mode === 'window' ? pending ? '同じ壁上で開口の終点を指定してください。' : '壁上で開口の始点を指定してください。' : mode === 'erase' ? '消したい壁の線を押してください。元に戻すこともできます。' : '壁や床、扉・窓を選択してください。白い点はドラッグ・矢印キーで動かせます。'} Escで途中の操作を取り消せます。</p>

@@ -4,10 +4,84 @@ import { readFileSync } from 'node:fs';
 import { isFloorPlan, wallLength } from '../src/features/room-planner/utils/floor-plan.js';
 import { evaluateLayoutReferences, evaluateWallReferences } from '../src/features/room-planner/utils/floor-plan-evaluation.js';
 import { test, expect } from './fixtures/test.js';
-import { measurementDrawing, pickMeasurementPoint, calibrateDrawing } from './fixtures/floor-plan.js';
+import { measurementDrawing, pickMeasurementPoint, calibrateDrawing, calibrateDrawingByTatami } from './fixtures/floor-plan.js';
 
 const references = JSON.parse(readFileSync(new URL('./fixtures/floor-plans/references.json', import.meta.url), 'utf8'));
 const storage = page => page.evaluate(() => JSON.parse(localStorage.getItem('syncterior.personal-room')));
+
+test('部屋の帖数で縦横比を保って概算補正し、再適用・換算値変更・取消を経て図面と3Dを別に保存できる', async ({ page }, testInfo) => {
+  await page.goto('/');
+  await openImageImport(page);
+  await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/colored.jpg', import.meta.url)));
+  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  const dimensions = () => measurementDrawing(page).evaluate(svg => {
+    const [, , w, d] = svg.getAttribute('viewBox').split(/\s+/).map(Number);
+    const rect = svg.querySelector('.floor-measure-area');
+    return { w, d, area: Number(rect.getAttribute('width')) * Number(rect.getAttribute('height')) };
+  });
+  const before = await calibrateDrawingByTatami(page);
+  const first = await dimensions();
+  expect(first.w).toBeCloseTo(before.w * before.factor, 6);
+  expect(first.w / first.d).toBeCloseTo(before.w / before.d, 10);
+  expect(first.area).toBeCloseTo(6.5 * 1.62, 8);
+  await expect(page.getByRole('status').filter({ hasText: '指定した帖数から全体のサイズを概算で補正しました。' })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await testInfo.attach('帖数によるサイズ補正', { body: await page.locator('.floor-import').screenshot(), contentType: 'image/png' });
+  await page.getByRole('button', { name: 'この帖数で全体を補正', exact: true }).click();
+  expect(await dimensions()).toEqual(first);
+  await page.getByLabel('1帖の面積 (m²)', { exact: true }).fill('1.824');
+  await page.getByRole('button', { name: 'この帖数で全体を補正', exact: true }).click();
+  expect((await dimensions()).area).toBeCloseTo(6.5 * 1.824, 8);
+  await page.getByRole('button', { name: 'サイズ補正を取り消す', exact: true }).click();
+  expect(await dimensions()).toEqual(first);
+  await page.getByLabel('選択した部屋の帖数', { exact: true }).fill('999999');
+  await page.getByRole('button', { name: 'この帖数で全体を補正', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('有効な長方形と正の帖数');
+  expect(await dimensions()).toEqual(first);
+  await page.getByLabel('選択した部屋の帖数', { exact: true }).fill('0');
+  await page.getByRole('button', { name: 'この帖数で全体を補正', exact: true }).click();
+  expect(await dimensions()).toEqual(first);
+  // 補正だけでは図面・家具のどちらも保存しない。
+  expect(await storage(page)).toBeNull();
+  expect(await page.evaluate(() => localStorage.getItem('syncterior.drawing'))).toBeNull();
+  await page.getByRole('button', { name: '図面へ変換', exact: true }).click();
+  await page.getByRole('button', { name: '図面を保存', exact: true }).click();
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('syncterior.drawing')));
+  expect(saved.plan.w).toBeCloseTo(first.w, 8);
+  expect(saved.plan.d).toBeCloseTo(first.d, 8);
+  expect(await storage(page)).toBeNull();
+  await page.getByRole('button', { name: '図面から3Dを表示', exact: true }).click();
+  expect((await storage(page)).room.customPlan).toEqual(saved.plan);
+  await reloadLayout(page);
+  expect((await storage(page)).room.customPlan).toEqual(saved.plan);
+});
+
+test('帖数の対象をキーボードで調整し、方式切替で選択を消し、画像再解析で古い補正を残さない', async ({ page }) => {
+  await page.goto('/');
+  await openImageImport(page);
+  await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/colored.jpg', import.meta.url)));
+  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await calibrateDrawingByTatami(page);
+  const endpoint = page.getByRole('button', { name: '計測の終点', exact: true });
+  const before = await endpoint.getAttribute('transform');
+  await endpoint.focus(); await page.keyboard.press('ArrowRight');
+  await expect(endpoint).not.toHaveAttribute('transform', before);
+  await page.getByRole('button', { name: '2点を選び直す', exact: true }).click();
+  await pickMeasurementPoint(page, [.2, .3]); await pickMeasurementPoint(page, [.2, .7]);
+  await expect(page.getByRole('button', { name: 'この帖数で全体を補正', exact: true })).toBeDisabled();
+  await page.getByRole('combobox', { name: 'サイズ合わせの方法', exact: true }).selectOption('length');
+  await expect(endpoint).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'この長さで全体を補正', exact: true })).toBeDisabled();
+  await calibrateDrawing(page);
+  await page.getByRole('combobox', { name: 'サイズ合わせの方法', exact: true }).selectOption('tatami');
+  await page.getByRole('button', { name: '画像を再解析', exact: true }).click();
+  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByLabel('選択した部屋の帖数', { exact: true })).toHaveValue('');
+  await expect(page.getByRole('button', { name: 'サイズ補正を取り消す', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'この帖数で全体を補正', exact: true })).toBeDisabled();
+  expect(await storage(page)).toBeNull();
+});
+
 for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'colored'], ['黒背景の図面', 'dark-background'], ['木目のある図面', 'textured']]) {
   test(`${name}を実際のOpenCVで解析し、一辺でサイズを合わせた枠を保存・復元できる`, async ({ page }, testInfo) => {
     await page.goto('/');
