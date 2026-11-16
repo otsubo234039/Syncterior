@@ -1,4 +1,116 @@
 // Classic Worker: OpenCVのUMD配布をメイン画面から隔離して読み込む。
+// 部屋の候補用のマスクだけで開口を閉じる。壁候補や3Dの開口には適用しない。
+function findRoomCandidates(cv, mask, width, height, strokeWidth, lines, lineWidths, own) {
+  const candidates = [], size = Math.max(width, height);
+  // この配布版のMat.clone()は画素を共有するため、候補間の補完が混ざらないようcopyToで分離する。
+  const copy = source => { const target = own(new cv.Mat()); source.copyTo(target); return target; };
+  // 抽出済みの壁から作るマスクでは、木目や文字を部屋境界へ持ち込まない。
+  const boundary = own(cv.Mat.zeros(height, width, cv.CV_8UC1));
+  for (let i = 0; i < lines.length; i += 4) {
+    cv.line(boundary, new cv.Point(Math.round(lines[i]), Math.round(lines[i + 1])),
+      new cv.Point(Math.round(lines[i + 2]), Math.round(lines[i + 3])), new cv.Scalar(255), Math.max(1, Math.round(lineWidths[i / 4])));
+  }
+  const structural = own(cv.Mat.zeros(height, width, cv.CV_8UC1));
+  const edges = [];
+  const draw = (target, a, b, thickness) => cv.line(target, new cv.Point(Math.round(a[0]), Math.round(a[1])),
+    new cv.Point(Math.round(b[0]), Math.round(b[1])), new cv.Scalar(255), Math.max(1, Math.round(thickness)));
+  for (let i = 0; i < lines.length; i += 4) {
+    if (lineWidths[i / 4] < Math.max(2, strokeWidth * .6)) continue;
+    const a = lines.slice(i, i + 2), b = lines.slice(i + 2, i + 4);
+    edges.push({ a, b, thickness: lineWidths[i / 4] }); draw(structural, a, b, lineWidths[i / 4]);
+  }
+  const primaryBoundary = copy(structural), primaryEdges = [...edges];
+  // 壁モデルでは落ちる短い仕切りも、文字より長い2px以上の帯なら面積推定へ残す。
+  const roomBands = own(cv.Mat.zeros(height, width, cv.CV_8UC1));
+  const minimumBand = Math.max(8, Math.round(strokeWidth * 2), Math.round(size * .015));
+  for (const vertical of [false, true]) {
+    const opened = own(new cv.Mat()), kernel = own(cv.getStructuringElement(cv.MORPH_RECT,
+      new cv.Size(vertical ? 2 : minimumBand, vertical ? minimumBand : 2)));
+    cv.morphologyEx(mask, opened, cv.MORPH_OPEN, kernel);
+    cv.bitwise_or(roomBands, opened, roomBands);
+  }
+  cv.bitwise_or(structural, roomBands, structural);
+  const roomLines = own(new cv.Mat());
+  cv.HoughLinesP(roomBands, roomLines, 1, Math.PI / 180, Math.max(8, minimumBand), minimumBand, 0);
+  const additional = [];
+  for (let i = 0; i < roomLines.data32S.length; i += 4) {
+    const a = Array.from(roomLines.data32S.subarray(i, i + 2)), b = Array.from(roomLines.data32S.subarray(i + 2, i + 4));
+    const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    if (Math.min(Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1])) / length > .05) continue;
+    additional.push({ a, b, thickness: 2, length });
+  }
+  edges.push(...additional.sort((a, b) => b.length - a.length).slice(0, Math.max(0, 400 - edges.length)));
+  const closeRoomGaps = (source, edges) => {
+    const bridged = copy(source), maximumGap = Math.min(width, height) * .15;
+    const cross = (a, b) => a[0] * b[1] - a[1] * b[0];
+    // 壁端の延長先に別の壁がある開口だけを、面積推定用の境界で仮に閉じる。
+    for (const edge of edges) for (const [from, back] of [[edge.a, edge.b], [edge.b, edge.a]]) {
+      const length = Math.hypot(from[0] - back[0], from[1] - back[1]);
+      if (length < Math.max(strokeWidth * 3, size * .03)) continue;
+      const direction = [(from[0] - back[0]) / length, (from[1] - back[1]) / length];
+      let best = null;
+      for (const other of edges) {
+        if (other === edge) continue;
+        const along = [other.b[0] - other.a[0], other.b[1] - other.a[1]], denominator = cross(direction, along);
+        const offset = [other.a[0] - from[0], other.a[1] - from[1]];
+        if (Math.abs(denominator) > Math.hypot(...along) * .1) {
+          const distance = cross(offset, along) / denominator, position = cross(offset, direction) / denominator;
+          const otherLength = Math.hypot(...along), extension = Math.max(0, -position, position - 1) * otherLength;
+          if (distance > 0 && distance <= maximumGap && extension <= maximumGap && (!best || distance < best.distance)) {
+            best = { distance, point: from.map((n, axis) => n + direction[axis] * distance), thickness: Math.min(edge.thickness, other.thickness),
+              extensionStart: position < 0 ? other.a : position > 1 ? other.b : null };
+          }
+        } else for (const point of [other.a, other.b]) {
+          const offset = [point[0] - from[0], point[1] - from[1]], distance = offset[0] * direction[0] + offset[1] * direction[1];
+          if (distance > 0 && distance <= maximumGap && Math.abs(cross(direction, offset)) <= strokeWidth * .7 && (!best || distance < best.distance)) {
+            best = { distance, point, thickness: Math.min(edge.thickness, other.thickness) };
+          }
+        }
+      }
+      if (best) {
+        draw(bridged, from, best.point, best.thickness);
+        if (best.extensionStart) draw(bridged, best.extensionStart, best.point, best.thickness);
+      }
+    }
+    return bridged;
+  };
+  const sources = [mask, primaryBoundary, closeRoomGaps(primaryBoundary, primaryEdges),
+    structural, closeRoomGaps(structural, edges), boundary];
+  const spans = new Set([
+    Math.max(3, Math.round(Math.min(size * .1, Math.max(strokeWidth * 4, size * .035))) | 1),
+    Math.max(3, Math.round(Math.min(Math.min(width, height) * .12, Math.max(strokeWidth * 6, size * .1))) | 1),
+  ]);
+  for (const span of spans) {
+    const kernel = own(cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(span, span)));
+    for (const source of [boundary, mask]) {
+      const closed = own(new cv.Mat());
+      cv.morphologyEx(source, closed, cv.MORPH_CLOSE, kernel); sources.push(closed);
+    }
+  }
+  for (const source of sources) {
+    const contours = own(new cv.MatVector()), hierarchy = own(new cv.Mat());
+    cv.findContours(source, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    for (let index = 0; index < contours.size(); index++) {
+      if (hierarchy.data32S[index * 4 + 3] < 0) continue;
+      const contour = contours.get(index), polygon = new cv.Mat();
+      try {
+        const area = cv.contourArea(contour), box = cv.boundingRect(contour);
+        if (area < Math.max(150, width * height * .006) || area > width * height * .85
+          || box.width < width * .04 || box.height < height * .04) continue;
+        let tolerance = Math.max(1, strokeWidth * .6);
+        do { cv.approxPolyDP(contour, polygon, tolerance, true); tolerance *= 1.5; } while (polygon.rows > 64 && tolerance < size * .02);
+        if (polygon.rows < 3 || polygon.rows > 64 || Math.abs(cv.contourArea(polygon) / area - 1) > .1) continue;
+        const points = Array.from({ length: polygon.rows }, (_, i) => [polygon.data32S[i * 2] / width, polygon.data32S[i * 2 + 1] / height]);
+        // 同じ部屋の無補正・開口補完の候補は重複させない。
+        if (candidates.some(other => other.points.length === points.length && points.every(p => other.points.some(q =>
+          Math.hypot((p[0] - q[0]) * width, (p[1] - q[1]) * height) <= Math.max(1, strokeWidth * .2))))) continue;
+        candidates.push({ points, area: cv.contourArea(polygon) });
+      } finally { polygon.delete(); contour.delete(); }
+    }
+  }
+  return candidates.sort((a, b) => b.area - a.area).slice(0, 64).map(candidate => candidate.points);
+}
+
 self.onmessage = async ({ data: { url, width, height, pixels, retainColor = false } }) => {
   const resources = [];
   const own = mat => { resources.push(mat); return mat; };
@@ -293,7 +405,8 @@ self.onmessage = async ({ data: { url, width, height, pixels, retainColor = fals
       await self.onmessage({ data: { url, width, height, pixels, retainColor: true } });
       return;
     }
-    self.postMessage({ lines, lineWidths, width, height, strokeWidth, blockSize, usedColorFallback: retainColor,
+    const roomCandidates = findRoomCandidates(cv, mask, width, height, strokeWidth, lines, lineWidths, own);
+    self.postMessage({ lines, lineWidths, width, height, strokeWidth, blockSize, roomCandidates, usedColorFallback: retainColor,
       engine: `OpenCV ${cv.getBuildInformation().match(/OpenCV\s+([^\s]+)/)?.[1] ?? '4.12'}` });
   } catch (error) {
     self.postMessage({ error: `画像解析に失敗しました。別の画像か手動編集をお試しください。 (${error.message ?? error})` });

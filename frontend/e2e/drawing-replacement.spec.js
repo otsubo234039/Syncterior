@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url';
 import { test, expect } from './fixtures/test.js';
-import { editablePlan, savedPlan } from './fixtures/plan-edit.js';
+import { editablePlan, savedPlan, editDrawing, importDrawingImage } from './fixtures/plan-edit.js';
 import { openImageImport, openDrawingTools } from './fixtures/workspace.js';
 import { calibrateDrawing } from './fixtures/floor-plan.js';
 
@@ -13,6 +13,63 @@ async function seedOldLayout(page) {
       JSON.stringify({ version: 2, room: { planKey: 'custom', customPlan: plan, items: [item] } }));
   }, { plan: oldPlan, item: desk });
 }
+
+test('新しい画像で前の図面・下絵を消し、解析途中に図面ファイルを開いても古い結果と履歴を残さない', async ({ page }) => {
+  await seedOldLayout(page); await page.goto('/');
+  const before = await savedPlan(page);
+  await importDrawingImage(page);
+  await expect(editDrawing(page).locator('image')).toBeVisible();
+  await page.getByRole('button', { name: '壁1を選択', exact: true }).focus(); await page.keyboard.press('Enter');
+  await page.getByRole('button', { name: '壁の終点', exact: true }).focus(); await page.keyboard.press('ArrowDown');
+  await expect(page.getByRole('button', { name: '手直しを元に戻す', exact: true })).toBeEnabled();
+  const dialogs = []; page.on('dialog', dialog => { dialogs.push(dialog.message()); void dialog.dismiss(); });
+  let release;
+  const intercepted = new Promise(resolve => { release = resolve; });
+  await page.route(/opencv[^/]*\.js/, route => release(route));
+  await openImageImport(page);
+  await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/colored.jpg', import.meta.url)));
+  const blocked = await intercepted;
+  await expect(editDrawing(page)).toHaveCount(0);
+  await expect(page.getByRole('group', { name: '壁候補と計測区間の図', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '図面ファイルを書き出す', exact: true })).toBeDisabled();
+  await page.getByLabel('図面ファイルを開く', { exact: true }).setInputFiles({ name: 'next.json', mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ version: 1, plan: { ...editablePlan, name: '解析途中に開く図面', walls: [] } })) });
+  await page.unroute(/opencv[^/]*\.js/); await blocked.abort().catch(() => {});
+  await expect(page.locator('.drawing-metadata-panel > summary')).toContainText('解析途中に開く図面');
+  await expect(editDrawing(page).locator('image')).toHaveCount(0);
+  await expect(editDrawing(page).getByRole('button', { name: '壁1を選択', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '手直しを元に戻す', exact: true })).toBeDisabled();
+  expect(dialogs).toEqual([]); expect(await savedPlan(page)).toEqual(before);
+});
+
+test('画像の読み込み中に後から選んだ図面ファイルを、古い画像の完了で取り消さない', async ({ page }) => {
+  await page.addInitScript(() => {
+    const bitmap = window.createImageBitmap.bind(window), text = File.prototype.text;
+    window.createImageBitmap = async (...args) => {
+      if (args[0]?.name === 'slow.png') await new Promise(resolve => { window.__releaseImageRead = resolve; });
+      return bitmap(...args);
+    };
+    File.prototype.text = async function () {
+      if (this.name === 'pending.json') await new Promise(resolve => { window.__releaseDrawingRead = resolve; });
+      return text.call(this);
+    };
+  });
+  await page.goto('/'); await openImageImport(page);
+  const bytes = await page.evaluate(() => {
+    const canvas = document.createElement('canvas'); canvas.width = canvas.height = 64;
+    return canvas.toDataURL('image/png').split(',')[1];
+  });
+  await page.getByLabel('間取り画像', { exact: true }).setInputFiles({ name: 'slow.png', mimeType: 'image/png', buffer: Buffer.from(bytes, 'base64') });
+  await expect.poll(() => page.evaluate(() => typeof window.__releaseImageRead)).toBe('function');
+  await page.getByLabel('図面ファイルを開く', { exact: true }).setInputFiles({ name: 'pending.json', mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ version: 1, plan: { ...editablePlan, name: '後から選んだ図面' } })) });
+  await expect.poll(() => page.evaluate(() => typeof window.__releaseDrawingRead)).toBe('function');
+  await page.evaluate(() => window.__releaseImageRead());
+  await expect(page.getByRole('button', { name: '解析を中止', exact: true })).toHaveCount(0);
+  await page.evaluate(() => window.__releaseDrawingRead());
+  await expect(page.locator('.drawing-metadata-panel > summary')).toContainText('後から選んだ図面');
+  await expect(editDrawing(page).locator('image')).toHaveCount(0);
+});
 
 test('別の間取り画像を取り込んで保存・再読込しても以前の家具に妨げられず3Dを表示できる', async ({ page }) => {
   await seedOldLayout(page); await page.goto('/');

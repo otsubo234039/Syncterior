@@ -47,7 +47,7 @@ test('図面ファイルを往復し、破損ファイルを拒否して現在�
   await expect(page.getByRole('button', { name: '壁1を選択', exact: true })).toBeVisible();
 });
 
-test('未保存の図面はモード切替で維持し、図面の置換を取り消せる', async ({ page }) => {
+test('未保存の図面はモード切替で維持し、別図面の読み込みでは確認なしで編集と履歴を置き換える', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: '図面を保存', exact: true }).click();
   await page.getByRole('button', { name: '壁を追加', exact: true }).click();
@@ -56,15 +56,21 @@ test('未保存の図面はモード切替で維持し、図面の置換を取�
   await page.getByRole('button', { name: '3D・家具配置', exact: true }).click();
   await page.getByRole('button', { name: '図面モード', exact: true }).click();
   await expect(page.getByRole('button', { name: '壁1を選択', exact: true })).toBeVisible();
-  page.once('dialog', dialog => dialog.dismiss());
-  await openDrawingTools(page);
-  await page.getByRole('button', { name: '保存した図面を開く', exact: true }).click();
-  await expect(page.getByRole('button', { name: '壁1を選択', exact: true })).toBeVisible();
-  expect(await stored(page)).toEqual(before);
-  page.once('dialog', dialog => dialog.accept());
+  const dialogs = []; page.on('dialog', dialog => { dialogs.push(dialog.message()); void dialog.dismiss(); });
   await openDrawingTools(page);
   await page.getByRole('button', { name: '保存した図面を開く', exact: true }).click();
   await expect(page.getByRole('button', { name: '壁1を選択', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: '手直しを元に戻す', exact: true })).toBeDisabled();
+  expect(await stored(page)).toEqual(before);
+  await page.getByRole('button', { name: '壁を追加', exact: true }).click();
+  await pickEditPoint(page, [1,1]); await pickEditPoint(page, [7,1]);
+  await openDrawingTools(page);
+  await page.getByLabel('図面ファイルを開く', { exact: true }).setInputFiles({ name: 'next.json', mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ version: 1, plan: { ...editablePlan, name: '新しく読み込む図面', walls: [] } })) });
+  await expect(page.getByRole('button', { name: '壁1を選択', exact: true })).toHaveCount(0);
+  await expect(page.locator('.drawing-metadata-panel > summary')).toContainText('新しく読み込む図面');
+  await expect(page.getByRole('button', { name: '手直しを元に戻す', exact: true })).toBeDisabled();
+  expect(dialogs).toEqual([]); expect(await stored(page)).toEqual(before);
 });
 
 test('図面の保存失敗を案内し、編集とファイル書き出しを続けて再保存できる', async ({ page }) => {
@@ -128,7 +134,6 @@ test('端点のドラッグ中に図面を読み込んでも古い編集の後�
   await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x, y + 30, { steps: 3 });
   await expect(endpoint).not.toHaveAttribute('transform', 'translate(7 1)');
   const plan = { ...editablePlan, name: '差し替えた図面', walls: [] };
-  page.once('dialog', dialog => dialog.accept());
   await page.getByLabel('図面ファイルを開く', { exact: true }).setInputFiles({ name: 'next.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ version: 1, plan })) });
   await page.mouse.up();
   await expect(page.getByRole('button', { name: '壁1を選択', exact: true })).toHaveCount(0);

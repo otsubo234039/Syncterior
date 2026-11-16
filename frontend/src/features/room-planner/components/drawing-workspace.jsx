@@ -2,16 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FloorPlanEditor } from './floor-plan-editor';
 import { FloorPlanImporter } from './floor-plan-importer';
 import { decodeDrawingDocument, encodeDrawing, newDrawing } from '../utils/drawing-document';
-import { readFloorPlanImage } from '../utils/floor-plan-image';
 
 export function DrawingWorkspace({ planner }) {
   const { drawing, drawingDirty, savedDrawing, savedDrawingId, drawingNotice, replaceDrawing, saveDrawing, generateFromDrawing } = planner;
   const [error, setError] = useState('');
   const fileRequest = useRef(0), tools = useRef(null);
   useEffect(() => () => { fileRequest.current++; }, []);
-  const mayReplace = () => !drawingDirty || !drawing.modified || window.confirm('保存していない図面があります。現在の編集内容を置き換えますか？');
   const replace = (plan, image = null, options) => {
-    if (!mayReplace()) return false;
     fileRequest.current++;
     setError(''); tools.current.open = false; return replaceDrawing(plan, image, options);
   };
@@ -40,7 +37,7 @@ export function DrawingWorkspace({ planner }) {
           if (ticket === fileRequest.current) replace(plan, null, { drawingId });
         } catch (cause) { if (ticket === fileRequest.current) setError(cause.message); }
       }} /></label>
-      <button className="sharing-button" onClick={exportFile}>図面ファイルを書き出す</button>
+      <button className="sharing-button" disabled={!drawing.plan} onClick={exportFile}>図面ファイルを書き出す</button>
     </div>
     <details className="drawing-new"><summary>新しい図面を作成</summary>
       <form className="drawing-metadata" onSubmit={event => {
@@ -56,19 +53,9 @@ export function DrawingWorkspace({ planner }) {
         <button type="submit" className="sharing-button">新規作成</button>
       </form>
     </details>
-    <FloorPlanImporter customPlan={drawing.plan} sourceImage={drawing.image} convertToDrawing={replace} />
-    <label className="drawing-file-label">手直し用の下絵<input type="file" accept="image/jpeg,image/png,image/webp" onChange={async event => {
-      const file = event.target.files?.[0]; event.target.value = ''; if (!file) return;
-      const ticket = ++fileRequest.current;
-      try {
-        const image = await readFloorPlanImage(file);
-        if (ticket !== fileRequest.current) return;
-        if (Math.abs(image.pixels.width / image.pixels.height / (drawing.plan.w / drawing.plan.d) - 1) > .01) {
-          throw new Error('元の図面と縦横比が異なります。同じ画像を選択してください。');
-        }
-        planner.setDrawingImage(image); setError('');
-      } catch (cause) { if (ticket === fileRequest.current) setError(cause.message); }
-    }} /></label>
+    <FloorPlanImporter customPlan={drawing.plan} sourceImage={drawing.image} generation={drawing.generation} convertToDrawing={replace}
+      onImageRequest={() => ++fileRequest.current}
+      onNewImage={ticket => { if (ticket !== fileRequest.current) return false; setError(''); return planner.startDrawingImport(); }} />
     </details>
     <div className="drawing-notice" aria-live="polite">
       {error || drawingNotice.error ? <p role="alert" className="floor-error">{error || drawingNotice.error}</p> : <p role="status">{drawingNotice.message}</p>}
@@ -76,8 +63,9 @@ export function DrawingWorkspace({ planner }) {
     <p className="drawing-footnote" role="status">{planner.preserveDrawingItems
       ? '同じ図面の修正として3Dへ反映します。現在の家具を維持します。'
       : '新しい図面から家具なしの3Dを作成します。現在の間取り・家具配置は3D表示時に置き換わります。'}</p>
-    <FloorPlanEditor key={drawing.generation} plan={drawing.plan} image={drawing.image}
+    {drawing.plan ? <FloorPlanEditor key={drawing.generation} plan={drawing.plan} image={drawing.image}
       onChange={value => planner.updateDrawing(value, drawing.generation)} onApply={saveDrawing} onPreview={generateFromDrawing} />
+      : <p role="status">画像の取り込み後、「図面へ変換」で編集を始められます。</p>}
     <p className="drawing-footnote">図面の保存はこのブラウザ内です。図面ファイルで別のブラウザにも持ち出せます。下絵・編集履歴は保存しません。同じ図面の修正では家具の位置・寸法を維持し、収まらない変更は拒否します。新規作成・別の画像や図面ファイルの取り込みでは家具なしの3Dを作成します。</p>
   </section>;
 }

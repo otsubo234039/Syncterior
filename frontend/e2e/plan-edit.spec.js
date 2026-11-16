@@ -1,11 +1,11 @@
-import { enterLayout, openDrawingTools } from './fixtures/workspace.js';
+import { enterLayout, openDrawingTools, openImageImport } from './fixtures/workspace.js';
 import { test, expect } from './fixtures/test.js';
-import { seedEditablePlan, savedPlan, editDrawing, pickEditPoint, attachUnderlay } from './fixtures/plan-edit.js';
+import { seedEditablePlan, savedPlan, editDrawing, pickEditPoint, importDrawingImage } from './fixtures/plan-edit.js';
 
 test('下絵を固定表示して壁を調整し、図面保存と3D配置への反映を分ける', async ({ page }) => {
   await seedEditablePlan(page); await page.goto('/');
   const before = await savedPlan(page);
-  await attachUnderlay(page);
+  await importDrawingImage(page);
   const image = editDrawing(page).locator('image');
   await expect(image).toHaveAttribute('opacity', '0.6');
   await page.getByLabel('下絵の濃さ', { exact: true }).fill('0.3');
@@ -13,19 +13,25 @@ test('下絵を固定表示して壁を調整し、図面保存と3D配置への
   await page.getByLabel('下絵を表示', { exact: true }).uncheck();
   await expect(image).toHaveCount(0);
   await page.getByLabel('下絵を表示', { exact: true }).check();
-  await page.getByRole('button', { name: '壁1を選択', exact: true }).focus(); await page.keyboard.press('Enter');
-  await page.getByRole('button', { name: '壁の終点', exact: true }).focus(); await page.keyboard.press('Shift+ArrowDown');
-  await expect(page.getByRole('button', { name: '壁の終点', exact: true })).toHaveAttribute('transform', 'translate(7 1.1)');
+  const wallCount = await editDrawing(page).getByRole('button', { name: /^壁\d+を選択$/ }).count();
+  await page.getByRole('button', { name: '壁を追加', exact: true }).click();
+  await pickEditPoint(page, [2,3]); await pickEditPoint(page, [6,3]);
+  await page.getByRole('button', { name: '選択・頂点を動かす', exact: true }).click();
+  await page.getByRole('button', { name: `壁${wallCount + 1}を選択`, exact: true }).focus(); await page.keyboard.press('Enter');
+  const endpoint = page.getByRole('button', { name: '壁の終点', exact: true });
+  const point = await endpoint.evaluate(node => node.getAttribute('transform').slice(10, -1).split(/\s+/).map(Number));
+  const expected = [point[0], point[1] + .1];
+  await endpoint.focus(); await page.keyboard.press('Shift+ArrowDown');
+  await expect(endpoint).toHaveAttribute('transform', `translate(${expected.join(' ')})`);
   expect(await savedPlan(page)).toEqual(before);
   await page.locator('.drawing-editor').screenshot({ path: test.info().outputPath('underlay-editor.png') });
   await page.getByRole('button', { name: '図面を保存', exact: true }).click();
   expect(await savedPlan(page)).toEqual(before);
   await page.getByRole('button', { name: '図面から3Dを表示', exact: true }).click();
-  await expect.poll(async () => (await savedPlan(page)).room.customPlan.walls[0].end).toEqual([7,1.1]);
-  expect((await savedPlan(page)).room.customPlan.walls[0].thicknessRatio).toBe(2);
+  await expect.poll(async () => (await savedPlan(page)).room.customPlan.walls.at(-1).end).toEqual(expected);
   expect(JSON.stringify(await savedPlan(page))).not.toContain('data:image');
   await page.reload();
-  expect((await savedPlan(page)).room.customPlan.walls[0].end).toEqual([7,1.1]);
+  expect((await savedPlan(page)).room.customPlan.walls.at(-1).end).toEqual(expected);
   await page.getByRole('button', { name: '図面モード', exact: true }).click();
   await expect(editDrawing(page).locator('image')).toHaveCount(0);
 });
@@ -45,7 +51,6 @@ test('壁と開口を2点で追加し、取消・元に戻す・やり直すを�
   await page.getByRole('button', { name: '手直しをやり直す', exact: true }).click();
   await expect(page.getByRole('button', { name: '扉1を選択', exact: true })).toBeVisible();
   expect(await savedPlan(page)).toEqual(before);
-  page.once('dialog', dialog => dialog.accept());
   await openDrawingTools(page);
   await page.getByRole('button', { name: '保存した図面を開く', exact: true }).click();
   await expect(page.getByRole('button', { name: '壁2を選択', exact: true })).toHaveCount(0);
@@ -79,13 +84,26 @@ test('家具に重なる壁を適用せず家具と保存内容を維持する',
   expect(await savedPlan(page)).toEqual(before);
 });
 
-test('手直しの下絵で縦横比の違う画像と破損画像を拒否して配置を保持する', async ({ page }) => {
+test('破損画像は拒否し、有効な別画像は元の図面の縦横比に関係なく読み込める', async ({ page }) => {
   await seedEditablePlan(page); await page.goto('/'); const before = await savedPlan(page);
-  await page.getByLabel('手直し用の下絵', { exact: true }).setInputFiles({ name: 'broken.png', mimeType: 'image/png', buffer: Buffer.from('broken') });
+  await openImageImport(page);
+  await page.getByLabel('間取り画像', { exact: true }).setInputFiles({ name: 'broken.png', mimeType: 'image/png', buffer: Buffer.from('broken') });
   await expect(page.getByRole('alert')).toContainText('画像を読み込めません');
-  const png = await page.evaluate(() => { const c = document.createElement('canvas'); c.width = c.height = 64; return c.toDataURL('image/png').split(',')[1]; });
-  await page.getByLabel('手直し用の下絵', { exact: true }).setInputFiles({ name: 'square.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') });
-  await expect(page.getByRole('alert')).toContainText('縦横比が異なります');
+  await expect(editDrawing(page).getByRole('button', { name: '壁1を選択', exact: true })).toBeVisible();
+  const png = await page.evaluate(() => {
+    const c = document.createElement('canvas'); c.width = c.height = 200;
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0,0,200,200);
+    ctx.fillStyle = '#000'; ctx.fillRect(20,20,160,5); ctx.fillRect(20,175,160,5);
+    ctx.fillRect(20,20,5,160); ctx.fillRect(175,20,5,160);
+    return c.toDataURL('image/png').split(',')[1];
+  });
+  await page.getByLabel('間取り画像', { exact: true }).setInputFiles({ name: 'square.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') });
+  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(editDrawing(page)).toHaveCount(0);
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  await page.getByRole('button', { name: '図面へ変換', exact: true }).click();
+  await expect(editDrawing(page).locator('image')).toBeVisible();
+  await expect(page.getByRole('button', { name: '手直しを元に戻す', exact: true })).toBeDisabled();
   expect(await savedPlan(page)).toEqual(before);
 });
 

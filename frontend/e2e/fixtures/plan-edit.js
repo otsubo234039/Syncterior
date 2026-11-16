@@ -1,3 +1,6 @@
+import { openImageImport } from './workspace.js';
+import { expect } from './test.js';
+
 export const editablePlan = {
   version: 1, name: '手直し用の間取り', w: 8, d: 6, h: 2.5, wallThickness: .12,
   floors: [{ id: 'floor', kind: 'room', points: [[0,0],[8,0],[8,6],[0,6]] }],
@@ -17,12 +20,15 @@ export async function pickEditPoint(page, point) {
   }, point);
   await drawing.click({ position });
 }
-export async function attachUnderlay(page) {
+export async function importDrawingImage(page) {
   const png = await page.evaluate(() => {
     const canvas = document.createElement('canvas'); canvas.width = 200; canvas.height = 150;
     const ctx = canvas.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0,0,200,150);
     ctx.strokeRect(25,25,150,100); return canvas.toDataURL('image/png').split(',')[1];
   });
-  await page.getByLabel('手直し用の下絵', { exact: true }).setInputFiles({ name: 'drawing.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') });
+  await openImageImport(page);
+  await page.getByLabel('間取り画像', { exact: true }).setInputFiles({ name: 'drawing.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') });
+  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await page.getByRole('button', { name: '図面へ変換', exact: true }).click();
   await page.getByRole('heading', { name: '2D図面を編集', exact: true }).waitFor();
 }

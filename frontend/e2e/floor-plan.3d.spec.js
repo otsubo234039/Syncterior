@@ -2,9 +2,32 @@ import { openLayout, openImageImport, convertAndPreview } from './fixtures/works
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
 import { evaluateLayoutReferences } from '../src/features/room-planner/utils/floor-plan-evaluation.js';
+import { floorPlanBounds } from '../src/features/room-planner/utils/floor-plan.js';
 const references = JSON.parse(readFileSync(new URL('./fixtures/floor-plans/references.json', import.meta.url), 'utf8'));
 import { test, expect, drawCalls, waitForSceneToSettle } from './fixtures/test.js';
-import { calibrateDrawing } from './fixtures/floor-plan.js';
+import { calibrateDrawing, calibrateDrawingByRoom } from './fixtures/floor-plan.js';
+
+for (const [name, width] of [['デスクトップ幅', 1440], ['モバイル幅', 390]]) {
+  test(`${name}で自動認識した部屋の帖数補正を保存とは分けて実WebGLに反映できる`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    await openImageImport(page);
+    await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/colored.jpg', import.meta.url)));
+    await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+    const before = await calibrateDrawingByRoom(page);
+    expect(await page.evaluate(() => localStorage.getItem('syncterior.personal-room'))).toBeNull();
+    await convertAndPreview(page);
+    await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+    await waitForSceneToSettle(page);
+    expect(await drawCalls(page)).toBeGreaterThan(0);
+    const plan = await page.evaluate(() => JSON.parse(localStorage.getItem('syncterior.personal-room')).room.customPlan);
+    expect(plan.w).toBeCloseTo(before.w * before.factor, 8);
+    expect(plan.d).toBeCloseTo(before.d * before.factor, 8);
+    expect(plan.h).toBe(2.4);
+    // 寸法表示は画像の余白を含む幅ではなく、床と壁の外形を示す。
+    await expect(page.locator('.width-tag')).toHaveText(`${floorPlanBounds(plan).w.toFixed(1)} m`);
+  });
+}
 
 for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'colored'], ['黒背景の図面', 'dark-background'], ['木目のある図面', 'textured']]) {
   test(`${name}の壁候補を実WebGLで立体化し、一辺の実測補正を実寸モデルと3Dへ反映する`, async ({ page }, testInfo) => {
