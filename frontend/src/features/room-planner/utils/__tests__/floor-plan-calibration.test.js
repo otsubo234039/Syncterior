@@ -1,11 +1,27 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { calibrateFloorPlan, calibrateFloorPlanByTatami, calibrateFloorPlanByPolygon, measurementArea, measurementLength, measurementPolygonArea } from '../floor-plan-calibration.js';
+import { calibrateFloorPlan, calibrateFloorPlanByTatami, calibrateFloorPlanByPolygon, calibrationInputError, measurementArea, measurementLength, measurementPolygonArea } from '../floor-plan-calibration.js';
 import { isFloorPlan } from '../floor-plan.js';
 import { createLocalRoomStorage } from '../local-room-storage.js';
 const plan = () => ({ version:1,name:'計測用',w:8,d:6,h:2.4,wallThickness:.12,
   floors:[{id:'floor',kind:'room',points:[[0,0],[8,0],[8,6],[0,6]]}],
   walls:[{id:'wall',start:[0,0],end:[8,0],thicknessRatio:2,openings:[{id:'window',kind:'window',offset:2,width:1,bottom:.8,height:1}]}] });
+
+test('補正前の入力不備を方式別に案内し、補正後の寸法制限と区別する', () => {
+  const value=plan(), points=[[.2,.2],[.7,.7]];
+  for (const length of [0,.019,NaN,Infinity]) assert.equal(calibrationInputError(value,points,{length}),'2点と長さを確認してください。');
+  assert.equal(calibrationInputError(value,[points[0],points[0]],{length:2}),'2点と長さを確認してください。');
+  assert.equal(calibrationInputError(value,points,{length:.02}),null);
+  assert.equal(calibrationInputError(value,points,{length:9999}),null);
+  assert.equal(calibrateFloorPlan(value,points,9999),null);
+  const options={byArea:true,tatami:6,areaPerTatami:1.62};
+  assert.equal(calibrationInputError(value,points,options),null);
+  for(const patch of [{tatami:0},{tatami:NaN},{areaPerTatami:-1},{tatami:1e308,areaPerTatami:1e308},{tatami:Number.MIN_VALUE,areaPerTatami:Number.MIN_VALUE}]) {
+    assert.equal(calibrationInputError(value,points,{...options,...patch}),'輪郭・帖数・換算値を確認してください。');
+  }
+  assert.equal(calibrationInputError(value,[[.1,.1],[.8,.8],[.8,.1],[.1,.8]],{...options,byPolygon:true}),'輪郭・帖数・換算値を確認してください。');
+  assert.equal(calibrationInputError(value,[[.1,.1],[.8,.1],[.8,.8]],{...options,byPolygon:true}),null);
+});
 
 test('部屋をまたぐ一本の壁の一部分から、平面の比率と壁厚だけを補正する',()=>{
   const value=plan(),before=structuredClone(value),points=[[.25,0],[.5,0]];

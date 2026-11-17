@@ -19,7 +19,7 @@ export function useRoomPlanner() {
   });
   const [localSave, setLocalSave] = useState(() => ({
     error: local.restored.error,
-    message: local.restored.room ? '保存した個人配置を復元しました。' : '個人編集はこのブラウザに自動保存されます。',
+    message: local.restored.room ? '保存した個人配置を復元しました。' : 'このブラウザに自動保存',
   }));
   const sceneDrawingId = useRef(local.restored.drawingId
     ?? (local.restored.room?.customPlan ? legacyDrawingId(local.restored.room.customPlan) : undefined));
@@ -44,7 +44,7 @@ export function useRoomPlanner() {
     image: null, generation: 0, modified: false,
   }));
   const [drawingNotice, setDrawingNotice] = useState({ error: drawingInitial.error, message: drawingInitial.plan
-    ? '保存した図面を開きました。' : '図面を作成し、3Dを開かずに保存できます。' });
+    ? '保存した図面を開きました。' : '' });
   const drawingDirty = drawing.drawingId !== savedDrawingId || JSON.stringify(drawing.plan) !== JSON.stringify(savedDrawing);
   const [selected, setSelected] = useState(null);
   const [showSizes, setShowSizes] = useState(true);
@@ -52,7 +52,7 @@ export function useRoomPlanner() {
   const editable = ['local', 'connected'].includes(collaboration.status) && !collaboration.changingPlan;
   const customPlan = planKey === CUSTOM_PLAN_KEY ? collaboration.room.customPlan : null;
   const preserveDrawingItems = Boolean(customPlan && sceneDrawingId.current === drawing.drawingId);
-  const plan = customPlan ? { ...customPlan, desc: '2D図面から生成した間取り・壁や床の変更は図面モードで行えます',
+  const plan = customPlan ? { ...customPlan,
     area: customPlan.floors.filter(floor => floor.kind === 'room').reduce((area, floor) => area + polygonArea(floor.points), 0) } : plans[planKey];
   const active = items.find(item => item.id === selected);
 
@@ -92,11 +92,11 @@ export function useRoomPlanner() {
     if (selected && session.dispatch({ type: 'remove', id: selected })) setSelected(null);
   };
   const clearLocalSave = () => setLocalSave({
-    ...local.storage.clear(), message: '保存した個人配置を消去しました。画面の配置は残り、次の個人編集から再び保存します。',
+    ...local.storage.clear(), message: '保存データを削除しました。画面の配置は残ります。',
   });
   const leaveRoom = () => {
     session.leave();
-    setLocalSave({ error: '', message: '共有から退出しました。個人保存は変更していません。次の編集から保存します。' });
+    setLocalSave({ error: '', message: '共同編集から退出しました。' });
   };
   const importFloorPlan = (value, preserveItems = false) => {
     if (collaboration.status !== 'local' || !isFloorPlan(value)) return false;
@@ -110,7 +110,7 @@ export function useRoomPlanner() {
     if (collaboration.status !== 'local' || !isFloorPlan(value)) return false;
     setDrawing(previous => ({ plan: value, image, generation: previous.generation + 1, modified: true,
       drawingId: drawingId ?? (newDocument ? newDrawingId() : previous.drawingId) }));
-    setDrawingNotice({ error: '', message: '図面を開きました。「図面を保存」でこのブラウザに保存できます。' });
+    setDrawingNotice({ error: '', message: '図面を開きました。' });
     return true;
   };
   const startDrawingImport = () => {
@@ -123,7 +123,7 @@ export function useRoomPlanner() {
   const saveDrawing = value => {
     if (collaboration.status !== 'local') return false;
     const result = drawingStore.save(value, drawing.drawingId);
-    setDrawingNotice({ ...result, message: result.error ? '' : '図面をこのブラウザに保存しました。3Dを開かなくても復元できます。' });
+    setDrawingNotice({ ...result, message: result.error ? '' : '図面を保存しました。' });
     if (result.error) return false;
     setSavedDrawing(structuredClone(value));
     setSavedDrawingId(drawing.drawingId);

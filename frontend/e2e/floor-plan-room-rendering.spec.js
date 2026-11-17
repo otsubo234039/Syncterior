@@ -35,7 +35,7 @@ test('部屋のクリック・タップと補正後も下絵を表示し、キ�
     return canvas.toDataURL('image/png').split(',')[1];
   });
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles({ name: 'room-rendering.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') });
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
   await page.getByRole('combobox', { name: 'サイズ合わせの方法', exact: true }).selectOption('tatami');
   const drawing = measurementDrawing(page);
   const originalImage = await drawing.locator('image').getAttribute('href');
@@ -92,7 +92,7 @@ test('部屋のクリック・タップと補正後も下絵を表示し、キ�
   await expect(vertex.locator('circle').last()).toHaveCSS('vector-effect', 'non-scaling-stroke');
   await expectUnderlayVisible(page, testInfo, '頂点のキーボード調整直後');
   await page.getByLabel('選択した部屋の帖数', { exact: true }).fill('6');
-  await page.getByRole('button', { name: 'この帖数で全体を補正', exact: true }).click();
+  await page.getByRole('button', { name: 'サイズを合わせる', exact: true }).click();
   await expectUnderlayVisible(page, testInfo, '部屋のサイズ補正直後');
   await expect(page.getByRole('alert')).toHaveCount(0);
 });

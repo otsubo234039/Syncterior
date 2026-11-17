@@ -2,7 +2,7 @@ import { openLayout, reloadLayout } from './fixtures/workspace.js';
 import { test, expect } from './fixtures/test.js';
 
 const KEY = 'syncterior.personal-room';
-const count = page => page.locator('.room-metrics > div').filter({ hasText: 'FURNITURE' }).locator('strong');
+const count = page => page.locator('.room-metrics > div').filter({ hasText: '家具数' }).locator('strong');
 const saving = page => page.getByRole('region', { name: '個人配置の保存' });
 const saved = page => page.evaluate(key => localStorage.getItem(key), KEY);
 
@@ -22,7 +22,7 @@ test('個人編集を再読み込みと別タブで復元し、保存だけを�
   const desk = data.room.items.find(item => item.type === 'desk');
   expect(desk).toMatchObject({ x: .7, z: -.5, color: '#123456', rot: Math.PI / 2 });
   await reloadLayout(page);
-  await expect(page.getByRole('heading', { name: '1LDK / 3Dレイアウト' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '1LDK' })).toBeVisible();
   await expect(count(page)).toContainText('5');
   await expect(saving(page)).toContainText('復元しました');
   await expect(page.getByRole('heading', { name: '家具を選択してください' })).toBeVisible();
@@ -30,15 +30,15 @@ test('個人編集を再読み込みと別タブで復元し、保存だけを�
   const tab = await context.newPage();
   try {
     await openLayout(tab);
-    await expect(tab.getByRole('heading', { name: '1LDK / 3Dレイアウト' })).toBeVisible();
+    await expect(tab.getByRole('heading', { name: '1LDK' })).toBeVisible();
     await expect(count(tab)).toContainText('5');
   } finally { await tab.close(); }
   await page.getByRole('button', { name: '保存した個人配置を消去', exact: true }).click();
   expect(await saved(page)).toBe(null);
   await expect(count(page)).toContainText('5');
-  await expect(saving(page)).toContainText('消去しました');
+  await expect(saving(page)).toContainText('保存データを削除しました。画面の配置は残ります。');
   await reloadLayout(page);
-  await expect(page.getByRole('heading', { name: 'ワンルーム / 3Dレイアウト' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'ワンルーム' })).toBeVisible();
   await expect(count(page)).toContainText('4');
   expect(await saved(page)).toBe(null);
   await page.getByRole('button', { name: /^デスク/ }).click();
@@ -110,11 +110,12 @@ test('共有リンクは個人配置を送信せず、共有の確定・未確�
   await expect(page.locator('.sharing-summary')).toContainText('再接続中');
   expect(await saved(page)).toBe(personal);
   await page.getByRole('button', { name: '未送信の変更を破棄して退出' }).click();
-  await expect(page.locator('.sharing-summary')).toContainText('個人で編集中');
+  await expect(page.getByRole('button', { name: '部屋を共有', exact: true })).toBeEnabled();
+  await expect(page.locator('.sharing-summary')).toHaveCount(0);
   await expect(count(page)).toContainText('1');
   expect(await saved(page)).toBe(personal);
   await reloadLayout(page);
-  await expect(page.getByRole('heading', { name: 'ファミリー / 3Dレイアウト' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'ファミリー' })).toBeVisible();
   await expect(count(page)).toContainText('5');
   await expect(saving(page)).toContainText('復元しました');
 });

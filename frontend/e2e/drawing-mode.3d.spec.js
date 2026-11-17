@@ -28,7 +28,7 @@ test('別画像への取り替え時は前の家具の範囲に制限されず�
   await page.goto('/');
   await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/monochrome.jpg', import.meta.url)));
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
   await page.getByRole('button', { name: '図面へ変換', exact: true }).click();
   const width = await page.locator('.floor-edit-drawing').evaluate(svg => Number(svg.getAttribute('viewBox').split(/\s+/)[2]) / 1.04);
   await page.getByRole('button', { name: '図面から3Dを表示', exact: true }).click();

@@ -28,7 +28,7 @@ export async function importDrawingImage(page) {
   });
   await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles({ name: 'drawing.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') });
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
   await page.getByRole('button', { name: '図面へ変換', exact: true }).click();
-  await page.getByRole('heading', { name: '2D図面を編集', exact: true }).waitFor();
+  await page.getByRole('region', { name: '図面の編集', exact: true }).waitFor();
 }

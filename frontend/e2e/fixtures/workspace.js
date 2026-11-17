@@ -17,7 +17,7 @@ export async function openImageImport(page) {
   await page.getByRole('button', { name: '図面モード', exact: true }).click();
   await openDrawingTools(page);
   const panel = page.locator('.floor-import');
-  if (!await panel.evaluate(node => node.open)) await panel.locator('summary').click();
+  if (!await panel.evaluate(node => node.open)) await panel.locator(':scope > summary').click();
 }
 export async function previewDrawing(page) {
   await page.getByRole('button', { name: '図面を保存', exact: true }).click();
@@ -25,6 +25,6 @@ export async function previewDrawing(page) {
 }
 export async function convertAndPreview(page) {
   await page.getByRole('button', { name: '図面へ変換', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '2D図面を編集', exact: true })).toBeVisible();
+  await expect(page.getByRole('region', { name: '図面の編集', exact: true })).toBeVisible();
   await previewDrawing(page);
 }

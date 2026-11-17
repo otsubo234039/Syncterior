@@ -21,8 +21,8 @@ export function newDrawing({ name = '新しい図面', w = 8, d = 6, h = 2.5 } =
 
 // 2Dと3Dが共用する実寸の形状を保存する。画像・表示状態・生成したメッシュは含めない。
 export function encodeDrawing(plan, drawingId) {
-  if (!isFloorPlan(plan)) throw new Error('図面の形状が不正です。');
-  if (drawingId !== undefined && !isDrawingId(drawingId)) throw new Error('図面IDが不正です。');
+  if (!isFloorPlan(plan)) throw new Error('不正な図面です。');
+  if (drawingId !== undefined && !isDrawingId(drawingId)) throw new Error('不正な図面です。');
   const raw = JSON.stringify({ version: 1, plan, ...(drawingId !== undefined ? { drawingId } : {}) });
   if (raw.length > MAX_LENGTH) throw new Error('図面データが大きすぎます。');
   return raw;

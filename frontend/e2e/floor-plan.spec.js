@@ -13,7 +13,7 @@ test('部屋の帖数で縦横比を保って概算補正し、再適用・換�
   await page.goto('/');
   await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/colored.jpg', import.meta.url)));
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
   const dimensions = () => measurementDrawing(page).evaluate(svg => {
     const [, , w, d] = svg.getAttribute('viewBox').split(/\s+/).map(Number);
     const rect = svg.querySelector('.floor-measure-area');
@@ -24,22 +24,23 @@ test('部屋の帖数で縦横比を保って概算補正し、再適用・換�
   expect(first.w).toBeCloseTo(before.w * before.factor, 6);
   expect(first.w / first.d).toBeCloseTo(before.w / before.d, 10);
   expect(first.area).toBeCloseTo(6.5 * 1.62, 8);
-  await expect(page.getByRole('status').filter({ hasText: '指定した帖数から全体のサイズを概算で補正しました。' })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '全体のサイズを補正しました（概算）。' })).toBeVisible();
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await testInfo.attach('帖数によるサイズ補正', { body: await page.locator('.floor-import').screenshot(), contentType: 'image/png' });
-  await page.getByRole('button', { name: 'この帖数で全体を補正', exact: true }).click();
+  await page.getByRole('button', { name: 'サイズを合わせる', exact: true }).click();
   expect(await dimensions()).toEqual(first);
   await page.getByLabel('1帖の面積 (m²)', { exact: true }).fill('1.824');
-  await page.getByRole('button', { name: 'この帖数で全体を補正', exact: true }).click();
+  await page.getByRole('button', { name: 'サイズを合わせる', exact: true }).click();
   expect((await dimensions()).area).toBeCloseTo(6.5 * 1.824, 8);
   await page.getByRole('button', { name: 'サイズ補正を取り消す', exact: true }).click();
   expect(await dimensions()).toEqual(first);
   await page.getByLabel('選択した部屋の帖数', { exact: true }).fill('999999');
-  await page.getByRole('button', { name: 'この帖数で全体を補正', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('有効な長方形と正の帖数');
+  await page.getByRole('button', { name: 'サイズを合わせる', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('補正後の寸法が対応範囲外です。');
   expect(await dimensions()).toEqual(first);
   await page.getByLabel('選択した部屋の帖数', { exact: true }).fill('0');
-  await page.getByRole('button', { name: 'この帖数で全体を補正', exact: true }).click();
+  await page.getByRole('button', { name: 'サイズを合わせる', exact: true }).click();
+  await expect(page.getByRole('alert')).toHaveText('輪郭・帖数・換算値を確認してください。');
   expect(await dimensions()).toEqual(first);
   // 補正だけでは図面・家具のどちらも保存しない。
   expect(await storage(page)).toBeNull();
@@ -60,7 +61,7 @@ test('帖数の対象をキーボードで調整し、方式切替で選択を�
   await page.goto('/');
   await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/colored.jpg', import.meta.url)));
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
   await calibrateDrawingByTatami(page);
   const endpoint = page.getByRole('button', { name: '計測の終点', exact: true });
   const before = await endpoint.getAttribute('transform');
@@ -68,17 +69,17 @@ test('帖数の対象をキーボードで調整し、方式切替で選択を�
   await expect(endpoint).not.toHaveAttribute('transform', before);
   await page.getByRole('button', { name: '2点を選び直す', exact: true }).click();
   await pickMeasurementPoint(page, [.2, .3]); await pickMeasurementPoint(page, [.2, .7]);
-  await expect(page.getByRole('button', { name: 'この帖数で全体を補正', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'サイズを合わせる', exact: true })).toBeDisabled();
   await page.getByRole('combobox', { name: 'サイズ合わせの方法', exact: true }).selectOption('length');
   await expect(endpoint).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'この長さで全体を補正', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'サイズを合わせる', exact: true })).toBeDisabled();
   await calibrateDrawing(page);
   await page.getByRole('combobox', { name: 'サイズ合わせの方法', exact: true }).selectOption('tatami');
   await page.getByRole('button', { name: '画像を再解析', exact: true }).click();
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
   await expect(page.getByLabel('選択した部屋の帖数', { exact: true })).toHaveValue('');
   await expect(page.getByRole('button', { name: 'サイズ補正を取り消す', exact: true })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'この帖数で全体を補正', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'サイズを合わせる', exact: true })).toBeDisabled();
   expect(await storage(page)).toBeNull();
 });
 
@@ -88,7 +89,7 @@ for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'co
     await openImageImport(page);
     await expect(page.getByRole('combobox', { name: '検出感度' })).toHaveCount(0);
     await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL(`./fixtures/floor-plans/${file}.jpg`, import.meta.url)));
-    await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
     await expect(measurementDrawing(page)).toBeVisible();
     const walls = await page.locator('.floor-drawing .floor-wall').count();
     expect(walls).toBeGreaterThan(2);
@@ -98,7 +99,7 @@ for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'co
     await testInfo.attach(`${file}-calibration`, { body: await page.locator('.floor-import').screenshot(), contentType: 'image/png' });
     expect(await storage(page)).toBeNull();
     await convertAndPreview(page);
-    await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '取込間取り' })).toBeVisible();
     const value = await storage(page);
     expect(value.version).toBe(2); expect(value.room.items).toHaveLength(0);
     expect(value.room.customPlan.h).toBe(2.4);
@@ -115,7 +116,7 @@ for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'co
     await testInfo.attach(`${file}-partial-evaluation`, { body: JSON.stringify(metrics), contentType: 'application/json' });
     await testInfo.attach(`${file}-model`, { body: JSON.stringify(value, null, 2), contentType: 'application/json' });
     await reloadLayout(page);
-    await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '取込間取り' })).toBeVisible();
     await openImageImport(page);
     await expect(measurementDrawing(page)).toBeVisible();
     await page.getByRole('button', { name: '3D・家具配置', exact: true }).click();
@@ -147,28 +148,28 @@ test('不正な画像と中止後の再解析を処理し、既存の配置を�
   await page.unroute(/opencv[^/]*\.js/);
   await blocked?.abort().catch(() => {});
   await input.setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/colored.jpg', import.meta.url)));
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
 });
 
 test('認識された長い壁の途中でも任意の2点を基準にでき、補正の取消と再適用で保存前の配置を保つ', async ({ page }) => {
   await page.goto('/');
   await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/colored.jpg', import.meta.url)));
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
   const before = await calibrateDrawing(page);
   const dimensions = () => measurementDrawing(page).evaluate(svg => { const [, , w, d] = svg.getAttribute('viewBox').split(/\s+/).map(Number); return { w, d }; });
   expect((await dimensions()).w).toBeCloseTo(before.w * 1.2, 6);
-  await page.getByRole('button', { name: 'この長さで全体を補正', exact: true }).click();
+  await page.getByRole('button', { name: 'サイズを合わせる', exact: true }).click();
   expect((await dimensions()).w).toBeCloseTo(before.w * 1.2, 6);
   await page.getByRole('button', { name: 'サイズ補正を取り消す', exact: true }).click();
   expect((await dimensions()).w).toBeCloseTo(before.w, 6);
   expect(await storage(page)).toBeNull();
   await page.getByLabel('測った一辺の長さ (m)', { exact: true }).fill('9999');
-  await page.getByRole('button', { name: 'この長さで全体を補正', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('有効な2点と長さ');
+  await page.getByRole('button', { name: 'サイズを合わせる', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('補正後の寸法が対応範囲外です。');
   expect((await dimensions()).w).toBeCloseTo(before.w, 6);
   await page.getByRole('button', { name: '2点を選び直す', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'この長さで全体を補正', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'サイズを合わせる', exact: true })).toBeDisabled();
   await pickMeasurementPoint(page, [.5, .4]);
   await page.getByRole('button', { name: '終点を指定', exact: true }).click();
   // キーボードで同じ点まで戻してゼロ距離を作る。
@@ -179,26 +180,26 @@ test('認識された長い壁の途中でも任意の2点を基準にでき、�
       await page.keyboard.press('Shift+ArrowLeft'); await page.keyboard.press('Shift+ArrowUp');
     }
   }
-  await expect(page.getByRole('button', { name: 'この長さで全体を補正', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'サイズを合わせる', exact: true })).toBeDisabled();
   const endpoint = page.getByRole('button', { name: '計測の終点', exact: true });
   await endpoint.focus(); await page.keyboard.press('ArrowRight'); await page.keyboard.press('ArrowRight');
-  await expect(page.getByRole('button', { name: 'この長さで全体を補正', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'サイズを合わせる', exact: true })).toBeEnabled();
 });
 
 test('長辺1024pxへ縮小する追加図面を解析し、短い断片があっても保存・復元できる', async ({ page }) => {
   await page.goto('/');
   await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/holdout/riverside.png', import.meta.url)));
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
   await calibrateDrawing(page);
   await convertAndPreview(page);
-  await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '取込間取り' })).toBeVisible();
   const saved = await storage(page);
   expect(isFloorPlan(saved.room.customPlan)).toBe(true);
   expect(saved.room.customPlan.walls.length).toBeGreaterThan(50);
   expect(saved.room.customPlan.walls.every(wall => wallLength(wall) >= .02)).toBe(true);
   await reloadLayout(page);
-  await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '取込間取り' })).toBeVisible();
   expect(await storage(page)).toEqual(saved);
 });
 
@@ -206,11 +207,11 @@ test('通常解析が空になる色付き壁の追加図面を自動再解析�
   await page.goto('/');
   await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/holdout/cottage.png', import.meta.url)));
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
 
   await calibrateDrawing(page);
   await convertAndPreview(page);
-  await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '取込間取り' })).toBeVisible();
   expect((await storage(page)).room.customPlan.walls.length).toBeGreaterThan(10);
 });
 
@@ -231,15 +232,15 @@ test('透明PNGの黒い枠を白背景と同じ形状で取り込み保存で�
     }, transparent);
     await openImageImport(page);
     await page.getByLabel('間取り画像', { exact: true }).setInputFiles({ name: 'frame.png', mimeType: 'image/png', buffer: Buffer.from(bytes) });
-    await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
     await expect(page.locator('.floor-drawing line')).toHaveCount(4);
     await convertAndPreview(page);
-    await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '取込間取り' })).toBeVisible();
     plans.push((await storage(page)).room.customPlan);
   }
   expect(plans[1]).toEqual(plans[0]);
   await reloadLayout(page);
-  await expect(page.getByRole('heading', { name: '取込間取り / 3Dレイアウト' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '取込間取り' })).toBeVisible();
   expect((await storage(page)).room.customPlan).toEqual(plans[1]);
 });
 
@@ -247,7 +248,7 @@ test('計測点をドラッグしても保存せず、ポインターのキャ�
   await page.goto('/');
   await openImageImport(page);
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/monochrome.jpg', import.meta.url)));
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
   await pickMeasurementPoint(page, [.22, .42]); await pickMeasurementPoint(page, [.47, .42]);
   const start = page.getByRole('button', { name: '計測の始点', exact: true });
   await start.scrollIntoViewIfNeeded();
@@ -265,5 +266,5 @@ test('計測点をドラッグしても保存せず、ポインターのキャ�
   await page.getByRole('button', { name: '2点を選び直す', exact: true }).click();
   await expect(start).toHaveCount(0);
   await pickMeasurementPoint(page, [.2, .3]); await pickMeasurementPoint(page, [.6, .3]);
-  await expect(page.getByRole('button', { name: 'この長さで全体を補正', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'サイズを合わせる', exact: true })).toBeEnabled();
 });

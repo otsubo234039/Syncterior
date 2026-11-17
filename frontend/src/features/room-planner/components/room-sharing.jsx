@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Check, Copy, Link, LogOut, RefreshCw, Share2, Users, X } from 'lucide-react';
 
 const labels = {
-  local: '個人で編集中', creating: '共有リンクを作成中', connecting: '部屋に接続中',
+  creating: '共有リンクを作成中', connecting: '部屋に接続中',
   connected: '共同編集中', reconnecting: '再接続中', error: '接続できません',
 };
 
@@ -35,12 +35,11 @@ export function RoomSharing({ collaboration, shareRoom, shareUrl, reconnect, lea
 
   return <>
     <div className="sharing-bar">
-      <div className="sharing-summary" role="status" aria-live="polite">
+      {status !== 'local' && <div className="sharing-summary" role="status" aria-live="polite">
         <Users size={17} aria-hidden="true" />
         <strong>{labels[status]}</strong>
         {status === 'connected' && <span>{participants == null ? '参加人数を確認中' : `${participants}人が参加中`}<span className="sharing-separator">・</span>{changingPlan ? '間取りを変更中' : pending ? '変更を同期中' : '変更は同期済み'}</span>}
-        {status === 'local' && <span>リンクを共有して、一緒に部屋づくり</span>}
-      </div>
+      </div>}
       <div className="sharing-actions">
         {roomId && ['error', 'reconnecting'].includes(status) && <button className="sharing-button" onClick={reconnect}><RefreshCw size={15} />再接続</button>}
         <button className="sharing-button primary" onClick={() => { setOpen(true); setCopied(false); setCopyError(''); }} disabled={busy}>
@@ -54,13 +53,12 @@ export function RoomSharing({ collaboration, shareRoom, shareUrl, reconnect, lea
     </div>}
     <dialog ref={dialog} className="share-dialog" aria-labelledby="share-title" aria-describedby="share-description" onCancel={() => setOpen(false)} onClose={() => setOpen(false)}>
       <div className="share-dialog-heading"><div className="share-dialog-icon"><Link size={22} /></div><button className="share-close" aria-label="共有ダイアログを閉じる" onClick={() => setOpen(false)}><X size={20} /></button></div>
-      <div className="eyebrow">CREATE TOGETHER</div>
-      <h2 id="share-title">この部屋を、一緒につくる</h2>
-      <p id="share-description">共有リンクを知っている人は、同じ部屋の家具や間取りを編集できます。選択中の家具や視点は、自分の画面だけで変わります。</p>
+      <h2 id="share-title">部屋を共有</h2>
+      <p id="share-description">リンクを知っている人が家具や間取りを編集できます。</p>
       {shareUrl ? <>
         <label className="share-link-label" htmlFor="room-share-link">編集用リンク</label>
         <div className="share-link-field"><input ref={linkInput} id="room-share-link" type="text" readOnly value={shareUrl} onFocus={event => event.target.select()} /><button className="sharing-button primary" onClick={copyLink}>{copied ? <Check size={16} /> : <Copy size={16} />}{copied ? 'コピー済み' : 'コピー'}</button></div>
-        <p className="share-permission">このリンクには編集権限があります。共有する相手を確認してください。</p>
+        <p className="share-permission">共有する相手を確認してください。</p>
         {copyError && <p className="share-error" role="alert">{copyError}</p>}
       </> : <>
         {custom && <p className="share-error" role="status">図面から作成した間取りの共有は未対応です。個人編集と保存は利用できます。</p>}

@@ -4,7 +4,7 @@
 
 ## プロジェクト概要
 
-- Syncterior（ROOM/PLAN）は、React Three Fiberによる3D家具配置シミュレーターです。
+- シンクテリア（Syncterior）は、React Three Fiberによる3D家具配置シミュレーターです。
 - フロントエンドは`frontend/`、バックエンドは`backend/`で管理します。
 - 現在のフロントエンドはJavaScript / JSX、React 19、Vite 6、Three.js、React Three Fiber、Dreiを使用しています。
 - バックエンドは未実装です。起動・テストコマンドはありません。詳細は[backend/README.md](backend/README.md)を確認してください。
