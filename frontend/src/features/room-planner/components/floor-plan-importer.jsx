@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { wallLength } from '../utils/floor-plan';
-import { calibrateFloorPlan, calibrateFloorPlanByTatami, calibrateFloorPlanByPolygon, measurementArea, measurementLength, measurementPolygonArea } from '../utils/floor-plan-calibration';
+import { calibrateFloorPlan, calibrateFloorPlanByTatami, calibrateFloorPlanByPolygon, calibrationInputError, measurementArea, measurementLength, measurementPolygonArea } from '../utils/floor-plan-calibration';
 import { readFloorPlanImage, recognizeFloorPlan } from '../utils/floor-plan-image';
 
 export function FloorPlanImporter({ customPlan, sourceImage, generation, onImageRequest, onNewImage, convertToDrawing, disabled }) {
@@ -48,7 +48,7 @@ export function FloorPlanImporter({ customPlan, sourceImage, generation, onImage
     releaseDrag(); request.current?.abort();
     const controller = new AbortController(); request.current = controller;
     const ticket = file ? onImageRequest?.() : undefined;
-    setBusy(true); setError(''); setMessage('OpenCVで壁候補を解析しています…');
+    setBusy(true); setError(''); setMessage('画像を解析中…');
     try {
       const nextImage = file ? await readFloorPlanImage(file) : image;
       if (controller.signal.aborted) return;
@@ -61,7 +61,7 @@ export function FloorPlanImporter({ customPlan, sourceImage, generation, onImage
       const result = await recognizeFloorPlan(nextImage, controller.signal);
       if (controller.signal.aborted) return;
       setImage({ ...nextImage, roomCandidates: result.roomCandidates }); setDraft(result.plan); setPoints([]); setTarget(0); setLength(''); setTatami(''); setUndo(null); setClosed(false);
-      setMessage(`${result.engine}で壁候補を${result.plan.walls.length}本抽出しました。部屋候補は${result.roomCandidates.length}件です。床は仮の長方形です。実測した一辺、または帖数が分かる部屋を指定してください。`);
+      setMessage('解析できました。サイズを合わせてください。');
     } catch (cause) {
       if (!controller.signal.aborted) { setError(cause.message || '画像を読み込めませんでした。'); setMessage(''); }
     } finally { if (!controller.signal.aborted) setBusy(false); }
@@ -101,7 +101,7 @@ export function FloorPlanImporter({ customPlan, sourceImage, generation, onImage
   const selectRoom = region => { if (disabled || busy) return; releaseDrag(); setPoints(region.map(p => [...p])); setClosed(true); setError(''); };
   return <details className="floor-import">
     <summary>間取り画像を図面へ変換</summary>
-    <p>画像は端末内で解析します。自動抽出は概算です。一辺の実測値、または部屋の帖数から縦横比を保って間取り全体のサイズを合わせます。</p>
+    <p>画像を端末内で解析し、長さか帖数でサイズを合わせます。</p>
     {disabled && <p role="status">図面への変換は個人編集中に利用できます。</p>}
     <fieldset disabled={disabled || busy} className="floor-import-controls">
       <label>間取り画像<input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => {
@@ -161,7 +161,7 @@ export function FloorPlanImporter({ customPlan, sourceImage, generation, onImage
               <circle r={draft.w * .01} fill="#d36325" stroke="#fff" strokeWidth={draft.w * .003} pointerEvents="none" />
             </g>)}
           </svg>
-          <p>{byPolygon ? '帖数が分かる部屋の候補を選ぶか、輪郭を順に指定してください。L字や斜めの辺にも対応します。広告の帖数なら壁の中心を目安に輪郭を調整します。' : byArea ? '帖数が分かる長方形の部屋を、対角の2点で囲んでください。広告の帖数なら壁の中心を目安にします。余白・廊下・隣の部屋は含めません。' : '測った壁の内側の角から角まで、始点・終点を指定してください。部屋の境界や青い壁の区切りに合わせる必要はありません。'}</p>
+          <p>{byPolygon ? '帖数が分かる部屋を選ぶか、輪郭を囲んでください。広告の帖数は壁の中心を目安にします。' : byArea ? '部屋の対角2点を選んでください。広告の帖数は壁の中心を目安にします。' : '実測した区間の始点・終点を選んでください。'}</p>
           <p>点はドラッグ、または選択して矢印キーで微調整できます。{!image && '元画像は保存されないため、復元後は認識された形状を表示しています。'}</p>
         </div>
         <div className="floor-fields">
@@ -176,10 +176,10 @@ export function FloorPlanImporter({ customPlan, sourceImage, generation, onImage
             <label>帖数の対象<select value={areaMode} onChange={event => { releaseDrag(); setAreaMode(event.target.value); setPoints([]); setTarget(0); setClosed(false); setError(''); }}>
               <option value="room">自動認識した部屋</option><option value="polygon">輪郭を指定</option><option value="rectangle">長方形を指定</option>
             </select></label>
-            <p>認識した輪郭と帖数の範囲が合っているか確認してください。扉や壁の欠落で隣室とつながる場合は、輪郭を手動で指定できます。帖数には地域・表記による差があり、補正は概算です。</p>
+            <p>部屋の輪郭を確認してください。合わない場合は手動で囲み直せます。帖数補正は概算です。</p>
           </>}
           {byPolygon ? <div className="floor-toolbar">
-            {areaMode === 'room' && <p>{roomCandidates.length ? `図上の部屋候補を選んでください（${roomCandidates.length}件）。点は動かして修正できます。` : '部屋候補が見つかりません。「輪郭を指定」でもサイズを合わせられます。'}</p>}
+            {areaMode === 'room' && <p>{roomCandidates.length ? '図上の部屋を選んでください。' : '部屋候補が見つかりません。「輪郭を指定」でもサイズを合わせられます。'}</p>}
             {areaMode === 'polygon' && <>
               <button type="button" className="sharing-button" disabled={polygonArea === null || !points.length || closed} onClick={() => setClosed(true)}>輪郭を閉じる</button>
               <button type="button" className="sharing-text-button" disabled={!points.length || closed} onClick={() => setPoints(previous => previous.slice(0, -1))}>最後の点を取り消す</button>
@@ -190,32 +190,34 @@ export function FloorPlanImporter({ customPlan, sourceImage, generation, onImage
             <button className="sharing-button" aria-pressed={target === 1} disabled={!points.length} onClick={() => setTarget(1)}>終点を指定</button>
             <button className="sharing-text-button" onClick={() => { releaseDrag(); setPoints([]); setTarget(0); setError(''); }}>2点を選び直す</button>
           </div>}
-          <p role="status">{byPolygon ? measured === null ? '部屋候補を選ぶか、交差しない輪郭を3〜64点で指定して閉じてください。' : '部屋の輪郭を選択しました。この部屋の帖数を入力してください。' : points.length < 2 ? `${points.length === 0 ? '始点' : '終点'}を図面上で指定してください。` : measured === null ? '2点が近すぎます。離れた位置を指定してください。' : byArea ? '対象の長方形を選択しました。この部屋の帖数を入力してください。' : '計測区間を選択しました。実際に測った長さを入力してください。'}</p>
+          <p role="status">{byPolygon ? measured === null ? '部屋候補を選ぶか、交差しない輪郭を3〜64点で指定して閉じてください。' : '部屋の帖数を入力してください。' : points.length < 2 ? `${points.length === 0 ? '始点' : '終点'}を図面上で指定してください。` : measured === null ? '2点が近すぎます。離れた位置を指定してください。' : byArea ? '部屋の帖数を入力してください。' : '実測した長さを入力してください。'}</p>
           <form onSubmit={event => {
             event.preventDefault();
-            if (measured == null) { setError('有効な計測区間または部屋の輪郭を指定してください。'); return; }
+            const inputError = calibrationInputError(draft, byPolygon && !closed ? [] : points, { byArea, byPolygon, length: Number(length), tatami: Number(tatami), areaPerTatami: Number(areaPerTatami) });
+            if (inputError) { setError(inputError); return; }
             const next = byArea
               ? (byPolygon ? calibrateFloorPlanByPolygon : calibrateFloorPlanByTatami)(draft, points, Number(tatami), Number(areaPerTatami))
               : calibrateFloorPlan(draft, points, Number(length));
-            if (!next) { setError(`${byPolygon ? '有効な輪郭と正の帖数・1帖の面積' : byArea ? '有効な長方形と正の帖数・1帖の面積' : '有効な2点と長さ'}を指定してください。補正後の幅・奥行きは1〜100m、壁厚は0.05〜1mの範囲が必要です。`); return; }
-            if (next === draft) { setError(''); setMessage(byArea ? '指定した帖数の面積に合っています（概算）。' : '指定した長さに合っています。'); return; }
-            setUndo(draft); setDraft(next); setError(''); setMessage(`${byArea ? '指定した帖数から全体のサイズを概算で補正しました。' : '指定した一辺に合わせて全体のサイズを補正しました。'}「図面へ変換」で編集画面に反映できます。`);
+            if (!next) { setError('補正後の寸法が対応範囲外です。'); return; }
+            if (next === draft) { setError(''); setMessage(byArea ? '帖数の面積に一致しています（概算）。' : '長さは一致しています。'); return; }
+            setUndo(draft); setDraft(next); setError(''); setMessage(byArea ? '全体のサイズを補正しました（概算）。' : '全体のサイズを補正しました。');
           }}>
             {byArea ? <>
               <label>選択した部屋の帖数<input type="number" min="0" step="any" required value={tatami} onChange={event => setTatami(event.target.value)} /></label>
               <label>1帖の面積 (m²)<input type="number" min="0" step="any" required value={areaPerTatami} onChange={event => setAreaPerTatami(event.target.value)} /></label>
-              <p>初期値は1帖＝1.62m²の目安です。地域や図面の換算値が分かる場合は変更してください。</p>
+              <p>1帖＝1.62m²が目安です。地域や図面に合わせて変更できます。</p>
               {Number(tatami) > 0 && Number(areaPerTatami) > 0 && Number.isFinite(Number(tatami) * Number(areaPerTatami)) && <p>指定した部屋の目標面積：{Number((Number(tatami) * Number(areaPerTatami)).toFixed(4))} m²（概算）</p>}
             </> : <label>測った一辺の長さ (m)<input type="number" min="0.02" step="any" required value={length} onChange={event => setLength(event.target.value)} /></label>}
-            <button className="sharing-button" disabled={measured == null}>{byArea ? 'この帖数で全体を補正' : 'この長さで全体を補正'}</button>
+            <button className="sharing-button" disabled={measured == null}>サイズを合わせる</button>
           </form>
-          {undo && <button className="sharing-text-button" onClick={() => { setDraft(undo); setUndo(null); setError(''); setMessage('補正前のサイズに戻しました。「図面へ変換」で編集画面に反映できます。'); }}>サイズ補正を取り消す</button>}
+          <details><summary>サイズ補正の範囲</summary><p>幅・奥行きは1〜100m、壁厚は0.05〜1mです。高さは変更しません。</p></details>
+          {undo && <button className="sharing-text-button" onClick={() => { setDraft(undo); setUndo(null); setError(''); setMessage('補正を取り消しました。'); }}>サイズ補正を取り消す</button>}
         </div>
       </div>
-      <p>自動認識直後の床は仮の長方形です。変換後、図面モードで壁・床・扉・窓を確認・修正し、図面として保存してください。この操作では3D配置を変更しません。</p>
+      <p>床は仮の長方形です。変換後に壁・床・扉・窓を確認・修正してください。</p>
       <button className="sharing-button primary" onClick={event => {
         if (convertToDrawing(draft, image, { newDocument: newDocument.current })) {
-          setError(''); setMessage('編集可能な図面へ変換しました。');
+          setError(''); setMessage('図面に変換しました。');
           event.currentTarget.closest('details').open = false;
         }
       }}>図面へ変換</button>

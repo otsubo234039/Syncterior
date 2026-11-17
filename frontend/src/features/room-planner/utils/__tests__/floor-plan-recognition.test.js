@@ -66,7 +66,7 @@ test('短い開口と近接した別の壁を保存し、線幅に応じて重�
   const result = floorPlanFromLines({ width: 200, height: 200, strokeWidth: 3,
     lines: [20,20,80,20,83,20,180,20,20,25,180,25] });
   assert.equal(result.walls.length, 3);
-  assert.throws(() => floorPlanFromLines({ width: 200, height: 200, lines: [], strokeWidth: NaN }), /不正/);
+  assert.throws(() => floorPlanFromLines({ width: 200, height: 200, lines: [], strokeWidth: NaN }), /画像を解析できません/);
 });
 
 // 生成した箱を逆回転し、指定した床上の点が本当に壁の中か確認する。
@@ -147,7 +147,7 @@ test('局所的な壁厚は個人保存と寸法補正で維持し、過去の�
 test('線ごとの厚さの件数・有限数・範囲を検証する', () => {
   const input = { width: 200, height: 200, lines: [20, 20, 100, 20] };
   for (const lineWidths of [[], [0], [NaN], [Infinity], [51], [-1], [2, 3]]) {
-    assert.throws(() => floorPlanFromLines({ ...input, lineWidths }), /不正/);
+    assert.throws(() => floorPlanFromLines({ ...input, lineWidths }), /画像を解析できません/);
   }
   assert.equal(isFloorPlan(floorPlanFromLines({ ...input, lineWidths: [2] })), true);
 });

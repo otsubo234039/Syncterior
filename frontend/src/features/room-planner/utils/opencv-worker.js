@@ -409,6 +409,6 @@ self.onmessage = async ({ data: { url, width, height, pixels, retainColor = fals
     self.postMessage({ lines, lineWidths, width, height, strokeWidth, blockSize, roomCandidates, usedColorFallback: retainColor,
       engine: `OpenCV ${cv.getBuildInformation().match(/OpenCV\s+([^\s]+)/)?.[1] ?? '4.12'}` });
   } catch (error) {
-    self.postMessage({ error: `画像解析に失敗しました。別の画像か手動編集をお試しください。 (${error.message ?? error})` });
+    self.postMessage({ error: '解析できませんでした。別の画像をお試しください。', errorDetail: String(error?.message ?? error) });
   } finally { for (const resource of resources.reverse()) resource.delete(); }
 };

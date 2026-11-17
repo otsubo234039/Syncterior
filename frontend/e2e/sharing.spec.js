@@ -2,7 +2,7 @@ import { openLayout } from './fixtures/workspace.js';
 import { test, expect } from './fixtures/test.js';
 import { verifySharedRoom } from './fixtures/shared-room-flow.js';
 
-const count = page => page.locator('.room-metrics > div').filter({ hasText: 'FURNITURE' }).locator('strong');
+const count = page => page.locator('.room-metrics > div').filter({ hasText: '家具数' }).locator('strong');
 async function share(page) {
   await page.getByRole('button', { name: '部屋を共有', exact: true }).click();
   await page.getByRole('button', { name: '共有リンクを作成', exact: true }).click();
@@ -23,7 +23,8 @@ test('共有リンクを作成・コピーし、確定済みの配置を保っ�
   await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(url);
   await page.getByRole('button', { name: '共同編集から退出', exact: true }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
-  await expect(page.locator('.sharing-summary')).toContainText('個人で編集中');
+  await expect(page.getByRole('button', { name: '部屋を共有', exact: true })).toBeEnabled();
+  await expect(page.locator('.sharing-summary')).toHaveCount(0);
   expect(new URL(page.url()).searchParams.has('room')).toBe(false);
   await expect(count(page)).toContainText('5');
 });
@@ -69,7 +70,8 @@ test('存在しない部屋を案内し、初期配置を送信せずに個人�
   await expect(page.getByRole('region', { name: '部屋の3Dプレビュー' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: /^デスク/ })).toBeDisabled();
   await page.getByRole('button', { name: '個人編集に戻る', exact: true }).click();
-  await expect(page.locator('.sharing-summary')).toContainText('個人で編集中');
+  await expect(page.getByRole('button', { name: '部屋を共有', exact: true })).toBeEnabled();
+  await expect(page.locator('.sharing-summary')).toHaveCount(0);
   await page.getByRole('button', { name: /^デスク/ }).click();
   await expect(count(page)).toContainText('5');
 });

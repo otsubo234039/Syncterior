@@ -12,10 +12,10 @@ test('初期表示の図面を3Dなしで作図・保存し、再読込して同
   await page.getByRole('button', { name: '壁を追加', exact: true }).click();
   await pickEditPoint(page, [1,1]); await pickEditPoint(page, [7,1]);
   await page.locator('.drawing-metadata-panel > summary').click();
-  await page.getByLabel('図面名', { exact: true }).fill('保存する図面');
-  await page.getByLabel('壁の高さ (m)', { exact: true }).fill('3');
+  await page.locator('.drawing-metadata-panel').getByLabel('図面名', { exact: true }).fill('保存する図面');
+  await page.locator('.drawing-metadata-panel').getByLabel('壁の高さ (m)', { exact: true }).fill('3');
   await page.getByRole('button', { name: '図面を保存', exact: true }).click();
-  await expect(page.getByRole('status').filter({ hasText: '図面は保存済み' })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '保存済み' })).toBeVisible();
   const before = await stored(page);
   expect(before.room).toBeNull(); expect(before.drawing.plan.walls).toHaveLength(1);
   expect(before.drawing.plan.h).toBe(3); expect(before.drawing.plan.name).toBe('保存する図面');
@@ -23,7 +23,7 @@ test('初期表示の図面を3Dなしで作図・保存し、再読込して同
   await page.reload();
   await expect(page.getByRole('button', { name: '壁1を選択', exact: true })).toBeVisible();
   await page.locator('.drawing-metadata-panel > summary').click();
-  await expect(page.getByLabel('図面名', { exact: true })).toHaveValue('保存する図面');
+  await expect(page.locator('.drawing-metadata-panel').getByLabel('図面名', { exact: true })).toHaveValue('保存する図面');
   expect(await stored(page)).toEqual(before);
   await expect(page.locator('canvas')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -38,7 +38,7 @@ test('図面ファイルを往復し、破損ファイルを拒否して現在�
   const before = await stored(page);
   const download = page.waitForEvent('download');
   await openDrawingTools(page);
-  await page.getByRole('button', { name: '図面ファイルを書き出す', exact: true }).click();
+  await page.getByRole('button', { name: '図面を書き出す', exact: true }).click();
   const artifact = await download;
   expect(JSON.parse(await readFile(await artifact.path(), 'utf8'))).toEqual(before.drawing);
   await file.setInputFiles({ name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('broken') });
@@ -60,7 +60,7 @@ test('未保存の図面はモード切替で維持し、別図面の読み込�
   await openDrawingTools(page);
   await page.getByRole('button', { name: '保存した図面を開く', exact: true }).click();
   await expect(page.getByRole('button', { name: '壁1を選択', exact: true })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '手直しを元に戻す', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '元に戻す', exact: true })).toBeDisabled();
   expect(await stored(page)).toEqual(before);
   await page.getByRole('button', { name: '壁を追加', exact: true }).click();
   await pickEditPoint(page, [1,1]); await pickEditPoint(page, [7,1]);
@@ -69,7 +69,7 @@ test('未保存の図面はモード切替で維持し、別図面の読み込�
     buffer: Buffer.from(JSON.stringify({ version: 1, plan: { ...editablePlan, name: '新しく読み込む図面', walls: [] } })) });
   await expect(page.getByRole('button', { name: '壁1を選択', exact: true })).toHaveCount(0);
   await expect(page.locator('.drawing-metadata-panel > summary')).toContainText('新しく読み込む図面');
-  await expect(page.getByRole('button', { name: '手直しを元に戻す', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '元に戻す', exact: true })).toBeDisabled();
   expect(dialogs).toEqual([]); expect(await stored(page)).toEqual(before);
 });
 
@@ -89,7 +89,7 @@ test('図面の保存失敗を案内し、編集とファイル書き出しを�
   await pickEditPoint(page, [1,1]); await pickEditPoint(page, [7,1]);
   const download = page.waitForEvent('download');
   await openDrawingTools(page);
-  await page.getByRole('button', { name: '図面ファイルを書き出す', exact: true }).click();
+  await page.getByRole('button', { name: '図面を書き出す', exact: true }).click();
   await download;
   await page.evaluate(() => { window.__denyDrawingSave = false; });
   await page.getByRole('button', { name: '図面を保存', exact: true }).click();
@@ -113,8 +113,8 @@ test('既存の個人配置から図面を開き、保存だけでは家具配�
 test('画像を使わず寸法を指定して新しい図面を作成できる', async ({ page }) => {
   await page.goto('/');
   await openDrawingTools(page);
-  await page.getByText('新しい図面を作成', { exact: true }).click();
-  await page.getByLabel('新しい図面名', { exact: true }).fill('手描きの図面');
+  await page.locator('.drawing-new > summary').click();
+  await page.locator('.drawing-new').getByLabel('図面名', { exact: true }).fill('手描きの図面');
   await page.getByLabel('図面の幅 (m)', { exact: true }).fill('10');
   await page.getByLabel('図面の奥行き (m)', { exact: true }).fill('5');
   await page.getByRole('button', { name: '新規作成', exact: true }).click();

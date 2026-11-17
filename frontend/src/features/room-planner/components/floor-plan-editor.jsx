@@ -38,7 +38,7 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
   };
   const change = (action, continuous = false) => {
     const before = current.current, next = editFloorPlan(before, action);
-    if (!next) { setError('この変更は適用できません。床の交差、壁の長さ、開口の重なりやはみ出しを確認してください。'); return false; }
+    if (!next) { setError('交差・重なり・壁や開口の寸法を確認してください。'); return false; }
     setError('');
     if (next !== before) {
       if (!continuous) { setHistory(values => [...values.slice(-99), before]); setFuture([]); }
@@ -105,12 +105,11 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
     return change({ type: 'update-metadata', name: String(data.get('name')).trim(), height: Number(data.get('height')) });
   };
   const modes = [['select', '選択・頂点を動かす'], ['wall', '壁を追加'], ['erase', '線を消す'], ['door', '扉を追加'], ['window', '窓を追加']];
-  return <section className="drawing-editor" aria-labelledby="floor-plan-editor-title" onKeyDown={event => {
+  return <section className="drawing-editor" aria-label="図面の編集" onKeyDown={event => {
     if (event.key === 'Escape' && (drag.current || pending)) {
       event.preventDefault(); finishDrag(true); setPending(null);
     }
   }}>
-    <h2 id="floor-plan-editor-title">2D図面を編集</h2>
     <details className="drawing-metadata-panel"><summary>図面情報：{draft.name} / 壁の高さ {draft.h} m</summary><form ref={metadata} key={`${draft.name}:${draft.h}`} className="drawing-metadata" onSubmit={event => {
       event.preventDefault(); commitMetadata();
     }}>
@@ -126,18 +125,18 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
         finishDrag(true); const before = current.current; setFuture(values => [...values, before]);
         const previous = history[history.length - 1]; replaceDraft(previous);
         setHistory(values => values.slice(0, -1)); setSelected(null); setPending(null); setError('');
-      }}>手直しを元に戻す</button>
+      }}>元に戻す</button>
       <button type="button" disabled={!future.length} onClick={() => {
         const before = current.current; setHistory(values => [...values, before]); const next = future[future.length - 1];
         replaceDraft(next); setFuture(values => values.slice(0, -1)); setSelected(null); setPending(null); setError('');
-      }}>手直しをやり直す</button>
+      }}>やり直す</button>
     </div>
     {image ? <div className="floor-underlay-controls"><label><input type="checkbox" checked={showImage} onChange={event => setShowImage(event.target.checked)} />下絵を表示</label>
       <label>下絵の濃さ<input type="range" min="0" max="1" step=".05" value={opacity} onChange={event => setOpacity(Number(event.target.value))} /></label><span>下絵の位置・縮尺は固定</span></div>
-      : <p>下絵がありません。新しい画像は「間取り画像を図面へ変換」から読み込めます。</p>}
+      : null}
     <div className="floor-underlay-controls"><label><input type="checkbox" checked={showGrid} onChange={event => setShowGrid(event.target.checked)} />グリッドを表示</label>
       <span>1目盛 {planGridStep(draft)} m・太線 {planGridStep(draft) * 4} m</span></div>
-    <p role="status">{mode === 'wall' ? pending ? '壁の終点を指定してください。' : '壁の始点を指定してください。' : mode === 'door' || mode === 'window' ? pending ? '同じ壁上で開口の終点を指定してください。' : '壁上で開口の始点を指定してください。' : mode === 'erase' ? '消したい壁の線を押してください。元に戻すこともできます。' : '壁や床、扉・窓を選択してください。白い点はドラッグ・矢印キーで動かせます。'} Escで途中の操作を取り消せます。</p>
+    <p role="status">{mode === 'wall' ? pending ? '壁の終点を指定してください。' : '壁の始点を指定してください。' : mode === 'door' || mode === 'window' ? pending ? '同じ壁上で開口の終点を指定してください。' : '壁上で開口の始点を指定してください。' : mode === 'erase' ? '消す壁を選択してください。' : '対象を選び、白い点をドラッグ・矢印キーで編集します。'} Escで途中の操作を取り消せます。</p>
     {error && <p role="alert" className="floor-error">{error}</p>}
     <svg ref={drawing} className="floor-edit-drawing" role="group" aria-label="下絵と間取りの編集図" viewBox={`${-draft.w * .02} ${-draft.d * .02} ${draft.w * 1.04} ${draft.d * 1.04}`}
       onPointerDown={pickCanvas} onPointerMove={event => {
@@ -173,7 +172,6 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
     <div className="floor-edit-toolbar">
       {wall && <button type="button" onClick={() => { if (change(opening ? { type: 'remove-opening', wallId: wall.id, openingId: opening.id } : { type: 'remove-wall', wallId: wall.id })) setSelected(null); }}>{opening ? '選択した開口を削除' : '選択した壁を削除'}</button>}
       {floor && <>
-        <span>頂点{(selected.floorPoint ?? 0) + 1}を編集</span>
         <button type="button" onClick={() => {
           const index = selected.floorPoint ?? 0;
           if (change({ type: 'insert-floor-point', floorId: floor.id, index })) setSelected(value => ({ ...value, floorPoint: index + 1 }));

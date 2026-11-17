@@ -1,15 +1,18 @@
 import { openLayout } from './fixtures/workspace.js';
 import { test, expect } from './fixtures/test.js';
 
-const furnitureCount = page => page.locator('.room-metrics > div').filter({ hasText: 'FURNITURE' }).locator('strong');
+const furnitureCount = page => page.locator('.room-metrics > div').filter({ hasText: '家具数' }).locator('strong');
 
 test('初期配置・間取り切り替え・寸法表示・モバイル幅のレイアウトを確認する', async ({ page }) => {
   await openLayout(page, '/');
-  await expect(page.getByRole('heading', { name: 'ワンルーム / 3Dレイアウト' })).toBeVisible();
+  await expect(page).toHaveTitle('シンクテリア / 3Dレイアウト');
+  await expect(page.getByRole('banner').getByText('シンクテリア', { exact: true })).toBeVisible();
+  await expect(page.getByRole('contentinfo')).toContainText('シンクテリア © 2026');
+  await expect(page.getByRole('heading', { name: 'ワンルーム' })).toBeVisible();
   await expect(furnitureCount(page)).toContainText('4');
   await expect(page.getByRole('region', { name: '部屋の3Dプレビュー' })).toBeVisible();
   await page.getByRole('button', { name: /^1LDK/ }).click();
-  await expect(page.getByRole('heading', { name: '1LDK / 3Dレイアウト' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '1LDK' })).toBeVisible();
   await expect(page.locator('.width-tag')).toHaveText('7.2 m');
   const dimensions = page.getByRole('button', { name: '寸法表示', exact: true });
   await dimensions.click();

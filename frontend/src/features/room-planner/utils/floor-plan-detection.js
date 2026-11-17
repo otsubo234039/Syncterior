@@ -6,7 +6,7 @@ export function floorPlanFromLines({ width, height, lines, lineWidths, strokeWid
     || !Array.isArray(lines) || lines.length % 4 || lines.length > 200_000
     || (lineWidths !== undefined && (!Array.isArray(lineWidths) || lineWidths.length !== lines.length / 4
       || !lineWidths.every(n => Number.isFinite(n) && n > 0 && n <= 50)))
-    || !lines.every(Number.isFinite) || !Number.isFinite(strokeWidth) || strokeWidth < .5 || strokeWidth > 50) throw new Error('画像の解析結果が不正です。');
+    || !lines.every(Number.isFinite) || !Number.isFinite(strokeWidth) || strokeWidth < .5 || strokeWidth > 50) throw new Error('画像を解析できません。');
   const segments = [];
   for (let i = 0; i < lines.length; i += 4) {
     let [x1, y1, x2, y2] = lines.slice(i, i + 4);
@@ -41,7 +41,7 @@ export function floorPlanFromLines({ width, height, lines, lineWidths, strokeWid
       return true;
     });
     if (!duplicate) merged.push({ start: segment.start, end: segment.end, thickness: segment.thickness });
-    if (merged.length > 300) throw new Error('壁候補が多すぎます。図面の周囲の余白を減らすか、手動で壁を指定してください。');
+    if (merged.length > 300) throw new Error('画像の余白を切り取り、再解析してください。');
   }
   // 同じ位置に重なり、太い壁の中へ完全に収まる細い候補は二重に描画しない。
   const walls = merged.filter((wall, index) => !merged.some((other, otherIndex) => {
