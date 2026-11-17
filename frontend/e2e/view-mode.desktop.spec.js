@@ -1,5 +1,5 @@
 import { openLayout } from './fixtures/workspace.js';
-import { test, expect, waitForSceneToSettle } from './fixtures/test.js';
+import { test, expect, waitForSceneToSettle, maxImageChannelDelta } from './fixtures/test.js';
 
 test('平面図のドラッグとキャンセル後の操作・3Dの正面と初期視点が動作する', async ({ page }) => {
   await openLayout(page, '/');
@@ -17,19 +17,7 @@ test('平面図のドラッグとキャンセル後の操作・3Dの正面と初
   const repeated = await canvas.screenshot();
   // 同一視点でもソフトウェアWebGLの丸めでRGBが1段階だけ変わる場合がある。
   // PNGのバイナリではなく全画素を比較し、輪郭・位置の変化は検出する。
-  const maxChannelDelta = await page.evaluate(async ([before, after]) => {
-    const pixels = async encoded => {
-      const img = new Image(); img.src = `data:image/png;base64,${encoded}`; await img.decode();
-      const surface = document.createElement('canvas'); surface.width = img.width; surface.height = img.height;
-      const ctx = surface.getContext('2d'); ctx.drawImage(img, 0, 0);
-      return { width: img.width, height: img.height, data: ctx.getImageData(0, 0, img.width, img.height).data };
-    };
-    const a = await pixels(before), b = await pixels(after);
-    if (a.width !== b.width || a.height !== b.height) return Infinity;
-    let maximum = 0;
-    for (let i = 0; i < a.data.length; i++) maximum = Math.max(maximum, Math.abs(a.data[i] - b.data[i]));
-    return maximum;
-  }, [reset.toString('base64'), repeated.toString('base64')]);
+  const maxChannelDelta = await maxImageChannelDelta(page, reset, repeated);
   expect(maxChannelDelta, '初期視点への再リセットはRGB各成分の丸め誤差以内で同じ画像になる').toBeLessThanOrEqual(1);
   await page.getByRole('button', { name: '平面図', exact: true }).click();
   const bed = page.getByRole('button', { name: 'ダブルベッドを選択', exact: true });

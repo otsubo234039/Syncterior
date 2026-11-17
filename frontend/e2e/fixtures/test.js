@@ -102,3 +102,19 @@ export const test = base.extend({
   }, { timeout: 120_000 }],
 });
 export { expect };
+
+export async function maxImageChannelDelta(page, before, after) {
+  return page.evaluate(async ([before, after]) => {
+    const pixels = async encoded => {
+      const img = new Image(); img.src = `data:image/png;base64,${encoded}`; await img.decode();
+      const surface = document.createElement('canvas'); surface.width = img.width; surface.height = img.height;
+      const ctx = surface.getContext('2d'); ctx.drawImage(img, 0, 0);
+      return { width: img.width, height: img.height, data: ctx.getImageData(0, 0, img.width, img.height).data };
+    };
+    const a = await pixels(before), b = await pixels(after);
+    if (a.width !== b.width || a.height !== b.height) return Infinity;
+    let maximum = 0;
+    for (let i = 0; i < a.data.length; i++) maximum = Math.max(maximum, Math.abs(a.data[i] - b.data[i]));
+    return maximum;
+  }, [before.toString('base64'), after.toString('base64')]);
+}
