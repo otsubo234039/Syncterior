@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Check, Copy, Link, LogOut, RefreshCw, Share2, Users, X } from 'lucide-react';
+import { roomLink } from '../utils/room-link';
 
 const labels = {
   local: '個人で編集中', creating: '共有リンクを作成中', connecting: '部屋に接続中',
@@ -11,25 +12,37 @@ export function RoomSharing({ collaboration, shareRoom, shareUrl, reconnect, lea
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState('');
+  const [copySuccess, setCopySuccess] = useState('');
   const dialog = useRef(null);
   const linkInput = useRef(null);
   useEffect(() => {
     if (open) dialog.current.showModal();
     else dialog.current.close();
   }, [open]);
-  useEffect(() => { setCopied(false); setCopyError(''); }, [shareUrl]);
+  useEffect(() => {
+    if (copyError && shareUrl) {
+      linkInput.current?.focus();
+      linkInput.current?.select();
+    }
+  }, [copyError, shareUrl]);
 
-  async function copyLink() {
+  async function copyLink(url = shareUrl) {
     setCopyError('');
+    setCopySuccess('');
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(url);
       setCopied(true);
+      setCopySuccess('共有リンクをコピーしました。');
     } catch {
       setCopied(false);
       linkInput.current?.focus();
       linkInput.current?.select();
       setCopyError('コピーできませんでした。リンク欄を選択して手動でコピーしてください。');
     }
+  }
+  async function createAndCopyLink() {
+    const id = await shareRoom();
+    if (id) await copyLink(roomLink(window.location.href, id));
   }
   const busy = ['creating', 'connecting'].includes(status);
 
@@ -43,7 +56,7 @@ export function RoomSharing({ collaboration, shareRoom, shareUrl, reconnect, lea
       </div>
       <div className="sharing-actions">
         {roomId && ['error', 'reconnecting'].includes(status) && <button className="sharing-button" onClick={reconnect}><RefreshCw size={15} />再接続</button>}
-        <button className="sharing-button primary" onClick={() => { setOpen(true); setCopied(false); setCopyError(''); }} disabled={busy}>
+        <button className="sharing-button primary" onClick={() => { setOpen(true); setCopied(false); setCopyError(''); setCopySuccess(''); }} disabled={busy}>
           <Share2 size={15} />{roomId ? '共有リンク' : '部屋を共有'}
         </button>
       </div>
@@ -61,12 +74,11 @@ export function RoomSharing({ collaboration, shareRoom, shareUrl, reconnect, lea
         <label className="share-link-label" htmlFor="room-share-link">編集用リンク</label>
         <div className="share-link-field"><input ref={linkInput} id="room-share-link" type="text" readOnly value={shareUrl} onFocus={event => event.target.select()} /><button className="sharing-button primary" onClick={copyLink}>{copied ? <Check size={16} /> : <Copy size={16} />}{copied ? 'コピー済み' : 'コピー'}</button></div>
         <p className="share-permission">このリンクには編集権限があります。共有する相手を確認してください。</p>
+        {copySuccess && <div className="share-success" role="status" aria-live="polite"><Check size={15} aria-hidden="true" />{copySuccess}</div>}
         {copyError && <p className="share-error" role="alert">{copyError}</p>}
       </> : <>
-        {custom && <p className="share-error" role="status">図面から作成した間取りの共有は未対応です。個人編集と保存は利用できます。</p>}
-        {!configured && <p className="share-error" role="status">共同編集は現在利用できません。個人での編集は引き続き利用できます。</p>}
         {error && configured && <p className="share-error" role="alert">{error}</p>}
-        <button className="sharing-button primary share-create" disabled={!configured || busy || custom} onClick={shareRoom}><Share2 size={16} />{status === 'creating' ? 'リンクを作成中…' : '共有リンクを作成'}</button>
+        <button className="sharing-button primary share-create" disabled={busy} onClick={configured && !custom ? createAndCopyLink : undefined}><Share2 size={16} />{status === 'creating' ? 'リンクを作成中…' : '共有リンクを作成'}</button>
       </>}
       {roomId && <div className="share-dialog-footer"><span>退出後は個人用の部屋として編集できます。</span><button className="sharing-text-button" onClick={() => { leaveRoom(); setOpen(false); }}><LogOut size={14} />{pending ? '未送信の変更を破棄して退出' : '共同編集から退出'}</button></div>}
     </dialog>

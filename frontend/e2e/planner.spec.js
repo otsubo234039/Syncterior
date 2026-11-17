@@ -38,13 +38,17 @@ test('家具を追加し、選択した家具の編集・回転・削除がで�
   await expect(page.getByRole('button', { name: '選択を削除', exact: true })).toBeDisabled();
 });
 
-test('共有API未設定時に利用状況を案内し、Escapeキーでダイアログを閉じられる', async ({ page }) => {
+test('共有API未設定でも共有リンク作成ボタンを押せて、何も起きずに閉じられる', async ({ page }) => {
   await openLayout(page, 'http://127.0.0.1:4174');
   await page.getByRole('button', { name: '部屋を共有', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText('共同編集は現在利用できません');
-  await expect(dialog.getByRole('button', { name: '共有リンクを作成', exact: true })).toBeDisabled();
+  const createButton = dialog.getByRole('button', { name: '共有リンクを作成', exact: true });
+  await expect(createButton).toBeEnabled();
+  await createButton.click();
+  await expect(createButton).toBeEnabled();
+  await expect(dialog).toBeVisible();
+  await expect(page.locator('.sharing-notice')).toHaveCount(0);
   await page.keyboard.press('Escape');
   await expect(dialog).not.toBeVisible();
   await page.getByRole('button', { name: /^デスク/ }).click();

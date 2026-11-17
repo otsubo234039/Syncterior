@@ -15,6 +15,7 @@ button:disabled{opacity:.5;cursor:not-allowed}.sharing-notice{display:flex;align
 @media(max-width:1000px){.sharing-bar{align-items:flex-start}.sharing-summary>span{flex-basis:100%;margin-left:25px}.sharing-notice{flex-direction:column;align-items:flex-start}}
 @media(max-width:720px){.sharing-bar{padding:10px;gap:8px}.sharing-actions{flex-direction:column}.sharing-button{padding:8px 10px;font-size:10px}.share-dialog{padding:22px}.share-dialog h2{font-size:19px}.share-link-field{flex-direction:column}}
 .local-save-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:0 2px;color:#68766d}.local-save-bar p{margin:0;font-size:11px;line-height:1.7}.local-save-bar button{flex-shrink:0}@media(max-width:720px){.local-save-bar{align-items:flex-start;flex-direction:column;gap:4px}}
+.share-success{display:flex;align-items:center;gap:7px;margin:12px 0 0;padding:10px 12px;border-radius:7px;background:#e8f3e8;color:#386a4b;font-size:12px}
 /* Floor-plan image import */
 .floor-import{margin:0 0 18px;padding:14px;border:1px solid #dce3d7;border-radius:9px;background:#fbfbf8;min-width:0}
 .floor-import summary{cursor:pointer;font-size:14px;font-weight:700;color:#345e4e}.floor-import p{font-size:11px;line-height:1.8;color:#68766d}
