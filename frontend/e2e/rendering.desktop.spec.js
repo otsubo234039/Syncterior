@@ -37,5 +37,6 @@ test('静止中は描画を止め、家具と視点の変更時に3D表示を更
     await page.mouse.move(x - 60, y + 20, { steps: 8 });
     await page.mouse.up();
   });
-  // OrbitControlsの慣性移動中は描画が続く。停止は各家具操作の前、視点は画像更新で検証する。
+  // 回転も慣性を残さず停止する。視点の変更と停止を実際の描画で確認する。
+  await idle();
 });

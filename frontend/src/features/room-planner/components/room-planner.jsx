@@ -44,7 +44,7 @@ export function RoomPlanner() {
         <PlannerCanvas {...planner} />
         <div className="workspace-bottom">
           <div className="hint">{planner.customPlan ? null : editable ? '家具をクリックして選択、ドラッグして配置を調整' : '接続が戻るまで配置の編集を一時停止しています'}</div>
-          <div className="controls-hint"><span>左ドラッグ：回転</span><span>スクロール：ズーム</span></div>
+          <div className="controls-hint"><span>左ドラッグ：回転</span><span>ホイール押し込み：移動</span><span>スクロール：ズーム</span></div>
         </div>
         <FurnitureProperties active={active} plan={plan} rotate={rotate} update={update} editable={editable} />
       </>}
