@@ -54,7 +54,7 @@ async function prepareScene(context, mode) {
   if (mode === 'ui') {
     await context.route(/\/assets\/planner-viewport-[^/]+\.js(?:\?.*)?$/, route => {
       replaced = true;
-      return route.fulfill({ contentType: 'text/javascript', body: 'export default function TestViewport() { return null; }' });
+      return route.fulfill({ contentType: 'text/javascript', body: 'export default function TestViewport({ onReadyChange }) { queueMicrotask(() => onReadyChange(true)); return null; }' });
     });
   }
   return async page => {
@@ -78,13 +78,15 @@ function collectErrors(page) {
 
 export const test = base.extend({
   sceneMode: ['full', { option: true }],
-  page: async ({ page, context, sceneMode }, use) => {
+  expectedPageErrors: [[], { option: true }],
+  page: async ({ page, context, sceneMode, expectedPageErrors }, use) => {
     await installExternalAssets(context);
     const verifyScene = await prepareScene(context, sceneMode);
     const errors = collectErrors(page);
     await use(page);
     await verifyScene(page);
-    expect(errors, 'uncaught browser errors').toEqual([]);
+    // 失敗を注入するケースだけ、想定した内容と件数を厳密に検証する。
+    expect(errors, 'ブラウザのエラーが想定した内容と件数だけである').toEqual(expectedPageErrors.map(pattern => expect.stringMatching(pattern)));
   },
   guestPage: [async ({ browser, viewport, isMobile, baseURL, sceneMode }, use) => {
     const context = await browser.newContext({ viewport, isMobile, hasTouch: isMobile, baseURL });
