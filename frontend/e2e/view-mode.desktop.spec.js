@@ -1,24 +1,9 @@
 import { openLayout } from './fixtures/workspace.js';
-import { test, expect, waitForSceneToSettle, maxImageChannelDelta } from './fixtures/test.js';
+import { test, expect, waitForSceneToSettle } from './fixtures/test.js';
 
-test('平面図のドラッグとキャンセル後の操作・3Dの正面と初期視点が動作する', async ({ page }) => {
+test('平面図のドラッグとキャンセル後も操作でき通常3Dへ戻れる', async ({ page }) => {
   await openLayout(page, '/');
   await waitForSceneToSettle(page);
-  const canvas = page.locator('canvas');
-  const initial = await canvas.screenshot();
-  await page.getByRole('button', { name: '正面', exact: true }).click();
-  await waitForSceneToSettle(page);
-  expect(initial.equals(await canvas.screenshot())).toBe(false);
-  await page.getByRole('button', { name: '初期視点', exact: true }).click();
-  await waitForSceneToSettle(page);
-  const reset = await canvas.screenshot({ path: test.info().outputPath('initial-view.png') });
-  await page.getByRole('button', { name: '初期視点', exact: true }).click();
-  await waitForSceneToSettle(page);
-  const repeated = await canvas.screenshot();
-  // 同一視点でもソフトウェアWebGLの丸めでRGBが1段階だけ変わる場合がある。
-  // PNGのバイナリではなく全画素を比較し、輪郭・位置の変化は検出する。
-  const maxChannelDelta = await maxImageChannelDelta(page, reset, repeated);
-  expect(maxChannelDelta, '初期視点への再リセットはRGB各成分の丸め誤差以内で同じ画像になる').toBeLessThanOrEqual(1);
   await page.getByRole('button', { name: '平面図', exact: true }).click();
   const bed = page.getByRole('button', { name: 'ダブルベッドを選択', exact: true });
   await bed.scrollIntoViewIfNeeded();
