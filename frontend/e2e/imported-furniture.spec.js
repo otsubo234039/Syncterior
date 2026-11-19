@@ -8,7 +8,7 @@ test('画像から作成した間取りで家具を追加・編集・保存・�
   await page.goto('/');
   await openImageImport(page);
   await page.getByLabel('間取り画像', { exact:true }).setInputFiles(fileURLToPath(new URL('./fixtures/floor-plans/monochrome.jpg',import.meta.url)));
-  await expect(page.getByRole('status').filter({hasText:/OpenCV .*壁候補を\d+本抽出/})).toBeVisible();
+  await expect(page.getByRole('status').filter({hasText:'解析できました。サイズを合わせてください。'})).toBeVisible();
   await convertAndPreview(page);
   await page.getByRole('button',{name:/^デスク/}).click();
   await expect(page.getByRole('heading',{name:'デスク',exact:true})).toBeVisible();
@@ -20,7 +20,7 @@ test('画像から作成した間取りで家具を追加・編集・保存・�
   await previewDrawing(page);
   expect((await saved(page)).room.items).toEqual([{...before,color:'#123456'}]);
   await reloadLayout(page);
-  await expect(page.getByRole('heading',{name:'取込間取り / 3Dレイアウト'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'取込間取り'})).toBeVisible();
   expect((await saved(page)).room.items[0]).toEqual({...before,color:'#123456'});
   await page.getByRole('button',{name:/^デスク/}).click();
   await expect.poll(async()=> (await saved(page)).room.items.length).toBe(2);

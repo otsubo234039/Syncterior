@@ -46,9 +46,9 @@ test('壁と開口を2点で追加し、取消・元に戻す・やり直すを�
   await pickEditPoint(page, [3,3]); await pickEditPoint(page, [4,3]);
   await page.getByRole('button', { name: '選択・頂点を動かす', exact: true }).click();
   await expect(page.getByRole('button', { name: '扉1を選択', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '手直しを元に戻す', exact: true }).click();
+  await page.getByRole('button', { name: '元に戻す', exact: true }).click();
   await expect(page.getByRole('button', { name: '扉1を選択', exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: '手直しをやり直す', exact: true }).click();
+  await page.getByRole('button', { name: 'やり直す', exact: true }).click();
   await expect(page.getByRole('button', { name: '扉1を選択', exact: true })).toBeVisible();
   expect(await savedPlan(page)).toEqual(before);
   await openDrawingTools(page);
@@ -61,7 +61,7 @@ test('床の頂点を編集し、不正な形状を拒否してから有効な�
   await page.getByRole('button', { name: '図面モード', exact: true }).click();
   await page.getByRole('button', { name: '床1を選択', exact: true }).focus(); await page.keyboard.press('Enter');
   await page.getByRole('button', { name: '床の頂点1', exact: true }).focus(); await page.keyboard.press('ArrowLeft');
-  await expect(page.getByRole('alert')).toContainText('適用できません');
+  await expect(page.getByRole('alert')).toHaveText('交差・重なり・壁や開口の寸法を確認してください。');
   await expect(page.getByRole('button', { name: '床の頂点1', exact: true })).toHaveAttribute('transform', 'translate(0 0)');
   await page.keyboard.press('Shift+ArrowRight');
   await page.getByRole('button', { name: '辺1に頂点を追加', exact: true }).click();
@@ -98,12 +98,12 @@ test('破損画像は拒否し、有効な別画像は元の図面の縦横比�
     return c.toDataURL('image/png').split(',')[1];
   });
   await page.getByLabel('間取り画像', { exact: true }).setInputFiles({ name: 'square.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') });
-  await expect(page.getByRole('status').filter({ hasText: /OpenCV .*壁候補を\d+本抽出/ })).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '解析できました。サイズを合わせてください。' })).toBeVisible();
   await expect(editDrawing(page)).toHaveCount(0);
   await expect(page.getByRole('alert')).toHaveCount(0);
   await page.getByRole('button', { name: '図面へ変換', exact: true }).click();
   await expect(editDrawing(page).locator('image')).toBeVisible();
-  await expect(page.getByRole('button', { name: '手直しを元に戻す', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '元に戻す', exact: true })).toBeDisabled();
   expect(await savedPlan(page)).toEqual(before);
 });
 
@@ -117,7 +117,7 @@ test('窓の開口を追加・端点編集・削除・復元し、位置と高�
   await page.getByRole('button', { name: '開口の始点', exact: true }).focus(); await page.keyboard.press('ArrowRight');
   await page.getByRole('button', { name: '選択した開口を削除', exact: true }).click();
   await expect(page.getByRole('button', { name: '窓1を選択', exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: '手直しを元に戻す', exact: true }).click();
+  await page.getByRole('button', { name: '元に戻す', exact: true }).click();
   await expect(page.getByRole('button', { name: '窓1を選択', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '図面を保存', exact: true }).click();
   await page.getByRole('button', { name: '図面から3Dを表示', exact: true }).click();
@@ -140,12 +140,12 @@ test('グリッドを目安に壁の線を追加・削除し、元に戻して�
   await expect(grid).toHaveCount(0);
   await dialog.getByLabel('グリッドを表示', { exact: true }).check();
   await expect(grid).toBeVisible();
-  await expect(dialog.getByRole('button', { name: '手直しを元に戻す', exact: true })).toBeDisabled();
+  await expect(dialog.getByRole('button', { name: '元に戻す', exact: true })).toBeDisabled();
   expect(await savedPlan(page)).toEqual(before);
   await dialog.getByRole('button', { name: '線を消す', exact: true }).click();
   await dialog.getByRole('button', { name: '壁1を選択', exact: true }).click();
   await expect(dialog.getByRole('button', { name: '壁1を選択', exact: true })).toHaveCount(0);
-  await dialog.getByRole('button', { name: '手直しを元に戻す', exact: true }).click();
+  await dialog.getByRole('button', { name: '元に戻す', exact: true }).click();
   await expect(dialog.getByRole('button', { name: '壁1を選択', exact: true })).toBeVisible();
   await dialog.getByRole('button', { name: '壁を追加', exact: true }).click();
   await pickEditPoint(page, [2,3]); await pickEditPoint(page, [6,3]);
@@ -154,7 +154,7 @@ test('グリッドを目安に壁の線を追加・削除し、元に戻して�
   await dialog.getByRole('button', { name: '壁2を選択', exact: true }).focus(); await page.keyboard.press('Enter');
   await expect(dialog.getByRole('button', { name: '壁2を選択', exact: true })).toHaveCount(0);
   await expect(dialog.getByRole('button', { name: '壁1を選択', exact: true })).toBeVisible();
-  await dialog.getByRole('button', { name: '手直しを元に戻す', exact: true }).click();
+  await dialog.getByRole('button', { name: '元に戻す', exact: true }).click();
   await expect(dialog.getByRole('button', { name: '壁2を選択', exact: true })).toBeVisible();
   expect(await savedPlan(page)).toEqual(before);
   await dialog.screenshot({ path: test.info().outputPath('grid-editor.png') });

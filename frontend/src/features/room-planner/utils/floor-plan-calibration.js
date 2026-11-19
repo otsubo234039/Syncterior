@@ -46,6 +46,21 @@ export function calibrateFloorPlanByPolygon(plan, points, tatami, areaPerTatami)
   return calibrateByArea(plan, measurementPolygonArea(plan, points), tatami, areaPerTatami);
 }
 
+// 入力不備と、計算後のモデルの範囲外をUIで区別する。補正の許容範囲は変えない。
+export function calibrationInputError(plan, points, { byArea, byPolygon, length, tatami, areaPerTatami }) {
+  if (byArea) {
+    const measured = byPolygon ? measurementPolygonArea(plan, points) : measurementArea(plan, points);
+    const area = tatami * areaPerTatami;
+    if (measured === null || !Number.isFinite(tatami) || tatami <= 0
+      || !Number.isFinite(areaPerTatami) || areaPerTatami <= 0 || !Number.isFinite(area) || area <= 0) {
+      return '輪郭・帖数・換算値を確認してください。';
+    }
+  } else if (measurementLength(plan, points) === null || !Number.isFinite(length) || length < .02) {
+    return '2点と長さを確認してください。';
+  }
+  return null;
+}
+
 function calibrateByArea(plan, measured, tatami, areaPerTatami) {
   if (!isFloorPlan(plan) || !Number.isFinite(tatami) || tatami <= 0 || !Number.isFinite(areaPerTatami) || areaPerTatami <= 0) return null;
   const actualArea = tatami * areaPerTatami;

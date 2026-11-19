@@ -21,7 +21,7 @@ export async function calibrateDrawing(page, factor = 1.2) {
     Number(line.getAttribute('y2')) - Number(line.getAttribute('y1')),
   ));
   await page.getByLabel('測った一辺の長さ (m)', { exact: true }).fill(String(Number((measured * factor).toFixed(8))));
-  await page.getByRole('button', { name: 'この長さで全体を補正', exact: true }).click();
+  await page.getByRole('button', { name: 'サイズを合わせる', exact: true }).click();
   return before;
 }
 
@@ -36,7 +36,7 @@ export async function calibrateDrawingByTatami(page, tatami = 6.5, areaPerTatami
   });
   await page.getByLabel('選択した部屋の帖数', { exact: true }).fill(String(tatami));
   await page.getByLabel('1帖の面積 (m²)', { exact: true }).fill(String(areaPerTatami));
-  await page.getByRole('button', { name: 'この帖数で全体を補正', exact: true }).click();
+  await page.getByRole('button', { name: 'サイズを合わせる', exact: true }).click();
   return { ...before, factor: Math.sqrt(tatami * areaPerTatami / before.area) };
 }
 
@@ -71,6 +71,6 @@ export async function calibrateDrawingByRoom(page, tatami = 6.5, areaPerTatami =
   const area = await selectedPolygonArea(page);
   await page.getByLabel('選択した部屋の帖数', { exact: true }).fill(String(tatami));
   await page.getByLabel('1帖の面積 (m²)', { exact: true }).fill(String(areaPerTatami));
-  await page.getByRole('button', { name: 'この帖数で全体を補正', exact: true }).click();
+  await page.getByRole('button', { name: 'サイズを合わせる', exact: true }).click();
   return { ...before, factor: Math.sqrt(tatami * areaPerTatami / area) };
 }

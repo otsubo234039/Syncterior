@@ -16,7 +16,8 @@ export default defineConfig({
   // Software WebGL is CPU-intensive; avoid four simultaneous 3D contexts.
   workers: 1,
   timeout: 60_000,
-  globalTimeout: 15 * 60_000,
+  // 視点移動の実WebGLケースを含む全件の上限。各ケースの60秒は維持する。
+  globalTimeout: 20 * 60_000,
   // Initial shader compilation can block UI updates with software WebGL.
   expect: { timeout: 30_000 },
   reporter: [['list'], ['html', { open: 'never' }]],

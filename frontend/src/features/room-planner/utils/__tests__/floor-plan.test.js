@@ -63,7 +63,7 @@ test('近接して重なる直線候補を統合し、離れた開口部分や�
 test('候補なしでも手動編集用の床を作り、壊れた解析結果は拒否する', () => {
   assert.equal(floorPlanFromLines({ width: 100, height: 100, lines: [] }).walls.length, 0);
   for (const invalid of [{ width: 0, height: 100, lines: [] }, { width: 100, height: 100, lines: [1, 2, NaN, 3] }, { width: 100, height: 100, lines: [1] }]) {
-    assert.throws(() => floorPlanFromLines(invalid), /不正/);
+    assert.throws(() => floorPlanFromLines(invalid), /画像を解析できません/);
   }
 });
 

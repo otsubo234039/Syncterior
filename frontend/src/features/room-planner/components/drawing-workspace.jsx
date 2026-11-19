@@ -21,11 +21,11 @@ export function DrawingWorkspace({ planner }) {
     } catch (cause) { setError(cause.message); }
   };
   return <section className="drawing-workspace" aria-label="図面モード">
-    <div className="workspace-top"><div><div className="eyebrow">DRAW YOUR SPACE</div>
-      <h1>図面モード</h1><p>2D図面を作成・保存し、同じ図面から3Dを表示します。</p></div>
-      <span className="drawing-state" role="status">{drawingDirty ? '未保存の変更があります' : '図面は保存済みです'}</span>
+    <div className="workspace-top"><div>
+      <h1>図面モード</h1></div>
+      <span className="drawing-state" role="status">{drawingDirty ? '未保存' : '保存済み'}</span>
     </div>
-    <details className="drawing-source-tools" ref={tools}><summary>図面の新規作成・読込・画像変換</summary>
+    <details className="drawing-source-tools" ref={tools}><summary>新規・読込・画像取込</summary>
     <div className="drawing-file-actions">
       <button className="sharing-button" disabled={!savedDrawing} onClick={() => replace(savedDrawing, null, { drawingId: savedDrawingId })}>保存した図面を開く</button>
       <label className="drawing-file-label">図面ファイルを開く<input type="file" accept="application/json,.json" onChange={async event => {
@@ -37,19 +37,19 @@ export function DrawingWorkspace({ planner }) {
           if (ticket === fileRequest.current) replace(plan, null, { drawingId });
         } catch (cause) { if (ticket === fileRequest.current) setError(cause.message); }
       }} /></label>
-      <button className="sharing-button" disabled={!drawing.plan} onClick={exportFile}>図面ファイルを書き出す</button>
+      <button className="sharing-button" disabled={!drawing.plan} onClick={exportFile}>図面を書き出す</button>
     </div>
-    <details className="drawing-new"><summary>新しい図面を作成</summary>
+    <details className="drawing-new"><summary>新規作成</summary>
       <form className="drawing-metadata" onSubmit={event => {
         event.preventDefault(); const fields = new FormData(event.currentTarget);
         const plan = newDrawing({ name: String(fields.get('name')).trim(), w: Number(fields.get('w')), d: Number(fields.get('d')), h: Number(fields.get('h')) });
-        if (!plan) { setError('図面名と有効な寸法を指定してください。幅・奥行きは1〜100m、高さは0.5〜10mです。'); return; }
+        if (!plan) { setError('図面名と寸法を確認してください。'); return; }
         if (replace(plan)) event.currentTarget.closest('details').open = false;
       }}>
-        <label>新しい図面名<input name="name" defaultValue="新しい図面" maxLength={80} required /></label>
+        <label>図面名<input name="name" defaultValue="新しい図面" maxLength={80} required /></label>
         <label>図面の幅 (m)<input name="w" type="number" defaultValue="8" min="1" max="100" step="any" required /></label>
         <label>図面の奥行き (m)<input name="d" type="number" defaultValue="6" min="1" max="100" step="any" required /></label>
-        <label>新しい壁の高さ (m)<input name="h" type="number" defaultValue="2.5" min=".5" max="10" step="any" required /></label>
+        <label>壁の高さ (m)<input name="h" type="number" defaultValue="2.5" min=".5" max="10" step="any" required /></label>
         <button type="submit" className="sharing-button">新規作成</button>
       </form>
     </details>
@@ -58,7 +58,7 @@ export function DrawingWorkspace({ planner }) {
       onNewImage={ticket => { if (ticket !== fileRequest.current) return false; setError(''); return planner.startDrawingImport(); }} />
     </details>
     <div className="drawing-notice" aria-live="polite">
-      {error || drawingNotice.error ? <p role="alert" className="floor-error">{error || drawingNotice.error}</p> : <p role="status">{drawingNotice.message}</p>}
+      {error || drawingNotice.error ? <p role="alert" className="floor-error">{error || drawingNotice.error}</p> : drawingNotice.message && <p role="status">{drawingNotice.message}</p>}
     </div>
     <p className="drawing-footnote" role="status">{planner.preserveDrawingItems
       ? '同じ図面の修正として3Dへ反映します。現在の家具を維持します。'

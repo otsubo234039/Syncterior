@@ -1,7 +1,7 @@
 import { openLayout } from './workspace.js';
 import { test, expect, waitForScene, drawCalls } from './test.js';
 
-const count = page => page.locator('.room-metrics > div').filter({ hasText: 'FURNITURE' }).locator('strong');
+const count = page => page.locator('.room-metrics > div').filter({ hasText: '家具数' }).locator('strong');
 async function share(page) {
   await page.getByRole('button', { name: '部屋を共有', exact: true }).click();
   await page.getByRole('button', { name: '共有リンクを作成', exact: true }).click();
@@ -56,7 +56,7 @@ export async function verifySharedRoom({ page, guestPage: guest, sceneMode }) {
   await guest.getByRole('button', { name: '選択を削除', exact: true }).click();
   await expect(count(page)).toContainText('5');
   await page.getByRole('button', { name: /^1LDK/ }).click();
-  await expect(guest.getByRole('heading', { name: '1LDK / 3Dレイアウト' })).toBeVisible();
+  await expect(guest.getByRole('heading', { name: '1LDK' })).toBeVisible();
   await expect(count(guest)).toContainText('4');
   await expect(page.getByRole('heading', { name: '家具を選択してください' })).toBeVisible();
   // Unload the guest document to verify disconnection before fixture cleanup.

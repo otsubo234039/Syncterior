@@ -4,7 +4,7 @@ export const plans = {
     w: 5.4,
     d: 4.2,
     h: 2.5,
-    desc: '一人暮らし向け・22.7㎡',
+    desc: '22.7㎡',
     doors: [{
       x: 1.8,
       z: 2.1,
@@ -16,7 +16,7 @@ export const plans = {
     w: 7.2,
     d: 5.4,
     h: 2.5,
-    desc: '寝室とLDKを分けた間取り・38.9㎡',
+    desc: '38.9㎡',
     doors: [{
       x: 2.5,
       z: 2.7,
@@ -28,7 +28,7 @@ export const plans = {
     w: 8.4,
     d: 6.6,
     h: 2.6,
-    desc: 'ゆとりあるリビング・55.4㎡',
+    desc: '55.4㎡',
     doors: [{
       x: 3,
       z: 3.3,
