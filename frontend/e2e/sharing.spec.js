@@ -10,16 +10,14 @@ async function share(page) {
   return page.getByLabel('編集用リンク').inputValue();
 }
 
-test('共有リンクを作成・コピーし、確定済みの配置を保って退出できる', async ({ page, context }) => {
+test('共有リンクの作成時に自動コピーして通知し、確定済みの配置を保って退出できる', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
   await openLayout(page, '/');
   await page.getByRole('button', { name: /^デスク/ }).click();
   const url = await share(page);
   expect(new URL(url).searchParams.get('room')).toMatch(/^[\w-]{32}$/);
-  // UIモードでも実クリップボードを使うページをアクティブにする。
   await page.bringToFront();
-  await page.getByRole('button', { name: 'コピー', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'コピー済み' })).toBeVisible();
+  await expect(page.locator('.share-success')).toContainText('共有リンクをコピーしました');
   await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(url);
   await page.getByRole('button', { name: '共同編集から退出', exact: true }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();

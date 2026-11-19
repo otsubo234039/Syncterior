@@ -122,8 +122,11 @@ for (const [name, file] of [['白黒図面', 'monochrome'], ['着色図面', 'co
     await page.getByRole('button', { name: '3D・家具配置', exact: true }).click();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.getByRole('button', { name: '部屋を共有', exact: true }).click();
-    await expect(page.getByRole('dialog')).toContainText('図面から作成した間取りの共有は未対応');
-    await expect(page.getByRole('button', { name: '共有リンクを作成', exact: true })).toBeDisabled();
+    const createButton = page.getByRole('button', { name: '共有リンクを作成', exact: true });
+    await expect(createButton).toBeEnabled();
+    await createButton.click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await expect(page.locator('.sharing-notice')).toHaveCount(0);
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: /^ワンルーム/ }).click();
     await expect(page.locator('.width-tag')).toHaveText('5.4 m');
