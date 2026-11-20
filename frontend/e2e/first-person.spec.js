@@ -9,7 +9,7 @@ test('一人称と平面図・通常3Dを切り替えても配置の保存を変
   await page.getByRole('button',{name:'平面図',exact:true}).click();
   await expect(page.getByRole('region',{name:'部屋の平面プレビュー'})).toBeVisible();
   await page.getByRole('button',{name:'一人称',exact:true}).click();
-  await page.getByRole('button',{name:'初期視点',exact:true}).click();
+  await page.getByRole('button',{name:'3D',exact:true}).click();
   await expect(page.getByRole('button',{name:'3D',exact:true})).toHaveAttribute('aria-pressed','true');
   expect(await page.evaluate(()=>localStorage.getItem('syncterior.personal-room'))).toBe(saved);
 });

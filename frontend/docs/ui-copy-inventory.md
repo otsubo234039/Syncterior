@@ -171,8 +171,8 @@
 | T132 | 平面図 | 3D・家具配置（表示方式・選択・保存・共有状態に応じて切替） | **残す** | 操作名・入力項目・状態の識別に必要。 | [planner-canvas.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/planner-canvas.jsx:29) |
 | T133 | 3D | 3D・家具配置（表示方式・選択・保存・共有状態に応じて切替） | **残す** | 操作名・入力項目・状態の識別に必要。 | [planner-canvas.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/planner-canvas.jsx:30) |
 | T134 | 一人称 | 3D・家具配置（表示方式・選択・保存・共有状態に応じて切替） | **残す** | 操作名・入力項目・状態の識別に必要。 | [planner-canvas.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/planner-canvas.jsx:31) |
-| T135 | 初期視点 | 3D・家具配置（表示方式・選択・保存・共有状態に応じて切替） | **残す** | 操作名・入力項目・状態の識別に必要。 | [planner-canvas.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/planner-canvas.jsx:32) |
-| T136 | 正面 | 3D・家具配置（表示方式・選択・保存・共有状態に応じて切替） | **残す** | 操作名・入力項目・状態の識別に必要。 | [planner-canvas.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/planner-canvas.jsx:33) |
+| T135 | 初期視点 | 3D・家具配置（表示方式・選択・保存・共有状態に応じて切替） | **削除済み** | 2026-11-19、利用者の指示で視点プリセット操作を削除。 | [planner-canvas.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/planner-canvas.jsx:32) |
+| T136 | 正面 | 3D・家具配置（表示方式・選択・保存・共有状態に応じて切替） | **削除済み** | 2026-11-19、利用者の指示で視点プリセット操作を削除。 | [planner-canvas.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/planner-canvas.jsx:33) |
 | T137 | 歩ける場所が見つかりません。家具や床・壁を確認し、3Dまたは平面図へ戻って調整してください。 | 3D・家具配置（表示方式・選択・保存・共有状態に応じて切替） | **短縮済み** | 「歩ける場所がありません。家具や床を調整してください」。失敗時の案内は必要。 | [planner-canvas.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/planner-canvas.jsx:34) |
 | T138 | 3Dプレビューを読み込んでいます… | 3D・家具配置（表示方式・選択・保存・共有状態に応じて切替） | **残す** | 操作名・入力項目・状態の識別に必要。 | [planner-canvas.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/planner-canvas.jsx:34) |
 | T139 | 平面図・1目盛 {数値・状態} m | 3D・家具配置（表示方式・選択・保存・共有状態に応じて切替） | **必要時だけ** | 表示モードはボタンで分かる。操作説明・目盛りだけを必要な方式で示す。 | [planner-canvas.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/planner-canvas.jsx:37) |

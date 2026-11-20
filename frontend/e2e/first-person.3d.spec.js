@@ -40,7 +40,6 @@ for (const [name,width] of [['デスクトップ',1440],['モバイル幅',390]]
     await expect(canvas).not.toHaveAttribute('aria-label','一人称視点の操作');
     await waitForSceneToSettle(page);
     expect(await page.evaluate(()=>localStorage.getItem('syncterior.personal-room'))).toBe(saved);
-    await page.getByRole('button',{name:'正面',exact:true}).click(); await waitForSceneToSettle(page);
     await page.getByRole('button',{name:'一人称',exact:true}).click();
     await page.getByRole('button',{name:'平面図',exact:true}).click();
     await expect(canvas).toHaveCount(0);

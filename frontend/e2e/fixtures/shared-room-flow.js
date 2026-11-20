@@ -29,8 +29,7 @@ export async function verifySharedRoom({ page, guestPage: guest, sceneMode }) {
   await page.getByRole('button', { name: '平面図', exact: true }).click();
   await expect(page.getByLabel('部屋の平面図')).toBeVisible();
   await expect(guest.getByRole('button', { name: '3D', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('button', { name: '正面', exact: true }).click();
-  await page.getByRole('button', { name: '初期視点', exact: true }).click();
+  await page.getByRole('button', { name: '3D', exact: true }).click();
   await expect(guest.getByRole('button', { name: '3D', exact: true })).toHaveAttribute('aria-pressed', 'true');
   const guestDraws = sceneMode === 'full' ? await drawCalls(guest) : 0;
   await page.getByLabel('左右位置 (X)').fill('99');

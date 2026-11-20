@@ -1,7 +1,7 @@
 import { openLayout } from './fixtures/workspace.js';
 import { test, expect } from './fixtures/test.js';
 
-test('平面図と視点プリセットを切り替えても家具の配置・選択・個人保存を変更しない', async ({ page }) => {
+test('平面図・3D・一人称だけを表示し切り替えても家具の配置・選択・個人保存を変更しない', async ({ page }) => {
   await openLayout(page, '/');
   await page.getByRole('button', { name: /^デスク/ }).click();
   await page.getByLabel('左右位置 (X)').fill('0.5');
@@ -13,9 +13,12 @@ test('平面図と視点プリセットを切り替えても家具の配置・�
   await page.getByRole('button', { name: 'ダブルベッドを選択', exact: true }).focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: 'ダブルベッド', exact: true })).toBeVisible();
-  for (const name of ['3D', '平面図', '正面', '初期視点']) {
+  for (const name of ['3D', '一人称', '平面図', '3D']) {
     await page.getByRole('button', { name, exact: true }).click();
     await expect(page.getByRole('heading', { name: 'ダブルベッド', exact: true })).toBeVisible();
+    const controls = page.getByRole('group', { name: '表示と視点' });
+    await expect(controls.getByRole('button')).toHaveText(['平面図', '3D', '一人称']);
+    await expect(page.getByRole('button', { name: /^(初期視点|正面)$/ })).toHaveCount(0);
   }
   expect(await page.evaluate(() => localStorage.getItem('syncterior.personal-room'))).toBe(saved);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
