@@ -1,0 +1,16 @@
+{
+  "name": "シンクテリア",
+  "short_name": "シンクテリア",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f7f3",
+  "theme_color": "#43c9a4",
+  "icons": [
+    {
+      "src": "/syncterior-app-icon.png",
+      "sizes": "768x768",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
