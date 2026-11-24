@@ -95,8 +95,9 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
       event.preventDefault(); event.stopPropagation();
       change({ ...action, point: p.map((value, axis) => value + delta[axis] * (event.shiftKey ? .1 : .01)) });
     }}>
-    <circle r=".001" fill="transparent" stroke="transparent" strokeWidth="32" vectorEffect="non-scaling-stroke" />
-    <circle r={Math.max(draft.w, draft.d) * .008} fill="#fff" stroke="#b85320" strokeWidth="2" vectorEffect="non-scaling-stroke" pointerEvents="none" />
+    {/* 微小な円のnon-scaling-strokeは中心以外のヒット判定が欠けるため、丸い線端で直径32pxの操作領域を作る。 */}
+    <path d="M0 0h.001" fill="none" stroke="transparent" strokeWidth="32" strokeLinecap="round" vectorEffect="non-scaling-stroke" pointerEvents="stroke" />
+    <circle r={Math.max(draft.w, draft.d) * .008} fill="#fff" stroke="#b85320" strokeWidth="2" vectorEffect="non-scaling-stroke" />
   </g>;
   const commitMetadata = () => {
     if (!metadata.current.checkValidity()) metadata.current.closest('details').open = true;
