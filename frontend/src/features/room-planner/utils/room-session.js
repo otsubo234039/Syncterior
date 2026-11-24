@@ -1,5 +1,6 @@
 import { applyRoomOperation, isRoomSnapshot, projectRoom } from './room-state.js';
 import { CUSTOM_PLAN_KEY } from './floor-plan.js';
+import { hasImportedFurniture } from './imported-furniture.js';
 
 export function createRoomSession({ api, initialRoom, roomId = null, onRoomChange = () => {}, onLocalChange = () => {}, makeId = () => crypto.randomUUID() }) {
   let base = { ...initialRoom, revision: 0, planVersion: 0, appliedOperationIds: [] };
@@ -150,6 +151,8 @@ export function createRoomSession({ api, initialRoom, roomId = null, onRoomChang
         return true;
       }
       if (state.status !== 'connected' || state.changingPlan) return false;
+      if (operation.item?.type === 'model' || operation.item?.assetId || operation.items?.some(item => item.type === 'model' || item.assetId)
+        || operation.patch && Object.keys(operation.patch).some(key => !['x', 'z', 'color'].includes(key))) return false;
       if (operation.customPlan || operation.planKey === CUSTOM_PLAN_KEY) return false;
       // Coalesce queued drag coordinates while preserving the in-flight command.
       const tail = pending.at(-1);
@@ -166,6 +169,10 @@ export function createRoomSession({ api, initialRoom, roomId = null, onRoomChang
     async share() {
       if (state.roomId) return state.roomId;
       if (!running || state.status !== 'local') return null;
+      if (hasImportedFurniture(base)) {
+        publish({ error: '取り込んだ家具の共有はまだ利用できません。個人編集と保存は利用できます。' });
+        return null;
+      }
       if (base.planKey === CUSTOM_PLAN_KEY) {
         publish({ error: '取り込んだ間取りの共有はまだ利用できません。個人編集と保存は利用できます。' });
         return null;

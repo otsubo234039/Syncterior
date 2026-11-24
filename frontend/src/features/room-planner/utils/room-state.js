@@ -1,6 +1,7 @@
 import { plans } from '../data/plans.js';
 import { constrainFurnitureToRoom } from './furniture-bounds.js';
 import { CUSTOM_PLAN_KEY, isFloorPlan } from './floor-plan.js';
+import { hasImportedFurniture, isModelReference, modelDimensionsValid } from './imported-furniture.js';
 
 export function applyRoomOperation(room, operation) {
   switch (operation.type) {
@@ -52,7 +53,9 @@ export function isRoomLayout(value) {
     && new Set(value.items.map(item => item?.id)).size === value.items.length
     && value.items.every(item => item
       && typeof item.id === 'string' && /^[a-zA-Z0-9_-]{1,80}$/.test(item.id)
-      && ['sofa', 'bed', 'table', 'desk', 'chair', 'tv', 'fridge', 'lamp'].includes(item.type)
+      && (['sofa', 'bed', 'table', 'desk', 'chair', 'tv', 'fridge', 'lamp'].includes(item.type)
+        ? !['assetId', 'modelUp', 'modelFront'].some(key => Object.hasOwn(item, key))
+        : item.type === 'model' && isModelReference(item) && modelDimensionsValid(item))
       && typeof item.name === 'string' && item.name.length <= 80
       && ['w', 'd', 'h', 'x', 'z', 'rot'].every(key => Number.isFinite(item[key]) && Math.abs(item[key]) < 10000)
       && item.w > 0 && item.d > 0 && item.h > 0
@@ -64,7 +67,7 @@ export function isRoomLayout(value) {
 }
 
 export function isRoomSnapshot(value) {
-  return Boolean(isRoomLayout(value) && value.planKey !== CUSTOM_PLAN_KEY && /^[a-zA-Z0-9_-]{32}$/.test(value.id)
+  return Boolean(isRoomLayout(value) && !hasImportedFurniture(value) && value.planKey !== CUSTOM_PLAN_KEY && /^[a-zA-Z0-9_-]{32}$/.test(value.id)
     && Number.isSafeInteger(value.revision) && value.revision >= 0
     && Number.isSafeInteger(value.planVersion) && value.planVersion >= 0
     && Array.isArray(value.appliedOperationIds)

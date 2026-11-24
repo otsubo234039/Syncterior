@@ -1,5 +1,6 @@
 import React from 'react';
 import { useFurnitureDrag } from '../hooks/use-furniture-drag';
+import { ImportedFurnitureModel } from './imported-furniture-model';
 export function Furniture({
   item,
   selected,
@@ -12,6 +13,7 @@ export function Furniture({
   const color = item.color;
   const mats = c => <meshStandardMaterial color={c} roughness={.78} />;
   const parts = () => {
+    if (shape === 'model') return <ImportedFurnitureModel item={item} />;
     if (shape === 'sofa') return <><mesh position={[0, .2, 0]}><boxGeometry args={[item.w, .4, item.d]} />{mats(color)}</mesh><mesh position={[0, .52, -item.d * .35]}><boxGeometry args={[item.w, .58, item.d * .3]} />{mats(color)}</mesh>{[-.32, .32].map((x, i) => <mesh key={i} position={[x, .48, item.d * .12]}><boxGeometry args={[.12, .5, item.d * .78]} />{mats(color)}</mesh>)}</>;
     if (shape === 'bed') return <><mesh position={[0, .12, 0]}><boxGeometry args={[item.w, .24, item.d]} />{mats('#8b725c')}</mesh><mesh position={[0, .28, 0]}><boxGeometry args={[item.w * .96, .12, item.d * .94]} />{mats('#f0e9dc')}</mesh><mesh position={[-item.w * .24, .39, -item.d * .34]}><boxGeometry args={[item.w * .38, .12, .36]} />{mats('#fffaf0')}</mesh><mesh position={[item.w * .24, .39, -item.d * .34]}><boxGeometry args={[item.w * .38, .12, .36]} />{mats('#fffaf0')}</mesh></>;
     if (shape === 'table' || shape === 'desk') return <><mesh position={[0, item.h - .06, 0]}><boxGeometry args={[item.w, .12, item.d]} />{mats(color)}</mesh>{[-1, 1].flatMap(a => [-1, 1].map(b => <mesh key={a + ',' + b} position={[a * (item.w / 2 - .08), item.h / 2 - .06, b * (item.d / 2 - .08)]}><boxGeometry args={[.07, item.h - .12, .07]} />{mats('#8a6a4d')}</mesh>))}</>;

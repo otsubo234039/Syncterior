@@ -18,7 +18,8 @@ export function PlannerSidebar({
   addItem,
   editable = true,
   canAdd = true,
-  custom = false
+  custom = false,
+  children
 }) {
   return <aside className="sidebar">
     <div className="section-heading"><span className="step">01</span><div><h2>間取りを選ぶ</h2></div></div>
@@ -33,5 +34,6 @@ export function PlannerSidebar({
       })}</div>
     {custom && <p className="sharing-limit">家具は床と壁に収まる位置へ追加します。図面から作成した間取りは個人保存のみ対応しています。</p>}
     {!canAdd && <p className="sharing-limit" role="status">家具は200点まで配置できます。</p>}
+    {children}
    </aside>;
 }
