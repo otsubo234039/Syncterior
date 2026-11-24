@@ -7,7 +7,7 @@ const labels = {
   connected: '共同編集中', reconnecting: '再接続中', error: '接続できません',
 };
 
-export function RoomSharing({ collaboration, shareRoom, shareUrl, reconnect, leaveRoom, custom = false }) {
+export function RoomSharing({ collaboration, shareRoom, shareUrl, reconnect, leaveRoom, custom = false, models = false }) {
   const { roomId, status, error, participants, pending, configured, changingPlan } = collaboration;
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -77,7 +77,8 @@ export function RoomSharing({ collaboration, shareRoom, shareUrl, reconnect, lea
         {copyError && <p className="share-error" role="alert">{copyError}</p>}
       </> : <>
         {error && configured && <p className="share-error" role="alert">{error}</p>}
-        <button className="sharing-button primary share-create" disabled={busy} onClick={configured && !custom ? createAndCopyLink : undefined}><Share2 size={16} />{status === 'creating' ? 'リンクを作成中…' : '共有リンクを作成'}</button>
+        {models && <p className="sharing-limit">取り込んだ家具の共有はまだ利用できません。個人編集と保存は利用できます。</p>}
+        <button className="sharing-button primary share-create" disabled={busy || models} onClick={configured && !custom ? createAndCopyLink : undefined}><Share2 size={16} />{status === 'creating' ? 'リンクを作成中…' : '共有リンクを作成'}</button>
       </>}
       {roomId && <div className="share-dialog-footer"><span>退出後は個人用の部屋として編集できます。</span><button className="sharing-text-button" onClick={() => { leaveRoom(); setOpen(false); }}><LogOut size={14} />{pending ? '未送信の変更を破棄して退出' : '共同編集から退出'}</button></div>}
     </dialog>

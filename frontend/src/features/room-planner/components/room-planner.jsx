@@ -5,9 +5,12 @@ import { PlannerCanvas } from './planner-canvas';
 import { FurnitureProperties } from './furniture-properties';
 import { DrawingWorkspace } from './drawing-workspace';
 import { RoomSharing } from './room-sharing';
+import { FurnitureImporter } from './furniture-importer';
+import { FurnitureGenerator } from './furniture-generator';
+import { hasImportedFurniture } from '../utils/imported-furniture';
 
-export function RoomPlanner() {
-  const planner = useRoomPlanner();
+export function RoomPlanner({ generateFurnitureModel = null }) {
+  const planner = useRoomPlanner({ generateFurnitureModel });
   const { plan, items, planKey, changePlan, addItem, active, rotate, update, editable,
     collaboration, shareRoom, shareUrl, reconnect, leaveRoom } = planner;
   const totalArea = (plan.area ?? plan.w * plan.d).toFixed(1);
@@ -20,10 +23,17 @@ export function RoomPlanner() {
     </nav>
     {drawingMode ? <DrawingWorkspace planner={planner} /> : <>
     <PlannerSidebar planKey={planKey} changePlan={changePlan} addItem={addItem}
-      editable={editable} canAdd={items.length < 200} custom={Boolean(planner.customPlan)} />
+      editable={editable} canAdd={items.length < 200} custom={Boolean(planner.customPlan)}>
+      {collaboration.status === 'local' && <>
+        <FurnitureGenerator generation={planner.furnitureGeneration} canAdd={items.length < 200} importing={planner.furnitureImport.busy} />
+        <FurnitureImporter state={planner.furnitureImport} readFile={planner.readFurnitureFile}
+          update={planner.updateFurnitureDraft} confirm={planner.importFurniture} cancel={planner.cancelFurnitureImport}
+          generationBusy={planner.furnitureGeneration.state.busy} canAdd={items.length < 200} />
+      </>}
+    </PlannerSidebar>
     <section className="workspace">
       <RoomSharing collaboration={collaboration} shareRoom={shareRoom} shareUrl={shareUrl}
-        reconnect={reconnect} leaveRoom={leaveRoom} custom={Boolean(planner.customPlan)} />
+        reconnect={reconnect} leaveRoom={leaveRoom} custom={Boolean(planner.customPlan)} models={hasImportedFurniture(collaboration.room)} />
       {collaboration.status === 'local' && <div className="local-save-bar" role="region" aria-label="個人配置の保存">
         <p role="status">{planner.localSave.error || planner.localSave.message}</p>
         <button className="sharing-text-button" onClick={planner.clearLocalSave}>保存した個人配置を消去</button>

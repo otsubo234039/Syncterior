@@ -85,6 +85,13 @@ frontend/
 - 取込間取りの家具は`floor-plan-furniture.js`で回転した外形・凹形の床・実描画と同じ`wallPieces`を検証します。ドラッグ時は`slideAlongWalls`で接線方向の移動を残し、壁の反対側へ完全に抜けた要求位置は維持します。数値入力・回転・保存検証には接触補正を使いません。移動・回転時に追加用の位置探索を使って別の場所へ飛ばさないでください。同じ図面のサイズ補正で家具を消去・拡大せず、収まらない場合は3Dへの反映を拒否します。図面だけの保存は既存家具の配置から独立させます。第2版の個人保存は家具を含め、共有snapshotへの取込形状の混入は引き続き拒否します。
 - `e2e/fixtures/floor-plans/`の既存4画像と`holdout/`の追加2画像で実際のOpenCV Workerをデスクトップ・モバイル幅から検証し、`floor-plan.3d.spec.js`で実WebGLの枠表示と一辺による実寸補正を検証します。壁候補数を認識精度と報告しないでください。`references.json`は手動で選んだ一部の壁・非壁領域で、図面全体の正解ではありません。通常E2Eはこの部分評価も検証します。`npm run test:floor-plan --prefix frontend`で従来の線データとの比較を再現でき、通常E2Eと同じロックとブラウザ起動前確認を使います。OpenCVそのものの合成画像テストは`floor-plan-recognition.test.js`で行い、Node.js上のテストだけでブラウザのWorkerを検証したと扱いません。候補実装の全画像比較と認識・3D画像は[実装比較](frontend/docs/floor-plan-implementation-comparison.md)を参照します。比較キャプチャも通常E2Eと同じロックを使い、手動実験はCIや製品テストの成功と区別します。改善案の全6画像比較・採否・認識と3D画像は[改善実験](frontend/docs/floor-plan-improvement-experiments.md)へ記録します。追加画像の出典・利用条件は`holdout/sources.json`に残し、注釈の誤りを修正した場合は元の評価も維持します。手動の実験テストは`node --test frontend/scripts/floor-plan-improvements/refinements.test.js`で実行し、通常の製品テストやCIには混ぜません。調査・制約は[取り込み調査](frontend/docs/floor-plan-import-research.md)を更新します。
 
+## 家具モデル取り込みの試作（Issue #45）
+
+- 画像からの家具作成UIは`furniture-generator.jsx`、状態は`useRoomPlanner`内の`useFurnitureGeneration`、検証と接続関数の契約は`furniture-generation.js`に置く。`RoomPlanner`の`generateFurnitureModel`を接続口とし、未設定時の作成要求には通常の失敗メッセージを表示し、架空の生成結果を返さない。作成時の寸法入力・変形補正、画面の「準備中」「試作」「未接続」表記・サンプル案内は置かない。生成結果は通常のGLB検証・プレビューへ渡し、向き変更では外形を計測し直して変形を避ける。画像・進捗を保存・共有へ混ぜず、取消・差し替え・モード変更後の結果を無視し、画像URLとbitmapを解放する。サービス選定・秘密情報・ジョブ形式をUIへ持ち込まない。詳細は[接続口の説明](frontend/docs/furniture-generation-ui.md)を参照する。
+- 個人編集のGLB取り込みは`furniture-glb.js`で外部URI・圧縮・形状や画像の上限を検証してから、遅延読み込みする`furniture-model.js`で読む。寸法はメートル、上方向・正面の補正と配置回転を分け、底面をY=0、XZ中心を原点へ合わせる。材質の色味変更を別家具へ波及させず、共有geometry/textureと複製materialの寿命を分ける。
+- 取込家具を含む個人配置は第3版、従来のプリセット第1版・custom第2版を維持する。GLB本体はIndexedDBの`furniture-asset-storage.js`へ保存し、配置JSONには安定した参照・寸法・向きだけを持つ。図面保存へ混ぜない。取込取消・差し替え・モード切替・アンマウントで遅延結果を適用しない。保存拒否時はその画面の編集を継続し、欠落モデルは外形と案内を表示する。
+- 家具モデルの共有と画像生成API連携は未対応。共有作成・snapshot受信・共同編集中のモデル追加で混入を拒否する。`furniture-model.spec.js`でデスクトップ・モバイル幅の操作と保存、`furniture-model.3d.spec.js`で自作の埋め込み画像付きGLBの実WebGL描画・デスクトップのドラッグ・復元・欠落時を確認する。生成サービスの品質検証とは区別する。
+
 ## 実行・検証
 
 リポジトリルートから次のコマンドを実行できます。Node.jsは20.19以降を使用してください。

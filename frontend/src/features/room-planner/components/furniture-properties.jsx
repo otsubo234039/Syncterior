@@ -17,7 +17,7 @@ export function FurnitureProperties({
         <label>前後位置 (Z)<div className="value-box"><input type="number" step=".1" value={active.z.toFixed(1)} onChange={e => update(active.id, {
             z: Math.max(-plan.d / 2, Math.min(plan.d / 2, Number(e.target.value)))
           })} /><small>m</small></div></label>
-        <label>色<div className="value-box color-box"><input aria-label="家具の色" type="color" value={active.color} onChange={e => update(active.id, {
+        <label>{active.type === 'model' ? '色味（白で元の色）' : '色'}<div className="value-box color-box"><input aria-label="家具の色" type="color" value={active.color} onChange={e => update(active.id, {
             color: e.target.value
           })} /><span>{active.color.toUpperCase()}</span></div></label>
       </fieldset> : <div className="empty-property">カタログから追加するか、画面内の家具を選択してください。</div>}
