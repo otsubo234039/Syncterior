@@ -26,18 +26,20 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
   };
   useEffect(() => {
     const blur = () => finishDrag(true);
+    const visibility = () => { if (document.hidden) finishDrag(true); };
     window.addEventListener('blur', blur);
-    return () => { finishDrag(true); window.removeEventListener('blur', blur); };
+    document.addEventListener('visibilitychange', visibility);
+    return () => { finishDrag(true); window.removeEventListener('blur', blur); document.removeEventListener('visibilitychange', visibility); };
   }, []);
-  const location = event => {
+  const location = (event, clamp = true) => {
     const matrix = drawing.current?.getScreenCTM();
     if (!matrix) return null;
     const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
     if (![point.x, point.y].every(Number.isFinite)) return null;
-    return [Math.max(0, Math.min(draft.w, point.x)), Math.max(0, Math.min(draft.d, point.y))];
+    return clamp ? [Math.max(0, Math.min(draft.w, point.x)), Math.max(0, Math.min(draft.d, point.y))] : [point.x, point.y];
   };
-  const change = (action, continuous = false) => {
-    const before = current.current, next = editFloorPlan(before, action);
+  const change = (action, continuous = false, source = current.current) => {
+    const before = current.current, next = editFloorPlan(source, action);
     if (!next) { setError('交差・重なり・壁や開口の寸法を確認してください。'); return false; }
     setError('');
     if (next !== before) {
@@ -59,7 +61,7 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
     } else setSelected({ wallId: w.id });
   };
   const pickWall = (event, w) => {
-    if (event.button !== 0) return;
+    if (event.button !== 0 || drag.current) return;
     event.stopPropagation();
     if (mode === 'wall') { pickCanvas(event); return; }
     if (mode === 'door' || mode === 'window') {
@@ -70,6 +72,13 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
       return;
     }
     selectWall(w);
+    if (mode === 'select') {
+      const origin = location(event, false);
+      if (!origin) return;
+      drag.current = { node: event.currentTarget, pointerId: event.pointerId, before: current.current,
+        action: { type: 'move-wall', wallId: w.id }, origin, screen: [event.clientX, event.clientY], moved: false };
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
   };
   function pickCanvas(event) {
     if (event.button !== 0) return;
@@ -83,8 +92,8 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
   const handle = (label, p, action) => <g key={label} role="button" aria-label={label} tabIndex={0} className="floor-edit-handle" transform={`translate(${p[0]} ${p[1]})`}
     onFocus={() => { if (action.floorId) setSelected(value => ({ ...value, floorPoint: action.index })); }}
     onPointerDown={event => {
-      if (event.button !== 0) return;
-      event.stopPropagation(); finishDrag();
+      if (event.button !== 0 || drag.current) return;
+      event.stopPropagation();
       if (action.floorId) setSelected(value => ({ ...value, floorPoint: action.index }));
       drag.current = { node: event.currentTarget, pointerId: event.pointerId, before: current.current, action };
       event.currentTarget.setPointerCapture(event.pointerId);
@@ -105,7 +114,7 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
     const data = new FormData(metadata.current);
     return change({ type: 'update-metadata', name: String(data.get('name')).trim(), height: Number(data.get('height')) });
   };
-  const modes = [['select', '選択・頂点を動かす'], ['wall', '壁を追加'], ['erase', '線を消す'], ['door', '扉を追加'], ['window', '窓を追加']];
+  const modes = [['select', '選択・線や頂点を動かす'], ['wall', '壁を追加'], ['erase', '線を消す'], ['door', '扉を追加'], ['window', '窓を追加']];
   return <section className="drawing-editor" aria-label="図面の編集" onKeyDown={event => {
     if (event.key === 'Escape' && (drag.current || pending)) {
       event.preventDefault(); finishDrag(true); setPending(null);
@@ -137,31 +146,44 @@ export function FloorPlanEditor({ plan, image, onApply, onChange, onPreview }) {
       : null}
     <div className="floor-underlay-controls"><label><input type="checkbox" checked={showGrid} onChange={event => setShowGrid(event.target.checked)} />グリッドを表示</label>
       <span>1目盛 {planGridStep(draft)} m・太線 {planGridStep(draft) * 4} m</span></div>
-    <p role="status">{mode === 'wall' ? pending ? '壁の終点を指定してください。' : '壁の始点を指定してください。' : mode === 'door' || mode === 'window' ? pending ? '同じ壁上で開口の終点を指定してください。' : '壁上で開口の始点を指定してください。' : mode === 'erase' ? '消す壁を選択してください。' : '対象を選び、白い点をドラッグ・矢印キーで編集します。'} Escで途中の操作を取り消せます。</p>
+    <p role="status">{mode === 'wall' ? pending ? '壁の終点を指定してください。' : '壁の始点を指定してください。' : mode === 'door' || mode === 'window' ? pending ? '同じ壁上で開口の終点を指定してください。' : '壁上で開口の始点を指定してください。' : mode === 'erase' ? '消す壁を選択してください。' : '壁の線をドラッグすると線全体が動きます。白い点で頂点を動かせます。壁や白い点は矢印キーでも移動できます。'} Escで途中の操作を取り消せます。</p>
     {error && <p role="alert" className="floor-error">{error}</p>}
     <svg ref={drawing} className="floor-edit-drawing" role="group" aria-label="下絵と間取りの編集図" viewBox={`${-draft.w * .02} ${-draft.d * .02} ${draft.w * 1.04} ${draft.d * 1.04}`}
-      onPointerDown={pickCanvas} onPointerMove={event => {
+      onPointerDown={event => { if (!drag.current) pickCanvas(event); }} onPointerMove={event => {
         const active = drag.current;
         if (!active || active.pointerId !== event.pointerId) return;
+        if (active.action.type === 'move-wall') {
+          if (!active.moved && Math.hypot(event.clientX - active.screen[0], event.clientY - active.screen[1]) < 3) return;
+          active.moved = true;
+          const p = location(event, false);
+          if (p) change({ ...active.action, delta: p.map((value, axis) => value - active.origin[axis]) }, true, active.before);
+          return;
+        }
         const p = location(event); if (p) change({ ...active.action, point: p }, true);
-      }} onPointerUp={() => finishDrag()} onPointerCancel={() => finishDrag(true)} onLostPointerCapture={() => { if (drag.current) finishDrag(true); }}>
+      }} onPointerUp={event => { if (drag.current?.pointerId === event.pointerId) finishDrag(); }} onPointerCancel={() => finishDrag(true)} onLostPointerCapture={() => { if (drag.current) finishDrag(true); }}>
       {image && showImage && <image href={image.preview} width={draft.w} height={draft.d} preserveAspectRatio="none" opacity={opacity} pointerEvents="none" />}
       {showGrid && <PlanGrid plan={draft} />}
       {draft.floors.map((f, i) => <polygon key={f.id} role="button" aria-label={`床${i + 1}を選択`} tabIndex={0} points={f.points.map(p => p.join(',')).join(' ')} fill="#4f9985" fillOpacity=".08" stroke={selected?.floorId === f.id ? '#b85320' : '#488e78'} strokeWidth="2" vectorEffect="non-scaling-stroke"
-        onPointerDown={event => { if (mode !== 'select') return; event.stopPropagation(); setSelected({ floorId: f.id }); }}
+        onPointerDown={event => { if (mode !== 'select' || event.button !== 0 || drag.current) return; event.stopPropagation(); setSelected({ floorId: f.id }); }}
         onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelected({ floorId: f.id }); } }} />)}
       {draft.walls.map((w, i) => <g key={w.id}>
         <line x1={w.start[0]} y1={w.start[1]} x2={w.end[0]} y2={w.end[1]} stroke={selected?.wallId === w.id ? '#b85320' : '#317bda'} strokeWidth={draft.wallThickness * (w.thicknessRatio ?? 1)} opacity=".7" pointerEvents="none" />
-        <rect role="button" aria-label={`壁${i + 1}を選択`} tabIndex={0} width={wallLength(w)} height={draft.wallThickness * (w.thicknessRatio ?? 1)} y={-draft.wallThickness * (w.thicknessRatio ?? 1) / 2}
+        <rect role="button" aria-label={`壁${i + 1}を選択`} tabIndex={0} className={mode === 'select' ? 'floor-edit-wall' : undefined} width={wallLength(w)} height={draft.wallThickness * (w.thicknessRatio ?? 1)} y={-draft.wallThickness * (w.thicknessRatio ?? 1) / 2}
           transform={`translate(${w.start.join(' ')}) rotate(${Math.atan2(w.end[1] - w.start[1], w.end[0] - w.start[0]) * 180 / Math.PI})`}
           fill="transparent" stroke="transparent" strokeWidth="16" vectorEffect="non-scaling-stroke" onPointerDown={event => pickWall(event, w)}
-          onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectWall(w); } }} />
+          onKeyDown={event => {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectWall(w); }
+            const delta = { ArrowLeft: [-1,0], ArrowRight: [1,0], ArrowUp: [0,-1], ArrowDown: [0,1] }[event.key];
+            if (mode !== 'select' || !delta || drag.current) return;
+            event.preventDefault(); event.stopPropagation(); setSelected({ wallId: w.id });
+            change({ type: 'move-wall', wallId: w.id, delta: delta.map(value => value * (event.shiftKey ? .1 : .01)) });
+          }} />
         {w.openings.map((o, index) => {
           const a = at(w, o.offset), thickness = draft.wallThickness * (w.thicknessRatio ?? 1);
           return <rect key={o.id} role="button" tabIndex={0} aria-label={`${o.kind === 'door' ? '扉' : '窓'}${index + 1}を選択`} width={o.width} height={thickness} y={-thickness / 2}
             transform={`translate(${a.join(' ')}) rotate(${Math.atan2(w.end[1] - w.start[1], w.end[0] - w.start[0]) * 180 / Math.PI})`}
             fill={o.kind === 'door' ? '#fff' : '#77d8e8'}
-            onPointerDown={event => { if (mode !== 'select') { pickWall(event, w); return; } event.stopPropagation(); setSelected({ wallId: w.id, openingId: o.id }); }}
+            onPointerDown={event => { if (event.button !== 0 || drag.current) return; if (mode !== 'select') { pickWall(event, w); return; } event.stopPropagation(); setSelected({ wallId: w.id, openingId: o.id }); }}
             onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); if (mode === 'erase') selectWall(w); else setSelected({ wallId: w.id, openingId: o.id }); } }} />;
         })}
       </g>)}

@@ -20,6 +20,85 @@ test('壁を追加・端点移動・削除し、元データと他の壁の厚�
   assert.equal(editFloorPlan(initial, { type: 'move-wall-point', wallId: 'wall', side: 'end', point: [8,0] }), initial);
 });
 
+for (const [name, start, end] of [
+  ['水平', [1,1], [6,1]], ['垂直', [1,1], [1,4]], ['斜め', [1,1], [5,4]], ['端点が逆順', [5,4], [1,1]],
+]) test(`${name}の壁全体を移動し、長さ・向き・厚さ・開口と他の形状を維持する`, () => {
+  const initial = plan();
+  initial.walls[0] = { ...initial.walls[0], start, end, openings: [
+    { id: 'door', kind: 'door', offset: .2, width: .8, bottom: 0, height: 2 },
+    { id: 'window', kind: 'window', offset: 1.5, width: 1, bottom: 1, height: 1 },
+  ] };
+  initial.walls.push({ id: 'other', start: end, end: [7,5], openings: [] });
+  const before = structuredClone(initial);
+  const moved = editFloorPlan(initial, { type: 'move-wall', wallId: 'wall', delta: [1,1] });
+  assert.deepEqual(moved.walls[0], { ...before.walls[0], start: start.map(v => v + 1), end: end.map(v => v + 1) });
+  assert.deepEqual(moved.walls[1], before.walls[1]);
+  assert.deepEqual(moved.floors, before.floors);
+  assert.deepEqual(initial, before);
+  assert.deepEqual(editFloorPlan(moved, { type: 'move-wall', wallId: 'wall', delta: [-1,-1] }), initial);
+  assert.equal(editFloorPlan(initial, { type: 'move-wall', wallId: 'wall', delta: [0,0] }), initial);
+});
+
+for (const [name, delta, start, end] of [
+  ['左上', [-100,-100], [0,0], [5,3]],
+  ['右下', [100,100], [3,3], [8,6]],
+  ['左下', [-100,100], [0,3], [5,6]],
+  ['右上', [100,-100], [3,0], [8,3]],
+]) test(`壁全体の移動は${name}の図面境界で止まり、片側だけを縮めない`, () => {
+  const initial = plan(); initial.walls[0].start = [1,1]; initial.walls[0].end = [6,4];
+  const moved = editFloorPlan(initial, { type: 'move-wall', wallId: 'wall', delta });
+  assert.deepEqual(moved.walls[0].start, start);
+  assert.deepEqual(moved.walls[0].end, end);
+  assert.equal(editFloorPlan(moved, { type: 'move-wall', wallId: 'wall', delta }), moved);
+});
+
+test('図面の幅いっぱいの壁は横へずらさず縦方向だけ移動できる', () => {
+  const initial = plan();
+  const moved = editFloorPlan(initial, { type: 'move-wall', wallId: 'wall', delta: [2,3] });
+  assert.deepEqual(moved.walls[0].start, [0,3]); assert.deepEqual(moved.walls[0].end, [8,3]);
+});
+
+test('壁の全長に一致する開口を保ったまま、小数の移動量でも繰り返し移動できる', () => {
+  const initial = plan();
+  initial.walls[0] = { ...initial.walls[0], start: [1,1], end: [2,1], openings: [
+    { id: 'door', kind: 'door', offset: 0, width: 1, bottom: 0, height: 2 },
+  ] };
+  let moved = initial;
+  for (let index = 0; index < 10; index++) {
+    moved = editFloorPlan(moved, { type: 'move-wall', wallId: 'wall', delta: [.01,.01] });
+    assert.ok(moved);
+    assert.deepEqual(moved.walls[0].openings, initial.walls[0].openings);
+  }
+  assert.ok(Math.abs(moved.walls[0].start[0] - 1.1) < 1e-7);
+  const tooWide = structuredClone(initial); tooWide.walls[0].openings[0].width = 1.00001;
+  assert.equal(isFloorPlan(tooWide), false);
+});
+
+test('最小長0.02mの壁は丸め誤差で拒否せず移動でき、短すぎる壁は拒否する', () => {
+  const initial = plan(); initial.walls[0].start = [1,1]; initial.walls[0].end = [1.02,1];
+  const moved = editFloorPlan(initial, { type: 'move-wall', wallId: 'wall', delta: [.99,0] });
+  assert.ok(moved);
+  assert.ok(Math.abs(moved.walls[0].start[0] - 1.99) < 1e-12);
+  assert.ok(Math.abs(moved.walls[0].end[0] - 2.01) < 1e-12);
+  const tooShort = structuredClone(initial); tooShort.walls[0].end = [1.019999999,1];
+  assert.equal(isFloorPlan(tooShort), false);
+});
+
+for (const [name, delta] of [
+  ['未指定', undefined], ['null', null], ['配列以外', 1], ['空配列', []], ['要素不足', [1]],
+  ['要素過多', [1,2,3]], ['文字列', ['1',2]], ['NaN', [NaN,0]], ['正の無限大', [0,Infinity]], ['負の無限大', [-Infinity,0]],
+]) {
+  test(`壁全体の移動量が${name}なら元データを変えず拒否する`, () => {
+    const initial = plan(), before = structuredClone(initial);
+    assert.equal(editFloorPlan(initial, { type: 'move-wall', wallId: 'wall', delta }), null);
+    assert.deepEqual(initial, before);
+  });
+}
+
+test('削除済みの壁全体を移動せず拒否する', () => {
+  assert.equal(editFloorPlan(plan(), { type: 'move-wall', wallId: 'deleted', delta: [1,1] }), null);
+});
+
 test('床の頂点を移動・追加・削除し、自己交差・範囲外・3頂点未満を拒否する', () => {
   const initial = plan();
   const moved = editFloorPlan(initial, { type: 'move-floor-point', floorId: 'floor', index: 2, point: [5,4] });

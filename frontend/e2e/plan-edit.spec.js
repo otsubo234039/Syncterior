@@ -16,7 +16,7 @@ test('下絵を固定表示して壁を調整し、図面保存と3D配置への
   const wallCount = await editDrawing(page).getByRole('button', { name: /^壁\d+を選択$/ }).count();
   await page.getByRole('button', { name: '壁を追加', exact: true }).click();
   await pickEditPoint(page, [2,3]); await pickEditPoint(page, [6,3]);
-  await page.getByRole('button', { name: '選択・頂点を動かす', exact: true }).click();
+  await page.getByRole('button', { name: '選択・線や頂点を動かす', exact: true }).click();
   await page.getByRole('button', { name: `壁${wallCount + 1}を選択`, exact: true }).focus(); await page.keyboard.press('Enter');
   const endpoint = page.getByRole('button', { name: '壁の終点', exact: true });
   const point = await endpoint.evaluate(node => node.getAttribute('transform').slice(10, -1).split(/\s+/).map(Number));
@@ -44,7 +44,7 @@ test('壁と開口を2点で追加し、取消・元に戻す・やり直すを�
   await pickEditPoint(page, [2,3]); await pickEditPoint(page, [6,3]);
   await page.getByRole('button', { name: '扉を追加', exact: true }).click();
   await pickEditPoint(page, [3,3]); await pickEditPoint(page, [4,3]);
-  await page.getByRole('button', { name: '選択・頂点を動かす', exact: true }).click();
+  await page.getByRole('button', { name: '選択・線や頂点を動かす', exact: true }).click();
   await expect(page.getByRole('button', { name: '扉1を選択', exact: true })).toBeVisible();
   await page.getByRole('button', { name: '元に戻す', exact: true }).click();
   await expect(page.getByRole('button', { name: '扉1を選択', exact: true })).toHaveCount(0);
@@ -112,7 +112,7 @@ test('窓の開口を追加・端点編集・削除・復元し、位置と高�
   await page.getByRole('button', { name: '図面モード', exact: true }).click();
   await page.getByRole('button', { name: '窓を追加', exact: true }).click();
   await pickEditPoint(page, [2,1]); await pickEditPoint(page, [3,1]);
-  await page.getByRole('button', { name: '選択・頂点を動かす', exact: true }).click();
+  await page.getByRole('button', { name: '選択・線や頂点を動かす', exact: true }).click();
   await page.getByRole('button', { name: '窓1を選択', exact: true }).click();
   await page.getByRole('button', { name: '開口の始点', exact: true }).focus(); await page.keyboard.press('ArrowRight');
   await page.getByRole('button', { name: '選択した開口を削除', exact: true }).click();
