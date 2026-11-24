@@ -26,6 +26,15 @@ export function editFloorPlan(plan, action) {
       if (!wall || !['start', 'end'].includes(action.side)) return null;
       next = replaceWall({ ...wall, [action.side]: action.point });
       break;
+    case 'move-wall': {
+      if (!wall || !Array.isArray(action.delta) || action.delta.length !== 2 || !action.delta.every(Number.isFinite)) return null;
+      // 両端に同じ移動量を適用し、図面の端でも壁の長さ・向きを維持する。
+      const delta = action.delta.map((value, axis) => Math.max(-Math.min(wall.start[axis], wall.end[axis]),
+        Math.min((axis === 0 ? plan.w : plan.d) - Math.max(wall.start[axis], wall.end[axis]), value)));
+      const translate = point => point.map((value, axis) => value + delta[axis]);
+      next = replaceWall({ ...wall, start: translate(wall.start), end: translate(wall.end) });
+      break;
+    }
     case 'remove-wall':
       if (!wall) return null;
       next = { ...plan, walls: plan.walls.filter(w => w !== wall) };

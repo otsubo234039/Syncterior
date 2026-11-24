@@ -58,7 +58,7 @@
 | ID | 監査時の文言 | 表示条件・場所 | 判断 | 理由・整理案 | 出典 |
 | --- | --- | --- | --- | --- | --- |
 | T031 | この変更は適用できません。床の交差、壁の長さ、開口の重なりやはみ出しを確認してください。 | 対応する操作の失敗時だけ | **短縮済み** | 必要なエラーだが、今回失敗した対象の原因だけに絞ると対処しやすい。 | [floor-plan-editor.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/floor-plan-editor.jsx:41) |
-| T032 | 選択・頂点を動かす | 図面モード（選択・ツール・下絵の有無に応じて切替） | **残す** | 操作名・入力項目・状態の識別に必要。 | [floor-plan-editor.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/floor-plan-editor.jsx:107) |
+| T032 | 選択・線や頂点を動かす | 図面モード（選択・ツール・下絵の有無に応じて切替） | **残す** | 操作名・入力項目・状態の識別に必要。 | [floor-plan-editor.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/floor-plan-editor.jsx:117) |
 | T033 | 壁を追加 | 図面モード（選択・ツール・下絵の有無に応じて切替） | **残す** | 操作名・入力項目・状態の識別に必要。 | [floor-plan-editor.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/floor-plan-editor.jsx:107) |
 | T034 | 線を消す | 図面モード（選択・ツール・下絵の有無に応じて切替） | **残す** | 操作名・入力項目・状態の識別に必要。 | [floor-plan-editor.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/floor-plan-editor.jsx:107) |
 | T035 | 扉を追加 | 図面モード（選択・ツール・下絵の有無に応じて切替） | **残す** | 操作名・入力項目・状態の識別に必要。 | [floor-plan-editor.jsx](/workspaces/Syncterior/frontend/src/features/room-planner/components/floor-plan-editor.jsx:107) |

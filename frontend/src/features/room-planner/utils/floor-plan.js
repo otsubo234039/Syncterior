@@ -52,15 +52,18 @@ export function isFloorPlan(plan) {
   const unique = id => validId(id) && !ids.has(id) && Boolean(ids.add(id));
   if (!plan.floors.every(floor => fields(floor, ['id', 'kind', 'points']) && unique(floor.id) && ['room', 'balcony'].includes(floor.kind)
     && isSimplePolygon(floor.points) && floor.points.every(point))) return false;
+  // 座標の加減算で生じる誤差だけを許容し、最小長の壁も平行移動できるようにする。
+  const coordinateEpsilon = Number.EPSILON * Math.max(plan.w, plan.d);
   return plan.walls.every(wall => {
     if (!fields(wall, ['id', 'start', 'end', 'openings', 'thicknessRatio']) || !unique(wall.id) || !point(wall.start) || !point(wall.end)
       || (wall.thicknessRatio !== undefined && !finite(wall.thicknessRatio, .1, 8))
-      || wallLength(wall) < .02 || !Array.isArray(wall.openings) || wall.openings.length > 20) return false;
+      || wallLength(wall) < .02 - coordinateEpsilon || !Array.isArray(wall.openings) || wall.openings.length > 20) return false;
     const length = wallLength(wall);
     let edge = 0;
+    // 両端の平行移動で生じる丸め誤差は、壁全長に一致する開口にも許容する。
     return [...wall.openings].sort((a, b) => a?.offset - b?.offset).every(opening => {
       if (!fields(opening, ['id', 'kind', 'offset', 'width', 'bottom', 'height']) || !unique(opening.id) || !['door', 'window'].includes(opening.kind)
-        || !finite(opening.offset, 0, length) || !finite(opening.width, .1, length)
+        || !finite(opening.offset, 0, length) || !finite(opening.width, .1, length + EPSILON)
         || !finite(opening.bottom, 0, plan.h) || !finite(opening.height, .1, plan.h)
         || opening.offset + opening.width > length + EPSILON
         || opening.bottom + opening.height > plan.h + EPSILON || opening.offset < edge - EPSILON
