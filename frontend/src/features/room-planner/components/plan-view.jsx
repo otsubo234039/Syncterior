@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { PlanGrid } from './plan-grid';
 
 // SVGのY軸をワールドのZ軸に合わせる。Three.jsのY回転は図面では逆向き。
-export function PlanView({ planKey, plan, items, selected, setSelected, moveItem, editable }) {
+export function PlanView({ planKey, plan, items, selected, setSelected, moveItem, editable, showGrid = true }) {
   const svg = useRef(null);
   const drag = useRef(null);
   const stop = () => {
@@ -29,7 +29,7 @@ export function PlanView({ planKey, plan, items, selected, setSelected, moveItem
       const p = point(event);
       if (p) moveItem(active.id, p.x + active.dx, p.y + active.dz);
     }}>
-    <PlanGrid plan={plan} x={-plan.w / 2} y={-plan.d / 2} />
+    {showGrid && <PlanGrid plan={plan} x={-plan.w / 2} y={-plan.d / 2} />}
     {planKey === 'custom' ? <>
       {plan.floors.map(floor => <polygon key={floor.id} points={floor.points.map(([x, z]) => `${x - plan.w / 2},${z - plan.d / 2}`).join(' ')} fill={floor.kind === 'balcony' ? '#f1efe7' : '#fff'} fillOpacity=".2" stroke="#bbc2bc" strokeWidth=".02" />)}
       {plan.walls.map(wall => {

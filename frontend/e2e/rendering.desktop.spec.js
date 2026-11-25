@@ -1,7 +1,63 @@
 import { openLayout } from './fixtures/workspace.js';
-import { test, expect } from './fixtures/test.js';
+import { test, expect, waitForSceneToSettle } from './fixtures/test.js';
 
 test.use({ sceneMode: 'full' });
+
+test('マス目表示を切り替えると実WebGLの床グリッドが消える', async ({ page }) => {
+  await openLayout(page, '/');
+  const canvas = page.locator('canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  await waitForSceneToSettle(page);
+  const before = await canvas.screenshot();
+  await page.getByRole('button', { name: 'マス目表示', exact: true }).click();
+  await waitForSceneToSettle(page);
+  const after = await canvas.screenshot();
+  expect(before.equals(after), 'マス目を消すとキャンバスの画像が変化する').toBe(false);
+});
+
+test('床と壁の画像テクスチャを選択すると対応する実画像へ切り替わる', async ({ page }) => {
+  await openLayout(page, '/');
+  const canvas = page.locator('canvas');
+  await canvas.scrollIntoViewIfNeeded();
+  await waitForSceneToSettle(page);
+  const before = await canvas.screenshot();
+  await page.getByRole('combobox', { name: '床', exact: true }).selectOption('oak');
+  await waitForSceneToSettle(page);
+  const after = await canvas.screenshot();
+  expect(before.equals(after), '床テクスチャ選択後にキャンバスの画像が変化する').toBe(false);
+  await page.getByRole('combobox', { name: '床', exact: true }).selectOption('natural');
+  await waitForSceneToSettle(page);
+  const natural = await canvas.screenshot();
+  expect(after.equals(natural), 'ナチュラルウッド選択後にキャンバスの画像が変化する').toBe(false);
+  await page.getByRole('combobox', { name: '床', exact: true }).selectOption('dark');
+  await waitForSceneToSettle(page);
+  const dark = await canvas.screenshot();
+  expect(natural.equals(dark), 'ダークウッド選択後にキャンバスの画像が変化する').toBe(false);
+  await page.getByRole('combobox', { name: '床', exact: true }).selectOption('tatami');
+  await waitForSceneToSettle(page);
+  const tatami = await canvas.screenshot();
+  expect(dark.equals(tatami), '畳選択後にキャンバスの画像が変化する').toBe(false);
+  await page.getByRole('combobox', { name: '床', exact: true }).selectOption('whiteTile');
+  await waitForSceneToSettle(page);
+  const whiteTile = await canvas.screenshot();
+  expect(tatami.equals(whiteTile), '白タイル選択後にキャンバスの画像が変化する').toBe(false);
+  await page.getByRole('combobox', { name: '床', exact: true }).selectOption('concrete');
+  await waitForSceneToSettle(page);
+  const concreteFloor = await canvas.screenshot();
+  expect(whiteTile.equals(concreteFloor), 'コンクリート床選択後にキャンバスの画像が変化する').toBe(false);
+  await page.getByRole('combobox', { name: '壁', exact: true }).selectOption('darkWood');
+  await waitForSceneToSettle(page);
+  const darkWoodWall = await canvas.screenshot();
+  expect(concreteFloor.equals(darkWoodWall), 'ダークウッド壁紙選択後にキャンバスの画像が変化する').toBe(false);
+  await page.getByRole('combobox', { name: '壁', exact: true }).selectOption('concrete');
+  await waitForSceneToSettle(page);
+  const concreteWall = await canvas.screenshot();
+  expect(darkWoodWall.equals(concreteWall), 'コンクリート壁紙選択後にキャンバスの画像が変化する').toBe(false);
+  await page.getByRole('combobox', { name: '床', exact: true }).selectOption('carpet');
+  await waitForSceneToSettle(page);
+  const carpetFloor = await canvas.screenshot();
+  expect(concreteWall.equals(carpetFloor), 'カーペット選択後にキャンバスの画像が変化する').toBe(false);
+});
 
 test('静止中は描画を止め、家具と視点の変更時に3D表示を更新する', async ({ page }) => {
   await openLayout(page, '/');

@@ -1,4 +1,4 @@
-import { openLayout } from './fixtures/workspace.js';
+import { openLayout, reloadLayout } from './fixtures/workspace.js';
 import { test, expect } from './fixtures/test.js';
 
 const furnitureCount = page => page.locator('.room-metrics > div').filter({ hasText: '家具数' }).locator('strong');
@@ -21,6 +21,49 @@ test('初期配置・間取り切り替え・寸法表示・モバイル幅の�
   await dimensions.click();
   await expect(page.locator('.dimension-tag')).toHaveCount(2);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test('マス目表示を寸法表示の横のボタンでオン・オフできる', async ({ page }) => {
+  await openLayout(page, '/');
+  const grid = page.getByRole('button', { name: 'マス目表示', exact: true });
+  await expect(grid).toHaveAttribute('aria-pressed', 'true');
+  await grid.click();
+  await expect(grid).toHaveAttribute('aria-pressed', 'false');
+  await grid.click();
+  await expect(grid).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('床・壁のテクスチャを個人保存して再読み込み時に復元する', async ({ page }) => {
+  await openLayout(page, '/');
+  await expect(page.getByRole('group', { name: '床・壁のテクスチャ' })).toBeVisible();
+  await expect(page.getByRole('combobox', { name: '床', exact: true }).locator('option[value="oak"]')).toHaveText('ホワイトウッド');
+  await expect(page.getByRole('combobox', { name: '床', exact: true }).locator('option[value="natural"]')).toHaveText('ナチュラルウッド');
+  await expect(page.getByRole('combobox', { name: '床', exact: true }).locator('option[value="dark"]')).toHaveText('ダークウッド');
+  await expect(page.getByRole('combobox', { name: '床', exact: true }).locator('option[value="tatami"]')).toHaveText('畳');
+  await expect(page.getByRole('combobox', { name: '床', exact: true }).locator('option[value="whiteTile"]')).toHaveText('白タイル');
+  await expect(page.getByRole('combobox', { name: '床', exact: true }).locator('option[value="concrete"]')).toHaveText('コンクリート');
+  await expect(page.getByRole('combobox', { name: '床', exact: true }).locator('option[value="carpet"]')).toHaveText('カーペット');
+  await expect(page.getByRole('combobox', { name: '床', exact: true }).locator('option[value="wood"]')).toHaveCount(0);
+  await expect(page.getByRole('combobox', { name: '床', exact: true }).locator('option[value="stone"]')).toHaveCount(0);
+  const wallSelector = page.getByRole('combobox', { name: '壁', exact: true });
+  for (const [value, name] of [
+    ['white', 'ホワイト'],
+    ['beige', 'ベージュ'],
+    ['gray', 'グレー'],
+    ['whiteWood', 'ホワイトウッド'],
+    ['naturalWood', 'ナチュラルウッド'],
+    ['darkWood', 'ダークウッド'],
+    ['concrete', 'コンクリート'],
+  ]) await expect(wallSelector.locator(`option[value="${value}"]`)).toHaveText(name);
+  await expect(wallSelector.locator('option[value="sage"]')).toHaveCount(0);
+  await page.getByRole('combobox', { name: '床', exact: true }).selectOption('carpet');
+  await wallSelector.selectOption('concrete');
+  await expect(page.getByRole('region', { name: '個人配置の保存' })).toContainText('テクスチャ');
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('syncterior.personal-room')));
+  expect(saved.surfaces).toEqual({ floor: 'carpet', wall: 'concrete' });
+  await reloadLayout(page);
+  await expect(page.getByRole('combobox', { name: '床', exact: true })).toHaveValue('carpet');
+  await expect(wallSelector).toHaveValue('concrete');
 });
 
 test('家具を追加し、選択した家具の編集・回転・削除ができる', async ({ page }) => {

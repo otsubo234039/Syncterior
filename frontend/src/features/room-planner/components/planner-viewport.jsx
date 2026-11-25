@@ -7,12 +7,12 @@ import { FirstPersonControls } from './first-person-controls';
 import { CameraPanControls } from './camera-pan-controls';
 import { MOUSE } from 'three';
 
-export default function PlannerViewport({ preset, pan, planKey, plan, items, selected, setSelected, moveItem, editable, walking, world, walkStart, onExitWalking }) {
+export default function PlannerViewport({ preset, pan, planKey, plan, items, selected, setSelected, moveItem, editable, walking, world, walkStart, onExitWalking, surfaces, showGrid }) {
   return (<Canvas frameloop="demand" shadows camera={{
       position: [8, 7, 9],
       fov: 42
     }} onPointerMissed={() => { if (!walking) setSelected(null); }}>
-      <color attach="background" args={['#f1f0eb']} /><ambientLight intensity={1.4} /><directionalLight position={[5, 9, 4]} intensity={2.2} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} /><group><Room plan={plan} planKey={planKey} items={items} selected={selected} setSelected={walking ? ignoreSelection : setSelected} moveItem={moveItem} editable={editable && !walking} /></group><FramePlan preset={preset} planKey={planKey} plan={plan} active={!walking} /><OrbitControls enableDamping={false} enabled={!walking} makeDefault target={[0, .5, 0]} minDistance={5} maxDistance={16} maxPolarAngle={Math.PI * .49} screenSpacePanning={false} mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN }} /><CameraPanControls request={pan} active={!walking} />{walking && <FirstPersonControls world={world} start={walkStart} onExit={onExitWalking} />}<Environment preset="apartment" />
+      <color attach="background" args={['#f1f0eb']} /><ambientLight intensity={1.4} /><directionalLight position={[5, 9, 4]} intensity={2.2} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} /><group><Room plan={plan} planKey={planKey} items={items} selected={selected} setSelected={walking ? ignoreSelection : setSelected} moveItem={moveItem} editable={editable && !walking} surfaces={surfaces} showGrid={showGrid} /></group><FramePlan preset={preset} planKey={planKey} plan={plan} active={!walking} /><OrbitControls enableDamping={false} enabled={!walking} makeDefault target={[0, .5, 0]} minDistance={5} maxDistance={16} maxPolarAngle={Math.PI * .49} screenSpacePanning={false} mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN }} /><CameraPanControls request={pan} active={!walking} />{walking && <FirstPersonControls world={world} start={walkStart} onExit={onExitWalking} />}<Environment preset="apartment" />
     </Canvas>
   );
 }

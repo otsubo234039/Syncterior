@@ -9,6 +9,7 @@ import { roomApi } from '../api/room-api';
 import { createLocalRoomStorage } from '../utils/local-room-storage';
 import { CUSTOM_PLAN_KEY, isFloorPlan, polygonArea } from '../utils/floor-plan';
 import { createDrawingStorage, newDrawing, newDrawingId, legacyDrawingId } from '../utils/drawing-document';
+import { defaultSurfaces, isSurfaceSettings } from '../data/surfaces';
 
 export function useRoomPlanner() {
   const [local] = useState(() => {
@@ -21,13 +22,15 @@ export function useRoomPlanner() {
     error: local.restored.error,
     message: local.restored.room ? '保存した個人配置を復元しました。' : 'このブラウザに自動保存',
   }));
+  const [surfaces, setSurfaces] = useState(() => local.restored.surfaces ?? defaultSurfaces);
+  const surfacesRef = useRef(surfaces);
   const sceneDrawingId = useRef(local.restored.drawingId
     ?? (local.restored.room?.customPlan ? legacyDrawingId(local.restored.room.customPlan) : undefined));
   const [session] = useState(() => createRoomSession({
     api: roomApi,
     initialRoom: local.restored.room ?? { planKey: 'studio', items: initialFurniture('studio') },
     roomId: local.roomId,
-    onLocalChange: room => setLocalSave({ ...local.storage.save(room, sceneDrawingId.current), message: '個人配置をこのブラウザに保存しました。' }),
+    onLocalChange: room => setLocalSave({ ...local.storage.save(room, sceneDrawingId.current, surfacesRef.current), message: '個人配置をこのブラウザに保存しました。' }),
     onRoomChange: id => window.history.replaceState(null, '', roomLink(window.location.href, id)),
   }));
   const collaboration = useSyncExternalStore(session.subscribe, session.getSnapshot);
@@ -48,6 +51,7 @@ export function useRoomPlanner() {
   const drawingDirty = drawing.drawingId !== savedDrawingId || JSON.stringify(drawing.plan) !== JSON.stringify(savedDrawing);
   const [selected, setSelected] = useState(null);
   const [showSizes, setShowSizes] = useState(true);
+  const [showGrid, setShowGrid] = useState(true);
   const { planKey, items } = collaboration.room;
   const editable = ['local', 'connected'].includes(collaboration.status) && !collaboration.changingPlan;
   const customPlan = planKey === CUSTOM_PLAN_KEY ? collaboration.room.customPlan : null;
@@ -98,6 +102,18 @@ export function useRoomPlanner() {
     session.leave();
     setLocalSave({ error: '', message: '共同編集から退出しました。' });
   };
+  const changeSurface = (kind, preset) => {
+    if (collaboration.status !== 'local') return false;
+    const next = { ...surfacesRef.current, [kind]: preset };
+    if (!isSurfaceSettings(next)) return false;
+    surfacesRef.current = next;
+    setSurfaces(next);
+    setLocalSave({
+      ...local.storage.save(collaboration.room, sceneDrawingId.current, next),
+      message: '床・壁のテクスチャを個人配置に保存しました。',
+    });
+    return true;
+  };
   const importFloorPlan = (value, preserveItems = false) => {
     if (collaboration.status !== 'local' || !isFloorPlan(value)) return false;
     const nextItems = preserveItems && customPlan ? items : [];
@@ -142,9 +158,10 @@ export function useRoomPlanner() {
   };
 
   return {
-    planKey, plan, items, selected, active, showSizes, editable,
+    planKey, plan, items, selected, active, showSizes, showGrid, editable, surfaces, changeSurface,
     changePlan, addItem, update, moveItem, rotate, setSelected, removeSelected,
     toggleSizes: () => setShowSizes(value => !value),
+    toggleGrid: () => setShowGrid(value => !value),
     collaboration, shareRoom: session.share, reconnect: session.reconnect, leaveRoom,
     localSave, clearLocalSave,
     customPlan, importFloorPlan, placementError,

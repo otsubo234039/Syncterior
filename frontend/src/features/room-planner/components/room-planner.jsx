@@ -20,7 +20,8 @@ export function RoomPlanner() {
     </nav>
     {drawingMode ? <DrawingWorkspace planner={planner} /> : <>
     <PlannerSidebar planKey={planKey} changePlan={changePlan} addItem={addItem}
-      editable={editable} canAdd={items.length < 200} custom={Boolean(planner.customPlan)} />
+      editable={editable} canAdd={items.length < 200} custom={Boolean(planner.customPlan)}
+      surfaces={planner.surfaces} changeSurface={planner.changeSurface} />
     <section className="workspace">
       <RoomSharing collaboration={collaboration} shareRoom={shareRoom} shareUrl={shareUrl}
         reconnect={reconnect} leaveRoom={leaveRoom} custom={Boolean(planner.customPlan)} />

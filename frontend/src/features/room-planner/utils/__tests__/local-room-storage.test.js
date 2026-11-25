@@ -58,6 +58,44 @@ test('間取り・位置・回転・色・家具IDをバージョン付きで保
   assert.equal(layout.items[0].color, '#123456');
 });
 
+test('床・壁のテクスチャ設定を個人保存へ含め、不正な設定は拒否する', () => {
+  const { local, data } = setup();
+  const layout = room();
+  const surfaces = { floor: 'oak', wall: 'gray' };
+  assert.equal(local.save(layout, undefined, surfaces).error, '');
+  assert.deepEqual(JSON.parse(data.get(LOCAL_ROOM_KEY)).surfaces, surfaces);
+  assert.deepEqual(local.load().surfaces, surfaces);
+  const before = data.get(LOCAL_ROOM_KEY);
+  assert.notEqual(local.save(layout, undefined, { floor: 'unknown', wall: 'gray' }).error, '');
+  assert.equal(data.get(LOCAL_ROOM_KEY), before);
+  data.set(LOCAL_ROOM_KEY, JSON.stringify({ version: 1, room: layout, surfaces: { floor: 'wood', wall: 'unknown' } }));
+  assert.notEqual(local.load().room, layout);
+});
+
+test('削除した床素材を含む個人配置を保持し、後継素材へ移行する', () => {
+  for (const [legacy, replacement] of [['wood', 'natural'], ['stone', 'concrete']]) {
+    const layout = room();
+    const raw = JSON.stringify({ version: 1, room: layout, surfaces: { floor: legacy, wall: 'white' } });
+    const { local } = setup(raw);
+    const restored = local.load();
+    assert.deepEqual(restored.room, layout);
+    assert.deepEqual(restored.surfaces, { floor: replacement, wall: 'white' });
+    assert.equal(restored.error, '');
+  }
+});
+
+test('削除した壁紙はグレーへ移行し、コンクリート壁紙はそのまま復元する', () => {
+  for (const [legacy, expected] of [['sage', 'gray'], ['concrete', 'concrete']]) {
+    const layout = room();
+    const raw = JSON.stringify({ version: 1, room: layout, surfaces: { floor: 'natural', wall: legacy } });
+    const { local } = setup(raw);
+    const restored = local.load();
+    assert.deepEqual(restored.room, layout);
+    assert.deepEqual(restored.surfaces, { floor: 'natural', wall: expected });
+    assert.equal(restored.error, '');
+  }
+});
+
 test('家具がない配置と上限200点の配置を復元できる', () => {
   for (const count of [0, 200]) {
     const { local } = setup();

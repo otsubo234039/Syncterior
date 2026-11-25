@@ -3,6 +3,7 @@ import { isRoomLayout } from './room-state.js';
 import { constrainFurnitureToRoom } from './furniture-bounds.js';
 import { CUSTOM_PLAN_KEY } from './floor-plan.js';
 import { isDrawingId } from './drawing-document.js';
+import { isSurfaceSettings, migrateSurfaceSettings } from '../data/surfaces.js';
 
 export const LOCAL_ROOM_KEY = 'syncterior.personal-room';
 const MAX_LENGTH = 1_000_000;
@@ -26,15 +27,17 @@ export function createLocalRoomStorage(getStorage = () => globalThis.localStorag
         if (raw === null) return { room: null, error: '' };
         if (raw.length > MAX_LENGTH) throw new Error('Invalid size');
         const value = JSON.parse(raw);
-        if (!value || value.version !== (value.room?.planKey === CUSTOM_PLAN_KEY ? 2 : 1) || !Object.keys(value).every(key => ['version', 'room', 'drawingId'].includes(key))
+        if (!value || value.version !== (value.room?.planKey === CUSTOM_PLAN_KEY ? 2 : 1) || !Object.keys(value).every(key => ['version', 'room', 'drawingId', 'surfaces'].includes(key))
           || (value.drawingId !== undefined && (value.room?.planKey !== CUSTOM_PLAN_KEY || !isDrawingId(value.drawingId)))
+          || (value.surfaces !== undefined && !isSurfaceSettings(migrateSurfaceSettings(value.surfaces)))
           || !validLayout(value.room)) throw new Error('Invalid layout');
-        return { room: value.room, error: '', ...(value.drawingId !== undefined ? { drawingId: value.drawingId } : {}) };
+        return { room: value.room, error: '', ...(value.drawingId !== undefined ? { drawingId: value.drawingId } : {}),
+          ...(value.surfaces !== undefined ? { surfaces: migrateSurfaceSettings(value.surfaces) } : {}) };
       } catch {
         return { room: null, error: '保存した個人配置を読み込めませんでした。初期配置で編集を続けられます。' };
       }
     },
-    save(room, drawingId) {
+    save(room, drawingId, surfaces) {
       try {
         // 部屋ID・revision・未確定操作・視点・選択状態は保存しない。
         const layout = { planKey: room.planKey, items: room.items.map(item =>
@@ -42,8 +45,10 @@ export function createLocalRoomStorage(getStorage = () => globalThis.localStorag
           ...(room.planKey === CUSTOM_PLAN_KEY ? { customPlan: room.customPlan } : {}) };
         if (!validLayout(layout)) throw new Error('Invalid layout');
         if (drawingId !== undefined && !isDrawingId(drawingId)) throw new Error('Invalid drawing ID');
+        if (surfaces !== undefined && !isSurfaceSettings(surfaces)) throw new Error('Invalid surfaces');
         const raw = JSON.stringify({ version: room.planKey === CUSTOM_PLAN_KEY ? 2 : 1, room: layout,
-          ...(room.planKey === CUSTOM_PLAN_KEY && drawingId !== undefined ? { drawingId } : {}) });
+          ...(room.planKey === CUSTOM_PLAN_KEY && drawingId !== undefined ? { drawingId } : {}),
+          ...(surfaces !== undefined ? { surfaces } : {}) });
         if (raw.length > MAX_LENGTH) throw new Error('Invalid size');
         getStorage().setItem(LOCAL_ROOM_KEY, raw);
         return { error: '' };

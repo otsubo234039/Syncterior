@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/dev-all.mjs",
+    "dev:frontend": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "test": "npm run test:unit",
