@@ -50,7 +50,6 @@ export function RoomPlanner({ generateFurnitureModel = null }) {
           </div>
         </div>
         {collaboration.status === 'local' && <p className="drawing-layout-entry"><button className="sharing-text-button" onClick={() => planner.setWorkspaceMode('drawing')}>図面の編集へ</button></p>}
-        {planner.placementError && <p role="alert">{planner.placementError}</p>}
         <PlannerCanvas {...planner} />
         <div className="workspace-bottom">
           <div className="hint">{planner.customPlan ? null : editable ? '家具をクリックして選択、ドラッグして配置を調整' : '接続が戻るまで配置の編集を一時停止しています'}</div>

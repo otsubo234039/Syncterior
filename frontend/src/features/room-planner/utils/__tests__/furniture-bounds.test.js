@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { constrainFurnitureToRoom } from '../furniture-bounds.js';
+import { constrainFurnitureToRoom, findFurniturePositionInRoom } from '../furniture-bounds.js';
+import { furnitureRectanglesOverlap } from '../floor-plan-furniture.js';
 import { applyRoomOperation, projectRoom } from '../room-state.js';
 import { plans } from '../../data/plans.js';
 import { catalog } from '../../data/catalog.js';
@@ -107,4 +108,31 @@ test('部屋の寸法が欠落・非有限・非正なら境界補正を行わ�
   for (const plan of [undefined, {}, { w: NaN, d: 4 }, { w: 5, d: Infinity }, { w: 0, d: 4 }, { w: 5, d: -1 }]) {
     assert.equal(constrainFurnitureToRoom(bed(), plan), null);
   }
+});
+
+test('家具同士の移動・回転・追加は重なりを拒否する', () => {
+  const first = bed();
+  const second = { ...bed(), id: 'bed-2', x: 1, z: 0 };
+  const original = { ...room(first), items: [first, second] };
+
+  assert.equal(applyRoomOperation(original, { type: 'update', id: first.id, patch: { x: 1 } }).items[0].x, 0);
+  assert.equal(applyRoomOperation(original, { type: 'rotate', id: first.id }).items[0].rot, 0);
+  assert.equal(applyRoomOperation(original, { type: 'add', item: { ...bed(), id: 'bed-3', x: 0, z: 0 } }).items.length, 2);
+  assert.equal(original.items[0], first);
+});
+
+test('通常の間取りでも追加時は既存家具を避けて空き位置を探す', () => {
+  const first = bed();
+  const position = findFurniturePositionInRoom({ ...bed(), id: 'bed-2' }, plans.studio, [first]);
+  assert.ok(position);
+  assert.notEqual(position.x, 0);
+  assert.equal(constrainFurnitureToRoom(position, plans.studio)?.x, position.x);
+});
+
+test('境界に接する家具は重なりとせず、わずかでも重なると重なりと判定する', () => {
+  const first = { ...bed(), w: 2, d: 2, x: 0, z: 0 };
+  const touching = { ...bed(), id: 'bed-2', w: 2, d: 2, x: 2, z: 0 };
+  const overlapping = { ...bed(), id: 'bed-3', w: 2, d: 2, x: 1.99, z: 0 };
+  assert.equal(furnitureRectanglesOverlap(first, touching), false);
+  assert.equal(furnitureRectanglesOverlap(first, overlapping), true);
 });

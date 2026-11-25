@@ -46,6 +46,15 @@ function overlaps(a,b) {
     return Math.min(...pa)<Math.max(...pb)-EPS && Math.min(...pb)<Math.max(...pa)-EPS;
   });
 }
+export function furnitureRectanglesOverlap(a, b) {
+  if (a.id && b.id && a.id === b.id) return false;
+  if (!['x','z','w','d','rot'].every(key => Number.isFinite(a[key]) && Number.isFinite(b[key]))
+    || a.w <= 0 || a.d <= 0 || b.w <= 0 || b.d <= 0) return false;
+  return overlaps(
+    corners(a.x,a.z,a.w,a.d,a.rot),
+    corners(b.x,b.z,b.w,b.d,b.rot),
+  );
+}
 export function fitsFloorPlan(item,plan, pieces) {
   if (!['x','z','w','d','h','rot'].every(key=>Number.isFinite(item[key]))
     || item.w<=0 || item.d<=0 || item.h<=0) return false;
@@ -59,14 +68,16 @@ export function fitsFloorPlan(item,plan, pieces) {
 }
 
 // 追加時だけ空き位置を探す。移動・回転時に別の部屋へ飛ばす補正には使わない。
-export function findFurniturePosition(item,plan) {
+export function findFurniturePosition(item,plan,occupied=[]) {
   const pieces=plan.walls.flatMap(wall=>wallPieces(wall,plan));
-  if (fitsFloorPlan(item,plan,pieces)) return item;
+  if (fitsFloorPlan(item,plan,pieces)
+    && !occupied.some(other=>furnitureRectanglesOverlap(item,other))) return item;
   const step=Math.max(.1,Math.max(plan.w,plan.d)/100);
   for (let z=-plan.d/2+item.d/2;z<=plan.d/2-item.d/2;z+=step) {
     for (let x=-plan.w/2+item.w/2;x<=plan.w/2-item.w/2;x+=step) {
       const candidate={...item,x,z};
-      if (fitsFloorPlan(candidate,plan,pieces)) return candidate;
+      if (fitsFloorPlan(candidate,plan,pieces)
+        && !occupied.some(other=>furnitureRectanglesOverlap(candidate,other))) return candidate;
     }
   }
   return null;

@@ -23,6 +23,14 @@ test('取込間取りへ床と壁に収まる家具を追加し、移動・回�
   assert.equal(applyRoomOperation(next,{type:'remove',id:'desk'}).items.length,0);
   assert.equal(value.items.length,0);
 });
+test('取込間取りでも家具同士の移動・回転・追加で重なりを拒否する',()=>{
+  const first=furniture({x:-2,z:0});
+  const second=furniture({id:'desk-2',x:-1.5,z:0});
+  const value={...room(),items:[first,second]};
+  assert.equal(applyRoomOperation(value,{type:'update',id:'desk',patch:{x:-1}}).items[0],first);
+  assert.equal(applyRoomOperation(value,{type:'rotate',id:'desk'}).items[0],first);
+  assert.equal(applyRoomOperation(value,{type:'add',item:furniture({id:'desk-3',x:-2,z:0})}).items.length,2);
+});
 test('壁への移動と回転を拒否し、元の位置と向きを維持する', () => {
   const value=room();
   assert.equal(applyRoomOperation(value,{type:'update',id:'desk',patch:{x:0}}).items[0],value.items[0]);

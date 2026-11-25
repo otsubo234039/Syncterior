@@ -47,7 +47,7 @@ test('custom配置の元図面IDをモデル外に保存し、従来形式とプ
 test('間取り・位置・回転・色・家具IDをバージョン付きで保存し、独立した配置として復元する', () => {
   const { local, data } = setup();
   const layout = room();
-  layout.items[0] = { ...layout.items[0], x: -1, z: .3, rot: Math.PI / 2, color: '#123456' };
+  layout.items[0] = { ...layout.items[0], x: -2, z: -.5, rot: Math.PI / 2, color: '#123456' };
   assert.equal(local.save(layout).error, '');
   assert.equal(JSON.parse(data.get(LOCAL_ROOM_KEY)).version, 1);
   const restored = local.load();
@@ -62,7 +62,14 @@ test('家具がない配置と上限200点の配置を復元できる', () => {
   for (const count of [0, 200]) {
     const { local } = setup();
     const layout = room();
-    layout.items = Array.from({ length: count }, (_, i) => ({ ...layout.items[0], id: `item-${i}` }));
+    layout.items = Array.from({ length: count }, (_, i) => ({
+      ...layout.items[0],
+      id: `item-${i}`,
+      w: .05,
+      d: .05,
+      x: -2.5 + (i % 20) * .25,
+      z: -1.9 + Math.floor(i / 20) * .25,
+    }));
     assert.equal(local.save(layout).error, '');
     assert.deepEqual(local.load().room, layout);
   }

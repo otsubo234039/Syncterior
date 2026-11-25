@@ -6,7 +6,7 @@ import { roomLink, sharedRoomId } from '../room-link.js';
 
 const roomId = 'a'.repeat(32);
 const item = { id: 'sofa1', type: 'sofa', name: 'ソファ', w: 1.6, d: .82, h: .78, color: '#9eab9a', x: 0, z: 0, rot: 0 };
-const initialRoom = () => ({ planKey: 'studio', items: [{ ...item }, { ...item, id: 'sofa2' }] });
+const initialRoom = () => ({ planKey: 'studio', items: [{ ...item }, { ...item, id: 'sofa2', x: -1.8 }] });
 const snapshot = (patch = {}) => ({ ...initialRoom(), id: roomId, revision: 0, planVersion: 0, appliedOperationIds: [], ...patch });
 const tick = () => new Promise(resolve => setImmediate(resolve));
 function deferred() {
@@ -102,7 +102,7 @@ test('同時に受信した変更に未確定の家具操作を重ね、古い�
   const c = setup({ shared: true });
   await connected(c);
   c.session.dispatch({ type: 'update', id: 'sofa1', patch: { x: 1 } });
-  const remote = snapshot({ revision: 1, items: [{ ...item }, { ...item, id: 'sofa2', color: '#123456' }] });
+  const remote = snapshot({ revision: 1, items: [{ ...item }, { ...item, id: 'sofa2', x: -1.8, color: '#123456' }] });
   c.handlers().state(remote);
   assert.equal(c.session.getSnapshot().room.items[0].x, 1);
   assert.equal(c.session.getSnapshot().room.items[1].color, '#123456');

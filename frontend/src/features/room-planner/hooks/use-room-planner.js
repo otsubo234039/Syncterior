@@ -9,7 +9,7 @@ import { roomApi } from '../api/room-api';
 import { createLocalRoomStorage } from '../utils/local-room-storage';
 import { CUSTOM_PLAN_KEY, isFloorPlan, polygonArea } from '../utils/floor-plan';
 import { createDrawingStorage, newDrawing, newDrawingId, legacyDrawingId } from '../utils/drawing-document';
-import { constrainFurnitureToRoom } from '../utils/furniture-bounds';
+import { constrainFurnitureToRoom, findFurniturePositionInRoom } from '../utils/furniture-bounds';
 import { modelDimensionsValid } from '../utils/imported-furniture';
 import { MAX_MODEL_BYTES } from '../utils/furniture-glb';
 import { saveFurnitureAsset } from '../utils/furniture-asset-storage';
@@ -124,9 +124,11 @@ export function useRoomPlanner({ generateFurnitureModel = null } = {}) {
     const error = !initial.name || initial.name.length > 80 ? '家具の名前を1〜80文字で入力してください。'
       : !modelDimensionsValid(initial) ? '幅・奥行き・高さを0.02〜20mで入力してください。' : '';
     if (error) { setFurnitureImport(previous => ({ ...previous, error })); return; }
-    const item = customPlan ? findFurniturePosition(initial, customPlan) : constrainFurnitureToRoom(initial, plan);
+    const item = customPlan
+      ? findFurniturePosition(initial, customPlan, items)
+      : findFurniturePositionInRoom(initial, plan, items);
     if (!item || items.length >= 200) {
-      setFurnitureImport(previous => ({ ...previous, error: items.length >= 200 ? '家具は200点まで配置できます。' : 'この家具が床と壁に収まる位置が見つかりませんでした。' }));
+      setFurnitureImport(previous => ({ ...previous, error: items.length >= 200 ? '家具は200点まで配置できます。' : '家具を配置できません。家具同士や壁に重ならない位置を選んでください。' }));
       return;
     }
     modelImportSaving.current = true;
@@ -171,15 +173,46 @@ export function useRoomPlanner({ generateFurnitureModel = null } = {}) {
   const addItem = catalogItem => {
     if (items.length >= 200) return;
     const initial = { ...catalogItem, id: uid(), x: 0, z: 0, rot: 0 };
-    const item = customPlan ? findFurniturePosition(initial, customPlan) : initial;
-    setPlacementError(item ? '' : 'この家具が床と壁に収まる位置が見つかりませんでした。');
+    const item = customPlan
+      ? findFurniturePosition(initial, customPlan, items)
+      : findFurniturePositionInRoom(initial, plan, items);
+    setPlacementError(item ? '' : '家具を配置できません。家具同士や壁に重ならない位置を選んでください。');
     if (!item) return;
     if (session.dispatch({ type: 'add', item })) setSelected(item.id);
   };
-  const update = (id, patch) => session.dispatch({ type: 'update', id, patch });
-  const moveItem = (id, x, z) => session.dispatch({ type: 'update', id, patch: { x, z },
-    ...(customPlan ? { slideAlongWalls: true } : {}) });
-  const rotate = () => active && session.dispatch({ type: 'rotate', id: active.id });
+  const update = (id, patch) => {
+    const before = session.getSnapshot().room.items.find(item => item.id === id);
+    const accepted = session.dispatch({ type: 'update', id, patch });
+    const after = session.getSnapshot().room.items.find(item => item.id === id);
+    if (accepted && before && after && Object.keys(patch).some(key => ['x', 'z'].includes(key))
+      && before.x === after.x && before.z === after.z) {
+      setPlacementError('家具が重なるため移動できません。重ならない位置へ動かしてください。');
+    } else {
+      setPlacementError('');
+    }
+  };
+  const moveItem = (id, x, z) => {
+    const before = session.getSnapshot().room.items.find(item => item.id === id);
+    session.dispatch({ type: 'update', id, patch: { x, z },
+      ...(customPlan ? { slideAlongWalls: true } : {}) });
+    const after = session.getSnapshot().room.items.find(item => item.id === id);
+    if (before && after && before.x === after.x && before.z === after.z) {
+      setPlacementError('家具が重なるため移動できません。重ならない位置へ動かしてください。');
+    } else {
+      setPlacementError('');
+    }
+  };
+  const rotate = () => {
+    if (!active) return;
+    const before = session.getSnapshot().room.items.find(item => item.id === active.id);
+    session.dispatch({ type: 'rotate', id: active.id });
+    const after = session.getSnapshot().room.items.find(item => item.id === active.id);
+    if (before && after && before.rot === after.rot) {
+      setPlacementError('家具が重なるため回転できません。重ならない位置へ動かしてください。');
+    } else {
+      setPlacementError('');
+    }
+  };
   const removeSelected = () => {
     if (selected && session.dispatch({ type: 'remove', id: selected })) setSelected(null);
   };
