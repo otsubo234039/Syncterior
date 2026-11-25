@@ -27,7 +27,7 @@ for (const planKey of Object.keys(plans)) {
 
 test('元のスナップショットを保持して家具を追加・削除し、IDの重複追加を防ぐ', () => {
   const original = room();
-  const added = applyRoomOperation(original, { type: 'add', item: { ...item(), id: 'sofa-2' } });
+  const added = applyRoomOperation(original, { type: 'add', item: { ...item(), id: 'sofa-2', x: 1.8 } });
   assert.equal(added.items.length, 2);
   assert.equal(original.items.length, 1);
   assert.equal(applyRoomOperation(added, { type: 'add', item: item() }), added);
@@ -37,7 +37,7 @@ test('元のスナップショットを保持して家具を追加・削除し�
 });
 
 test('指定した家具の対象項目だけを更新し、他のプロパティを保持する', () => {
-  const original = { ...room(), items: [item(), { ...item(), id: 'sofa-2' }] };
+  const original = { ...room(), items: [item(), { ...item(), id: 'sofa-2', x: -1.8 }] };
   const updated = applyRoomOperation(original, { type: 'update', id: 'sofa-1', patch: { x: .5, color: '#123456' } });
   assert.equal(updated.items[0].x, .5);
   assert.equal(updated.items[0].color, '#123456');
@@ -89,7 +89,10 @@ test('負の座標・家具のない部屋・家具200点を有効なスナッ�
   assert.equal(isRoomSnapshot(room()), true);
   assert.equal(isRoomSnapshot({ ...room(), items: [{ ...item(), x: -1, z: -.5 }] }), true);
   assert.equal(isRoomSnapshot({ ...room(), items: [] }), true);
-  assert.equal(isRoomSnapshot({ ...room(), items: Array.from({ length: 200 }, (_, id) => ({ ...item(), id: `item-${id}` })) }), true);
+  assert.equal(isRoomSnapshot({ ...room(), items: Array.from({ length: 200 }, (_, id) => ({
+    ...item(), id: `item-${id}`, w: .05, d: .05,
+    x: -2.5 + (id % 20) * .25, z: -1.9 + Math.floor(id / 20) * .25,
+  })) }), true);
 });
 
 const invalidSnapshots = [

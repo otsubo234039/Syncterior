@@ -2,6 +2,7 @@ import { plans } from '../data/plans.js';
 import { constrainFurnitureToRoom } from './furniture-bounds.js';
 import { CUSTOM_PLAN_KEY, isFloorPlan } from './floor-plan.js';
 import { hasImportedFurniture, isModelReference, modelDimensionsValid } from './imported-furniture.js';
+import { furnitureRectanglesOverlap } from './floor-plan-furniture.js';
 
 export function applyRoomOperation(room, operation) {
   switch (operation.type) {
@@ -16,6 +17,8 @@ export function applyRoomOperation(room, operation) {
     }
     case 'add':
       if (room.planKey === CUSTOM_PLAN_KEY && !isRoomLayout({ ...room, items: [...room.items, operation.item] })) return room;
+      if (room.items.some(item => furnitureRectanglesOverlap(item, operation.item))) return room;
+      if (!isRoomLayout({ ...room, items: [...room.items, operation.item] })) return room;
       return room.items.some(item => item.id === operation.item.id)
         ? room : { ...room, items: [...room.items, operation.item] };
     case 'remove':
@@ -31,7 +34,8 @@ export function applyRoomOperation(room, operation) {
             : { ...item, ...operation.patch };
           const slide = room.planKey === CUSTOM_PLAN_KEY && operation.type === 'update'
             && operation.slideAlongWalls === true && Object.keys(operation.patch).every(key => ['x', 'z'].includes(key));
-          return constrainFurnitureToRoom(next, room.planKey === CUSTOM_PLAN_KEY ? room.customPlan : plans[room.planKey], slide ? item : undefined) ?? item;
+          const bounded = constrainFurnitureToRoom(next, room.planKey === CUSTOM_PLAN_KEY ? room.customPlan : plans[room.planKey], slide ? item : undefined) ?? item;
+          return room.items.some(other => other.id !== item.id && furnitureRectanglesOverlap(bounded, other)) ? item : bounded;
         }),
       };
     default:
@@ -47,7 +51,7 @@ export function projectRoom(snapshot, pending) {
 }
 
 export function isRoomLayout(value) {
-  return Boolean(value && (Object.hasOwn(plans, value.planKey)
+  const layoutValid = Boolean(value && (Object.hasOwn(plans, value.planKey)
     || (value.planKey === CUSTOM_PLAN_KEY && isFloorPlan(value.customPlan)))
     && Array.isArray(value.items) && value.items.length <= 200
     && new Set(value.items.map(item => item?.id)).size === value.items.length
@@ -64,6 +68,9 @@ export function isRoomLayout(value) {
         const bounded = constrainFurnitureToRoom(item, value.customPlan);
         return bounded && Math.abs(bounded.x-item.x)<1e-9 && Math.abs(bounded.z-item.z)<1e-9;
       })())));
+  if (!layoutValid) return false;
+  return value.items.every((item, index) =>
+    value.items.slice(index + 1).every(other => !furnitureRectanglesOverlap(item, other)));
 }
 
 export function isRoomSnapshot(value) {
